@@ -9,6 +9,6 @@ d1_jurisdiction = "eu"
 domain = "migueljfsc.dev"
 
 # Add coutada.migueljfsc.dev in Resend, then paste its `resend._domainkey` value.
-resend_dkim_public_key = ""
+resend_dkim_public_key = "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDVnxccWRApHmXTUXsZAeokvi2VeNz46y2z8jtTYwpwSjpHboYVZtawpzZOebFZ1pA2W/OHq/kp0iakMW40VAHutZlPIaa8e6wi3jPh+HeWU8BMTI2YfG4J8SNae9yebkJDZgf7SXzmptjX65wrNz5Xsd4Ab2Kmsbms4Rm8atZU7QIDAQAB"
 
 turnstile_extra_domains = []

@@ -22,7 +22,8 @@ resource "cloudflare_dns_record" "resend_dkim" {
   ttl     = 1
 }
 
-# Resend's bounce and SPF domain. A CNAME cannot share its name with any other record.
+# Resend's bounce and SPF domains, global and regional. A CNAME cannot share its name with any
+# other record.
 resource "cloudflare_dns_record" "resend_send" {
   count = local.has_mail ? 1 : 0
 
@@ -30,6 +31,17 @@ resource "cloudflare_dns_record" "resend_send" {
   name    = "send.${local.app_fqdn}"
   type    = "CNAME"
   content = var.resend_send_target
+  proxied = false
+  ttl     = 1
+}
+
+resource "cloudflare_dns_record" "resend_rsend" {
+  count = local.has_mail ? 1 : 0
+
+  zone_id = data.cloudflare_zone.this[0].zone_id
+  name    = "rsend.${local.app_fqdn}"
+  type    = "CNAME"
+  content = var.resend_rsend_target
   proxied = false
   ttl     = 1
 }

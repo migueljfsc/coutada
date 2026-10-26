@@ -69,6 +69,12 @@ variable "resend_send_target" {
   description = "Where Resend's `send.` record points, as its dashboard lists it for the domain."
 }
 
+variable "resend_rsend_target" {
+  type        = string
+  default     = "rsend-euw1.forge.rmta.net"
+  description = "Where Resend's regional `rsend.` record points, as its dashboard lists it for the domain."
+}
+
 ###################### TURNSTILE ######################
 
 variable "turnstile_extra_domains" {
