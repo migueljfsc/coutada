@@ -23,7 +23,7 @@
     {
       "binding": "DB",
       "database_name": "coutada-prod",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "b130d589-35ab-491a-b33e-a37beeccd4f5",
       "migrations_dir": "./worker/migrations"
     }
   ],
