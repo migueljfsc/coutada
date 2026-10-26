@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.7.0 (2026-10-26)
+
+### Feat
+
+- **nav**: go to a pin and follow a route
+
 ## v0.6.1 (2026-10-26)
 
 ### Fix
