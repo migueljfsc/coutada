@@ -289,17 +289,13 @@ tiles of one property for its own use is what panning over it does. If a source 
 redistribution licence is added, a PMTiles pack in R2 becomes possible (D1) — the cache seam is the
 same.
 
-- **Area:** the map's bounding box plus 500 m, zooms 10–18 (OrtoSat's 30 cm is native around z18;
-  z19 overzooms). z18 is about three quarters of the requests; "até z17" is offered as the light
-  option.
-- **Size:** OrtoSat answers ~65 KB per 512 px JPEG at Salvaterra (measured, z16–18). Per source:
-
-  | property | requests to z18 | download | to z17 |
-  |---|---|---|---|
-  | 500 ha | ~275 | ~18 MB | ~5 MB |
-  | 1,000 ha | ~450 | ~29 MB | ~8 MB |
-  | 2,000 ha | ~720 | ~47 MB | ~13 MB |
-  | 5,000 ha | ~1,640 | ~107 MB | ~28 MB |
+- **Area:** everything drawn plus 500 m, tile zooms 9–17 (512 px tiles). DGT sources stop at tile
+  zoom 17 (~0.46 m per pixel against OrtoSat's 0.3 m): a deeper level is the server upsampling at
+  four times the data, and offline it would leave the deepest zoom without a tile; MapLibre zooms
+  past it on the last level. "Mais leve" stops at 16, about a quarter of the requests.
+- **Size:** OrtoSat answers 50–90 KB per 512 px JPEG close in, less for the region-wide levels;
+  estimated at 65 KB a tile. A 1,000 ha property is a few hundred tiles, tens of megabytes; a test
+  area of a few hectares measured 65 tiles, 3.8 MB against an estimate of 4.1 MB.
 
 - **Once per phone.** Imagery does not change, so a pack never expires; it is downloaded again only
   when asked. Inside a pack the map spends no data, online or not. The dialog recommends Wi-Fi and,
@@ -311,7 +307,8 @@ same.
   `navigator.storage.persist()` is requested.
 - **Esri is online-only.** Its tiles go through the browser's HTTP cache like any page, never into
   the prefetch.
-- **Politeness:** 4 requests in flight, retries with backoff, resumable.
+- **Politeness:** 4 requests in flight, three retries with backoff; a tile already in the pack is
+  not fetched again, so a cancelled or partial download resumes.
 - **Drawings offline:** the map being worked on is the browser's draft, with its server version;
   offline it opens and edits as usual, and the edits are sent when a connection returns. A live hunt
   needs signal; GPS, the map, navigation and the user's own trail do not.

@@ -34,6 +34,7 @@ import { useMapDocument } from "../sync/useMapDocument";
 import { ImageryPicker } from "../components/ImageryPicker";
 import { MapPanel, type PanelActions } from "../components/MapPanel";
 import { Notice } from "../components/Notice";
+import { OfflineDialog } from "../components/OfflineDialog";
 import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
 import { noticeButton, noticeQuiet } from "../components/ui";
@@ -59,6 +60,7 @@ type DialogState =
   | { kind: "share" }
   | { kind: "deleteAccount" }
   | { kind: "deleteDevice" }
+  | { kind: "offline" }
   | null;
 
 export function MapScreen({ mapId }: { mapId: string | null }) {
@@ -230,6 +232,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
       }),
     deleteAccount: () => setDialog({ kind: "deleteAccount" }),
     deleteDevice: () => setDialog({ kind: "deleteDevice" }),
+    offline: () => setDialog({ kind: "offline" }),
   };
 
   const afterErase = async () => {
@@ -407,6 +410,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         />
       )}
       {dialog?.kind === "transfer" && <TransferDialog onClose={() => setDialog(null)} />}
+      {dialog?.kind === "offline" && <OfflineDialog doc={doc} imagery={imagery} onClose={() => setDialog(null)} />}
       {dialog?.kind === "share" && remote && (
         <ShareDialog mapId={remote.id} slug={shareSlug} onSlug={setShareSlug} onClose={() => setDialog(null)} />
       )}

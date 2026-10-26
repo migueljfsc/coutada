@@ -13,7 +13,7 @@ deployed at something you can open on a phone in the field.
 |---|---|
 | P0 | Shipped (v0.1.0) |
 | P1 | Shipped: map document and geometry; the map screen, imagery and the GPS dot with heading; drawing and editing; accounts, anonymous devices, transfer and claim; maps saved with conflict handling; view links |
-| P2 | Navigation shipped: go to a pin, follow a route with the off-route warning, on the editor and on shared links. Offline app and area download next |
+| P2 | Shipped: go to a pin, follow a route with the off-route warning; the app opens offline and keeps imagery seen; the area download with estimate, progress and removal; installable, with the iOS hint |
 | P3–P4 | Not started |
 
 ## Phases

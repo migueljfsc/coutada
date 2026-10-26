@@ -27,6 +27,8 @@ import { Sheet } from "../components/Sheet";
 import { primaryButton } from "../components/ui";
 import { FeatureHeader, NavigateButton } from "../components/editor/FeatureEditor";
 import { FeatureList } from "../components/editor/FeatureList";
+import { OfflineSection } from "../components/MapPanel";
+import { OfflineDialog } from "../components/OfflineDialog";
 
 const PANEL_PX = 392;
 
@@ -49,6 +51,7 @@ export function SharedScreen({ slug }: { slug: string }) {
   const [picker, setPicker] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [peek, setPeek] = useState(96);
+  const [offline, setOffline] = useState(false);
   const follow = useFollow();
   const wide = useMedia("(min-width: 48rem)");
   const [initialView] = useState<View>({ center: [-8.1, 39.6], zoom: 6 });
@@ -114,6 +117,7 @@ export function SharedScreen({ slug }: { slug: string }) {
   ) : doc ? (
     <div className="flex flex-col gap-6">
       <FeatureList doc={doc} onChoose={(id) => setSelected(id)} />
+      <OfflineSection onDownload={() => setOffline(true)} />
       <p className="border-l-4 border-person pl-3 text-[15px] leading-snug">{t("safety.notice")}</p>
       <a href="/" className={primaryButton}>
         {t("shared.openApp")}
@@ -169,6 +173,7 @@ export function SharedScreen({ slug }: { slug: string }) {
       <Sheet open={sheetOpen && body !== null} onOpenChange={setSheetOpen} onPeekHeight={setPeek} peek={peekContent}>
         {body}
       </Sheet>
+      {offline && doc && <OfflineDialog doc={doc} imagery={imagery} onClose={() => setOffline(false)} />}
     </main>
   );
 }

@@ -4,13 +4,14 @@
  */
 
 import { useEffect, useState } from "react";
-import { CloudOff, Link2, Plus, Save } from "lucide-react";
+import { CloudDownload, CloudOff, Link2, Plus, Save, Smartphone } from "lucide-react";
 import { hasIdentity, useAccount } from "../account/context";
 import { isFeatureName } from "../doc/schema";
 import type { FeatureId, MapDoc } from "../doc/types";
 import { useI18n } from "../i18n/context";
 import { LOCALES } from "../i18n/core";
 import type { Fix } from "../map/me";
+import { useInstall } from "../lib/useInstall";
 import { api, type MapSummary } from "../share/api";
 import { mapPath, navigate } from "../share/routes";
 import type { SyncStatus } from "../sync/useMapDocument";
@@ -29,6 +30,7 @@ export type PanelActions = {
   signOut: () => void;
   deleteAccount: () => void;
   deleteDevice: () => void;
+  offline: () => void;
 };
 
 type Props = {
@@ -144,6 +146,8 @@ export function MapPanel({ doc, mapId, status, fix, actions }: Props) {
         </dl>
       )}
 
+      <OfflineSection onDownload={actions.offline} />
+
       <AccountSection actions={actions} />
 
       <div role="group" aria-label={t("app.locale")} className="inline-flex self-start rounded-xl bg-cal-deep p-1">
@@ -162,6 +166,27 @@ export function MapPanel({ doc, mapId, status, fix, actions }: Props) {
 
       <p className="border-l-4 border-person pl-3 text-[15px] leading-snug">{t("safety.notice")}</p>
     </div>
+  );
+}
+
+export function OfflineSection({ onDownload }: { onDownload: () => void }) {
+  const { t } = useI18n();
+  const { installed, install, iosHint } = useInstall();
+  return (
+    <section className="flex flex-col gap-2">
+      <h3 className="text-[15px] font-semibold">{t("offline.section")}</h3>
+      <button type="button" onClick={onDownload} className={secondaryButton}>
+        <CloudDownload size={18} />
+        {t("offline.open")}
+      </button>
+      {!installed && install && (
+        <button type="button" onClick={() => void install()} className={secondaryButton}>
+          <Smartphone size={18} />
+          {t("install.app")}
+        </button>
+      )}
+      {iosHint && <p className="text-[14px] leading-snug text-xisto-soft">{t("install.iosHint")}</p>}
+    </section>
   );
 }
 

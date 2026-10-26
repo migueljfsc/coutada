@@ -24,14 +24,14 @@ export const IMAGERY: Readonly<Partial<Record<ImageryId, Imagery>>> = {
     id: "ortosat2023",
     url: dgtWms("https://ortos.dgterritorio.gov.pt/wms/ortosat2023", "ortoSat2023-CorVerdadeira"),
     tileSize: 512,
-    maxzoom: 18,
+    maxzoom: 17,
     attribution: "© DGT — OrtoSat 2023",
   },
   ortos2021: {
     id: "ortos2021",
     url: dgtWms("https://cartografia.dgterritorio.gov.pt/wms/ortos2021", "Ortos2021-RGB"),
     tileSize: 512,
-    maxzoom: 18,
+    maxzoom: 17,
     attribution: "© DGT — Ortofotos 2021",
   },
 };
