@@ -46,8 +46,10 @@ commit.
 ## D5 — Anonymous use is first-class: a device token
 Anyone can draw a map, host a hunt or join one without an account.
 
-- **A device is a 256-bit random token** in an HttpOnly, Secure, SameSite=Lax cookie `ct_device`;
-  D1 stores its SHA-256 (`devices.id`), never the token — the same shape as a session.
+- **A device is an identity with a username**; each browser holding it has a 256-bit token in an
+  HttpOnly, Secure, SameSite=Lax cookie `ct_device`, stored as its SHA-256 in `device_tokens` —
+  the same shape as a session. One device, one token per browser, so a transfer can give a second
+  browser a credential of its own.
 - **A device is created on its first server write** (saving a map, hosting, joining), not on page
   load, through `POST /api/device` with a username and a Turnstile token. Browsing creates nothing.
 - **The username** is 1–24 characters, NFC, trimmed, no control characters. It is a display name,
@@ -60,12 +62,12 @@ Anyone can draw a map, host a hunt or join one without an account.
 - **Moving to another browser:** `POST /api/device/transfer` mints a single-use code, valid 10
   minutes, shown as text and as a QR of `/transfer?c=<code>`; redeeming it on the other browser sets
   the same device cookie there. On iOS a home-screen PWA has its own cookie jar, separate from
-  Safari's, so this is how an anonymous map follows the user into the installed app. The code is
-  stored as a digest, like every bearer value here.
+  Safari's, so this is how an anonymous map follows the user into the installed app. Redeeming
+  mints that browser its own token; the code is stored as a digest, like every bearer value here.
 
 ## D6 — Claiming anonymous data is an offer, not a side effect of signing in
-When a request carries both a session and a device cookie, `/api/me` reports what the device owns
-(`claimable: { maps, trails }`). The client offers once per sign-in to move it into the account
+`/api/me` answers everybody with `{ user, device, claimable }`, never a 401. When a request
+carries both a session and a device cookie, `claimable` says what the device owns. The client offers once per sign-in to move it into the account
 (pb-D30's adoption pattern). `POST /api/me/claim` moves maps and trails in one D1 batch — refused
 whole if it would exceed the account's caps — then deletes the device row and clears the cookie.
 Declining leaves the device as it was; it expires on its own clock.

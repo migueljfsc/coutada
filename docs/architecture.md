@@ -115,7 +115,8 @@ email_tokens (id PK = sha256(token), purpose CHECK IN ('verify','reset'), email,
               password_hash NULL, created_at, expires_at)
 
 -- Anonymous identity (D5)
-devices      (id PK = sha256(token), username, created_at, last_seen_at)
+devices      (id PK, username, created_at, last_seen_at)
+device_tokens (id PK = sha256(token), device_id → devices CASCADE, created_at)
 device_transfers (id PK = sha256(code), device_id → devices CASCADE, expires_at)
 
 -- Maps (D7, D8)
@@ -299,7 +300,7 @@ size-capped and zod-validated.
 
 | Routes | |
 |---|---|
-| `GET/DELETE /api/me`, `POST /api/me/claim`, `POST /api/auth/logout` | session; erasure; claim (D6, D22) |
+| `GET/DELETE /api/me`, `POST /api/me/claim`, `POST /api/auth/logout` | who you are (200 for everybody); erasure; claim (D6, D22) |
 | `POST /api/auth/{register,verify,login,reset/request,reset}`, `GET /api/auth/google/{start,callback}` | pitchboard's (D4) |
 | `POST/PATCH/DELETE /api/device`, `POST /api/device/transfer`, `POST /api/device/transfer/redeem` | anonymous identity (D5) |
 | `GET/POST /api/maps`, `GET/PUT/PATCH/DELETE /api/maps/:id` | maps; PUT carries `version` (D8) |
@@ -309,8 +310,8 @@ size-capped and zod-validated.
 | `POST /api/usage`, `GET /api/admin/…` | phase 4 (pb-D119, pb-D108) |
 
 Rate limiters (`ratelimits` in wrangler.jsonc, per location, 10 or 60 s periods): `AUTH_LIMIT`
-(10/60 s), `JOIN_LIMIT` (5/60 s per address), `WRITE_LIMIT` (device creation, hunt creation,
-transfers: 10/60 s per address). Daily cron: expired sessions, email tokens, device transfers,
+(10/60 s per address and per email), `WRITE_LIMIT` (device creation, transfers: 10/60 s),
+`MAP_LIMIT` (map writes: 60/60 s per principal), `JOIN_LIMIT` (P3, 5/60 s per address). Daily cron: expired sessions, email tokens, device transfers,
 expired devices with what they own, hunts past `expires_at` whose object did not clean up.
 
 ## 11. Security

@@ -12,7 +12,7 @@ deployed at something you can open on a phone in the field.
 | Phase | State |
 |---|---|
 | P0 | Shipped (v0.1.0) |
-| P1 | Slices 1–3 shipped: map document and geometry; the map screen, imagery and the GPS dot; drawing and editing, kept in the browser |
+| P1 | Slices 1–4 shipped: map document and geometry; the map screen, imagery and the GPS dot; drawing and editing; the server — accounts, devices, transfer and claim, maps and view links. Slice 5, the account screens, is next |
 | P2–P4 | Not started |
 
 ## Phases

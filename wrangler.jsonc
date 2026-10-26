@@ -18,6 +18,21 @@
   "routes": [{ "pattern": "coutada.migueljfsc.dev", "custom_domain": true }],
   "workers_dev": false,
 
+  "vars": {
+    "MAIL_FROM": "Coutada <noreply@coutada.migueljfsc.dev>"
+  },
+
+  // The daily sweep of expired sessions, links, transfer codes and unused devices (worker/lib/cleanup.ts).
+  "triggers": { "crons": ["23 4 * * *"] },
+
+  // Per Cloudflare location, eventually consistent; the period is 10 or 60 seconds.
+  // namespace_id is any integer unique within the account.
+  "ratelimits": [
+    { "name": "AUTH_LIMIT", "namespace_id": "2001", "simple": { "limit": 10, "period": 60 } },
+    { "name": "WRITE_LIMIT", "namespace_id": "2002", "simple": { "limit": 10, "period": 60 } },
+    { "name": "MAP_LIMIT", "namespace_id": "2003", "simple": { "limit": 60, "period": 60 } }
+  ],
+
   // database_id comes from `tofu output d1_database_id` after the stack's first apply.
   "d1_databases": [
     {

@@ -1,6 +1,6 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import { cloudflareTest } from "@cloudflare/vitest-plugin";
+import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-plugin";
 import path from "node:path";
 import type { Plugin } from "vite";
 import { headersFile, SECURITY_HEADERS } from "./worker/lib/headers.ts";
@@ -35,10 +35,25 @@ export default defineConfig(() => ({
         },
       },
       {
-        plugins: [cloudflareTest({ wrangler: { configPath: "./wrangler.jsonc" } })],
+        plugins: [
+          cloudflareTest(async () => ({
+            wrangler: { configPath: "./wrangler.jsonc" },
+            miniflare: {
+              bindings: {
+                TEST_MIGRATIONS: await readD1Migrations(path.resolve(import.meta.dirname, "worker/migrations")),
+                PASSWORD_PEPPER: "test-pepper",
+                TURNSTILE_SECRET_KEY: "test-turnstile",
+                RESEND_API_KEY: "test-resend",
+                GOOGLE_CLIENT_ID: "test-client",
+                GOOGLE_CLIENT_SECRET: "test-secret",
+              },
+            },
+          })),
+        ],
         test: {
           name: "worker",
           include: ["worker/**/*.test.ts"],
+          setupFiles: ["./worker/test/apply-migrations.ts"],
         },
       },
     ],

@@ -71,8 +71,12 @@ local dry run — CI owns the deploy.
   `SECURITY_HEADERS`.
 - **`Permissions-Policy` allows geolocation and the wake lock for `self`.** Pitchboard's turns
   geolocation off; copying that header back breaks the GPS dot silently.
-- **Auth bodies must be `application/json`** — a `text/plain` form POST is the login CSRF
-  (pb-D109).
+- **Every body is read with `readJson`** — JSON by content type, size-capped. A `text/plain` POST is
+  how a cross-site form would act on the session or device cookie (pb-D109).
+- **Ownership is a WHERE clause** (`ownerColumn`), never a check after reading; a cap is in the
+  INSERT itself, never a count before it.
+- **Worker tests share one D1 per file.** Give each test its own address, email and username, or a
+  rate limiter or a UNIQUE index fails the next test.
 - **Never mix a bare `?` with `?N` in one statement** — SQLite binds the wrong value, silently.
 - **A new table that stores anything about a person joins `deleteAccount`'s list** (D22); a new
   table with an expiry joins the daily sweep.
