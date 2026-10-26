@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.4.1 (2026-10-26)
+
+### Fix
+
+- **map**: draw the glyphs on pin badges
+
 ## v0.4.0 (2026-10-26)
 
 ### Feat
