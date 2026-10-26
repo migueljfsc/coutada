@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.6.0 (2026-10-26)
+
+### Feat
+
+- **account**: save maps, sign in, share links and move between devices
+
 ## v0.5.1 (2026-10-26)
 
 ### Fix
