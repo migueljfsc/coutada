@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.10.0 (2026-10-26)
+
+### Feat
+
+- **hunt**: live hunts on the server
+
 ## v0.9.0 (2026-10-26)
 
 ### Feat
