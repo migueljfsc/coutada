@@ -63,5 +63,9 @@ export async function sendMail(env: Env, to: string, mail: { subject: string; te
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
     body: JSON.stringify({ from: env.MAIL_FROM, to: [to], ...mail }),
   });
-  if (!response.ok) throw new Error(`mail_failed_${response.status}`);
+  if (!response.ok) {
+    // Resend's own explanation, such as an unverified domain; it names no recipient.
+    const reason = ((await response.json().catch(() => null)) as { message?: string } | null)?.message ?? "";
+    throw new Error(`mail_failed_${response.status} ${reason}`.trim());
+  }
 }
