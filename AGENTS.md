@@ -92,11 +92,24 @@ local dry run — CI owns the deploy.
   an effect it renders nothing, the SVG is empty and fails to decode, and every badge is blank.
 - **A drag swallows the click that follows its release, and only that one** — the flag is cleared
   on the next tick, or the first tap after a drag (the first corner of an area) is lost.
+- **The drawing syncs on `style.load`, never `load`** — `load` waits for the imagery's first tiles,
+  which DGT can take fifteen seconds to send, and the person's own map would wait with them.
+  `onReady` hands the map over at creation, so the camera can frame before any tile arrives.
 - **Orange is for people.** `PERSON` marks you and other hunters; no drawing colour may be orange.
 - **`src/doc` and `src/geo` use relative imports** — the Worker imports the schema, and its bundler
   does not know the `@/` alias.
 - **The write tool turns `\uXXXX` escapes into raw characters.** Write regex ranges with `\xXX`
   or check the bytes; ESLint's `no-irregular-whitespace` catches a raw NBSP.
+
+### Accounts and saving (D4–D8)
+- **The browser's KDF salt (`coutada:v1:`) is frozen by a test vector** — changing it, the
+  iterations or the email normalisation locks every password account out.
+- **The draft is the working copy, the server the record** (`useMapDocument`): every edit goes to
+  the draft at once and to the server 1.5 s later with the version it started from; a refused
+  version is a conflict the person settles, never an overwrite.
+- **Locally, `wrangler dev` reads `.dev.vars`** (gitignored, test values only) and the local D1
+  needs `wrangler d1 migrations apply coutada-prod --local`. On localhost the app uses Turnstile's
+  always-pass test sitekey, which pairs with the test secret.
 
 ### Language (D3)
 - **A pure module must not return prose** — it returns a `Message`.

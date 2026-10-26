@@ -1,45 +1,47 @@
 /**
  * The map screen: imagery full bleed, the tool rail on the right within thumb reach, the sheet at
  * the bottom (a left panel on wide screens) showing whatever is in hand — the map, a type to pick,
- * the line being drawn, or the selected feature.
+ * the line being drawn, or the selected feature. The document is kept by `useMapDocument`.
  */
 
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import type { Map as MapLibreMap } from "maplibre-gl";
-import { Check, Layers, Locate, LocateFixed, MapPin, Pentagon, Redo2, Spline, Undo2 } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { Layers, Locate, LocateFixed, MapPin, Pentagon, Redo2, Spline, Undo2 } from "lucide-react";
+import { AuthDialog, type AuthMode } from "../account/AuthDialog";
+import { ConfirmDelete } from "../account/ConfirmDelete";
+import { hasIdentity, useAccount } from "../account/context";
+import { DeviceDialog } from "../account/DeviceDialog";
+import { errorKey } from "../account/errors";
+import { ShareDialog } from "../account/ShareDialog";
+import { TransferDialog } from "../account/TransferDialog";
 import { DEFAULT_IMAGERY, type ImageryId, type PinType, type RouteType, type ZoneType } from "../doc/catalogue";
 import { newFeatureId } from "../doc/ids";
-import { createMapDoc, featureById } from "../doc/operations";
-import { isFeatureName } from "../doc/schema";
+import { featureById } from "../doc/operations";
 import type { FeatureId } from "../doc/types";
-import { initialEditor, reduce } from "../draw/editor";
-import { bboxOf, distance, type Position } from "../geo/geo";
-import { LOCALES, type MessageKey } from "../i18n/core";
+import { bboxOf, type Position } from "../geo/geo";
+import { type MessageKey } from "../i18n/core";
 import { useI18n } from "../i18n/context";
 import { useMedia } from "../lib/useMedia";
-import { useWakeLock } from "../lib/useWakeLock";
 import { dragShape, render, withoutVertex } from "../map/drawing";
-import { AVAILABLE_IMAGERY, imageryOf } from "../map/imagery";
+import { imageryOf } from "../map/imagery";
 import { MapView, type DragPhase, type Handle, type View } from "../map/MapView";
-import { useLocation, type LocationStatus } from "../map/useLocation";
-import { storeDraft, storedDraft } from "../share/draft";
+import { useFollow } from "../map/useFollow";
+import type { LocationStatus } from "../map/useLocation";
+import { api } from "../share/api";
 import { PORTUGAL, storedImagery, storedView, storeImagery, storeView } from "../share/prefs";
+import { useMapDocument } from "../sync/useMapDocument";
+import { ImageryPicker } from "../components/ImageryPicker";
+import { MapPanel, type PanelActions } from "../components/MapPanel";
+import { Notice } from "../components/Notice";
 import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
+import { noticeButton, noticeQuiet } from "../components/ui";
 import { DrawBar } from "../components/editor/DrawBar";
 import { FeatureDetails, FeatureHeader, type EditCommands } from "../components/editor/FeatureEditor";
-import { FeatureList } from "../components/editor/FeatureList";
 import { TypePicker, type Picking } from "../components/editor/TypePicker";
 import type { FeatureType } from "../components/editor/TypeIcon";
 
-/** Zoom a first fix is shown at, unless the map is already closer. */
-const LOCATE_ZOOM = 16;
 /** The left panel's width plus its margins, on wide screens. */
 const PANEL_PX = 392;
-/** The map counts as centred on you within this many metres. */
-const CENTRED_M = 15;
-/** How long the draft waits after an edit before it is written. */
-const SAVE_DELAY_MS = 400;
 
 const STATUS: Record<Exclude<LocationStatus, "on">, MessageKey> = {
   off: "locate.off",
@@ -48,77 +50,39 @@ const STATUS: Record<Exclude<LocationStatus, "on">, MessageKey> = {
   unavailable: "locate.unavailable",
 };
 
-export function MapScreen() {
-  const { t, locale, setLocale } = useI18n();
+type DialogState =
+  | { kind: "auth"; mode: AuthMode }
+  | { kind: "device" }
+  | { kind: "transfer" }
+  | { kind: "share" }
+  | { kind: "deleteAccount" }
+  | { kind: "deleteDevice" }
+  | null;
+
+export function MapScreen({ mapId }: { mapId: string | null }) {
+  const { t } = useI18n();
+  const { me, refresh } = useAccount();
   const [imagery, setImagery] = useState<ImageryId>(() => storedImagery() ?? DEFAULT_IMAGERY);
   const [initialView] = useState<View>(() => storedView() ?? PORTUGAL);
-  const [editor, dispatch] = useReducer(reduce, null, () => initialEditor(storedDraft() ?? createMapDoc(t("map.untitled"))));
+  const { editor, dispatch, remote, status: sync, shareSlug, setShareSlug, saveAsNew, resolve, startNew } = useMapDocument(
+    mapId,
+    t("map.untitled"),
+  );
   const [picking, setPicking] = useState<Picking | null>(null);
   const [vertex, setVertex] = useState<number | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [peek, setPeek] = useState(96);
   const [picker, setPicker] = useState(false);
-  const [following, setFollowing] = useState(false);
   const [imageryFailing, setImageryFailing] = useState(false);
-  const map = useRef<MapLibreMap | null>(null);
-  const centreNext = useRef(false);
-  const latest = useRef(editor);
-  const midDrag = useRef<number | null>(null);
-  const { status, fix, start, stop } = useLocation();
+  const [dialog, setDialog] = useState<DialogState>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const follow = useFollow();
   const wide = useMedia("(min-width: 48rem)");
-
-  useWakeLock(status === "on");
-
-  useEffect(() => {
-    latest.current = editor;
-  }, [editor]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => storeDraft(editor.doc), SAVE_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [editor.doc]);
 
   const { doc, tool, selected } = editor;
   const selectedFeature = selected ? featureById(doc, selected) : undefined;
   const rendered = useMemo(() => render(doc, selected, tool, vertex), [doc, selected, tool, vertex]);
   const now = () => Date.now();
-
-  // ------------------------------------------------------------ my position
-
-  const centre = useCallback((at: Position) => {
-    const m = map.current;
-    if (!m) return;
-    m.easeTo({ center: [at[0], at[1]], zoom: Math.max(m.getZoom(), LOCATE_ZOOM), duration: 600 });
-    setFollowing(true);
-  }, []);
-
-  useEffect(() => {
-    if (!fix) return;
-    if (centreNext.current) {
-      centreNext.current = false;
-      centre(fix.at);
-    } else if (following && map.current) {
-      const c = map.current.getCenter();
-      if (distance([c.lng, c.lat], fix.at) > CENTRED_M) map.current.easeTo({ center: [fix.at[0], fix.at[1]], duration: 400 });
-    }
-  }, [fix, following, centre]);
-
-  const onLocate = () => {
-    if (status !== "on" && status !== "asking") {
-      centreNext.current = true;
-      void start();
-    } else if (fix && !following) {
-      centre(fix.at);
-    } else {
-      setFollowing(false);
-      stop();
-    }
-  };
-
-  const onReady = useCallback((m: MapLibreMap) => {
-    map.current = m;
-    m.on("dragstart", () => setFollowing(false));
-  }, []);
 
   const chooseImagery = (id: ImageryId) => {
     setImagery(id);
@@ -144,48 +108,54 @@ export function MapScreen() {
     if (kind === "area") dispatch({ type: "tool", tool: { kind: "area", type: type as ZoneType, points: [] } });
   };
 
-  const onTap = useCallback((at: Position, hit: FeatureId | null, handle: Handle | null) => {
-    const state = latest.current;
-    if (state.tool.kind === "idle" && handle?.role === "vertex" && state.selected) {
-      setVertex(handle.i);
-      return;
-    }
-    setVertex(null);
-    setPicking(null);
-    dispatch({ type: "tap", at, hit, id: newFeatureId(), now: Date.now() });
-  }, []);
+  const onTap = useCallback(
+    (at: Position, hit: FeatureId | null, handle: Handle | null) => {
+      if (editor.tool.kind === "idle" && handle?.role === "vertex" && editor.selected) {
+        setVertex(handle.i);
+        return;
+      }
+      setVertex(null);
+      setPicking(null);
+      dispatch({ type: "tap", at, hit, id: newFeatureId(), now: Date.now() });
+    },
+    [editor.tool.kind, editor.selected, dispatch],
+  );
 
-  const onDrag = useCallback((handle: Handle, to: Position, phase: DragPhase) => {
-    const state = latest.current;
-    const record = phase === "start";
-    if (handle.role === "pin") {
-      if (phase !== "end") dispatch({ type: "move", id: handle.fid, at: to, now: Date.now(), record });
-      return;
-    }
-    const feature = state.selected ? featureById(state.doc, state.selected) : undefined;
-    if (!feature) return;
-    if (phase === "end") {
-      midDrag.current = null;
-      return;
-    }
-    let role = handle.role;
-    let i = handle.i;
-    if (role === "mid" && midDrag.current !== null) {
-      role = "vertex";
-      i = midDrag.current;
-    } else if (role === "mid") {
-      midDrag.current = i + 1;
-    }
-    const positions = dragShape(feature, role, i, to);
-    if (positions) dispatch({ type: "shape", id: feature.id, positions, now: Date.now(), record });
-    setVertex(null);
-  }, []);
+  /** The vertex a midpoint drag inserted, which the rest of that drag moves. */
+  const midDrag = useRef<number | null>(null);
+  const onDrag = useCallback(
+    (handle: Handle, to: Position, phase: DragPhase) => {
+      const record = phase === "start";
+      if (handle.role === "pin") {
+        if (phase !== "end") dispatch({ type: "move", id: handle.fid, at: to, now: Date.now(), record });
+        return;
+      }
+      const feature = editor.selected ? featureById(editor.doc, editor.selected) : undefined;
+      if (!feature) return;
+      if (phase === "end") {
+        midDrag.current = null;
+        return;
+      }
+      let role = handle.role;
+      let i = handle.i;
+      if (role === "mid" && midDrag.current !== null) {
+        role = "vertex";
+        i = midDrag.current;
+      } else if (role === "mid") {
+        midDrag.current = i + 1;
+      }
+      const positions = dragShape(feature, role, i, to);
+      if (positions) dispatch({ type: "shape", id: feature.id, positions, now: Date.now(), record });
+      setVertex(null);
+    },
+    [editor.selected, editor.doc, dispatch],
+  );
 
   const select = (id: FeatureId) => {
     dispatch({ type: "select", id });
     setVertex(null);
     const f = featureById(doc, id);
-    const m = map.current;
+    const m = follow.map.current;
     if (!f || !m) return;
     const g = f.geometry;
     const points = g.type === "Point" ? [g.coordinates] : g.type === "LineString" ? g.coordinates : g.coordinates[0];
@@ -217,11 +187,47 @@ export function MapScreen() {
       }
     : null;
 
+  // ----------------------------------------------------------- the account
+
+  const save = async () => {
+    setSaveError(null);
+    if (!hasIdentity(me)) {
+      setDialog({ kind: "device" });
+      return;
+    }
+    const error = await saveAsNew();
+    if (error) setSaveError(t(errorKey(error)));
+  };
+
+  const actions: PanelActions = {
+    rename: (name) => dispatch({ type: "rename", name }),
+    choose: select,
+    save: () => void save(),
+    share: () => setDialog({ kind: "share" }),
+    startNew,
+    signIn: () => setDialog({ kind: "auth", mode: "signin" }),
+    register: () => setDialog({ kind: "auth", mode: "register" }),
+    transfer: () => setDialog({ kind: "transfer" }),
+    signOut: () =>
+      void api("POST", "/api/auth/logout").then(async () => {
+        await refresh();
+        startNew();
+      }),
+    deleteAccount: () => setDialog({ kind: "deleteAccount" }),
+    deleteDevice: () => setDialog({ kind: "deleteDevice" }),
+  };
+
+  const afterErase = async () => {
+    setDialog(null);
+    await refresh();
+    startNew();
+  };
+
   // ---------------------------------------------------------------- render
 
-  const locateLabel = status === "on" ? (following ? t("locate.stop") : t("locate.recenter")) : t("locate.start");
   const drawing = tool.kind !== "idle";
   const toolKind: Picking | null = picking ?? (tool.kind === "idle" ? null : tool.kind);
+  const fix = follow.fix;
 
   let peekContent: React.ReactNode;
   let body: React.ReactNode;
@@ -246,40 +252,23 @@ export function MapScreen() {
       <div>
         <h1 className="truncate text-xl leading-tight font-bold">{doc.coutada.name}</h1>
         <p className="mt-1 flex items-center gap-2 text-[15px] text-xisto-soft" role="status">
-          {status === "on" && <span className="size-2.5 shrink-0 rounded-full bg-person" aria-hidden />}
-          {status === "on" && fix ? t("locate.accuracy", { m: Math.round(fix.accuracy) }) : t(STATUS[status as Exclude<LocationStatus, "on">] ?? "locate.off")}
+          {follow.status === "on" && <span className="size-2.5 shrink-0 rounded-full bg-person" aria-hidden />}
+          {follow.status === "on" && fix
+            ? t("locate.accuracy", { m: Math.round(fix.accuracy) })
+            : t(STATUS[follow.status as Exclude<LocationStatus, "on">] ?? "locate.off")}
         </p>
+        <p className="mt-0.5 text-[13px] text-xisto-soft">{t(`sync.${sync}`)}</p>
       </div>
     );
     body = (
-      <div className="flex flex-col gap-6">
-        <MapName key={doc.coutada.name} name={doc.coutada.name} onRename={(name) => dispatch({ type: "rename", name })} />
-        <FeatureList doc={doc} onChoose={select} />
-        {fix && (
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
-            <dt className="text-xisto-soft">{t("position.coords")}</dt>
-            <dd className="tabular-nums">
-              {fix.at[1].toFixed(5)}, {fix.at[0].toFixed(5)}
-            </dd>
-            <dt className="text-xisto-soft">{t("position.accuracy")}</dt>
-            <dd className="tabular-nums">± {Math.round(fix.accuracy)} m</dd>
-          </dl>
+      <>
+        {saveError && (
+          <p role="alert" className="mb-4 text-[15px] text-[#a32a1d]">
+            {saveError}
+          </p>
         )}
-        <div role="group" aria-label={t("app.locale")} className="inline-flex self-start rounded-xl bg-cal-deep p-1">
-          {LOCALES.map((l) => (
-            <button
-              key={l}
-              type="button"
-              aria-pressed={l === locale}
-              onClick={() => setLocale(l)}
-              className="min-h-11 min-w-14 rounded-lg px-3 text-[15px] font-semibold text-xisto-soft aria-pressed:bg-cal aria-pressed:text-xisto aria-pressed:shadow-sm"
-            >
-              {t(`locale.${l}`)}
-            </button>
-          ))}
-        </div>
-        <p className="border-l-4 border-person pl-3 text-[15px] leading-snug">{t("safety.notice")}</p>
-      </div>
+        <MapPanel doc={doc} mapId={remote?.id ?? null} status={sync} fix={fix} actions={actions} />
+      </>
     );
   }
 
@@ -292,30 +281,51 @@ export function MapScreen() {
         rendered={rendered}
         drawing={drawing}
         inset={wide ? { bottom: 0, left: PANEL_PX } : { bottom: sheetOpen ? 0 : peek, left: 0 }}
-        onReady={onReady}
+        onReady={follow.attach}
         onViewChange={storeView}
         onImageryFailing={setImageryFailing}
         onTap={onTap}
         onDrag={onDrag}
       />
 
-      {imageryFailing && (
-        <div
-          role="alert"
-          className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-1/2 z-30 flex w-[min(calc(100%-1.5rem),26rem)] -translate-x-1/2 items-center gap-3 rounded-[16px] bg-cal py-2 pr-2 pl-4 shadow-float md:left-[calc(50%+188px)]"
+      {sync === "conflict" ? (
+        <Notice
+          actions={
+            <>
+              <button type="button" className={noticeQuiet} onClick={() => void resolve(false)}>
+                {t("sync.takeTheirs")}
+              </button>
+              <button type="button" className={noticeButton} onClick={() => void resolve(true)}>
+                {t("sync.keepMine")}
+              </button>
+            </>
+          }
         >
-          <p className="flex-1 text-[15px] leading-snug">{t("imagery.failing", { source: t(`imagery.${imagery}` as MessageKey) })}</p>
-          {imagery !== DEFAULT_IMAGERY && (
-            <button
-              type="button"
-              onClick={() => chooseImagery(DEFAULT_IMAGERY)}
-              className="min-h-11 shrink-0 rounded-[11px] bg-anil px-3 text-[15px] font-semibold text-white"
-            >
-              {t("imagery.useDefault")}
+          {t("sync.conflict")}
+        </Notice>
+      ) : sync === "missing" ? (
+        <Notice
+          actions={
+            <button type="button" className={noticeButton} onClick={() => void save()}>
+              {t("maps.saveAsNew")}
             </button>
-          )}
-        </div>
-      )}
+          }
+        >
+          {t("sync.missing")}
+        </Notice>
+      ) : imageryFailing ? (
+        <Notice
+          actions={
+            imagery !== DEFAULT_IMAGERY && (
+              <button type="button" onClick={() => chooseImagery(DEFAULT_IMAGERY)} className={noticeButton}>
+                {t("imagery.useDefault")}
+              </button>
+            )
+          }
+        >
+          {t("imagery.failing", { source: t(`imagery.${imagery}` as MessageKey) })}
+        </Notice>
+      ) : null}
 
       {(editor.past.length > 0 || editor.future.length > 0) && (
         <div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-3 z-10 flex gap-2 md:left-[404px]">
@@ -350,95 +360,48 @@ export function MapScreen() {
           </RailButton>
           {picker && <ImageryPicker current={imagery} onChoose={chooseImagery} onClose={() => setPicker(false)} />}
         </div>
-        <RailButton label={locateLabel} active={status === "on"} tone="person" onClick={onLocate} className="size-14 rounded-full">
-          {status === "on" && following ? <LocateFixed size={24} strokeWidth={2.2} /> : <Locate size={24} strokeWidth={2.2} />}
+        <RailButton label={follow.label} active={follow.status === "on"} tone="person" onClick={follow.onLocate} className="size-14 rounded-full">
+          {follow.status === "on" && follow.following ? <LocateFixed size={24} strokeWidth={2.2} /> : <Locate size={24} strokeWidth={2.2} />}
         </RailButton>
       </div>
 
       <Sheet open={sheetOpen && body !== null} onOpenChange={setSheetOpen} onPeekHeight={setPeek} peek={peekContent}>
         {body}
       </Sheet>
+
+      {dialog?.kind === "auth" && <AuthDialog initial={dialog.mode} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "device" && (
+        <DeviceDialog
+          onClose={() => setDialog(null)}
+          onSignIn={() => setDialog({ kind: "auth", mode: "register" })}
+          onDone={() => {
+            setDialog(null);
+            void saveAsNew().then((error) => error && setSaveError(t(errorKey(error))));
+          }}
+        />
+      )}
+      {dialog?.kind === "transfer" && <TransferDialog onClose={() => setDialog(null)} />}
+      {dialog?.kind === "share" && remote && (
+        <ShareDialog mapId={remote.id} slug={shareSlug} onSlug={setShareSlug} onClose={() => setDialog(null)} />
+      )}
+      {dialog?.kind === "deleteAccount" && me?.user && (
+        <ConfirmDelete
+          path="/api/me"
+          expected={me.user.email}
+          prompt={t("delete.account", { email: me.user.email })}
+          onClose={() => setDialog(null)}
+          onDone={() => void afterErase()}
+        />
+      )}
+      {dialog?.kind === "deleteDevice" && me?.device && (
+        <ConfirmDelete
+          path="/api/device"
+          expected={me.device.username}
+          prompt={t("delete.device", { name: me.device.username })}
+          onClose={() => setDialog(null)}
+          onDone={() => void afterErase()}
+        />
+      )}
     </main>
-  );
-}
-
-function MapName({ name, onRename }: { name: string; onRename: (name: string) => void }) {
-  const { t } = useI18n();
-  const [value, setValue] = useState(name);
-  const valid = isFeatureName(value.trim());
-  const commit = () => {
-    if (valid && value.trim() !== name) onRename(value.trim());
-    else if (!valid) setValue(name);
-  };
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-[15px] font-semibold">{t("map.name")}</span>
-      <input
-        type="text"
-        value={value}
-        maxLength={60}
-        enterKeyHint="done"
-        aria-invalid={!valid}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-        className="w-full rounded-[12px] border border-rule bg-white px-3 py-2.5 text-[16px] aria-invalid:border-[#c23a2b]"
-      />
-    </label>
-  );
-}
-
-function ImageryPicker({
-  current,
-  onChoose,
-  onClose,
-}: {
-  current: ImageryId;
-  onChoose: (id: ImageryId) => void;
-  onClose: () => void;
-}) {
-  const { t } = useI18n();
-  const panel = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    const onDown = (e: PointerEvent) => {
-      if (panel.current && !panel.current.parentElement?.contains(e.target as Node)) onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("pointerdown", onDown);
-    panel.current?.querySelector<HTMLButtonElement>("[aria-checked=true]")?.focus();
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("pointerdown", onDown);
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      ref={panel}
-      role="radiogroup"
-      aria-label={t("imagery.title")}
-      className="absolute right-[calc(100%+0.75rem)] bottom-0 w-64 rounded-[16px] bg-cal p-1.5 shadow-float"
-    >
-      {AVAILABLE_IMAGERY.map((i) => (
-        <button
-          key={i.id}
-          type="button"
-          role="radio"
-          aria-checked={i.id === current}
-          onClick={() => onChoose(i.id)}
-          className="flex w-full items-start gap-3 rounded-[11px] px-3 py-2.5 text-left active:bg-cal-deep aria-checked:bg-anil/10"
-        >
-          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-anil">
-            {i.id === current && <Check size={18} strokeWidth={3} />}
-          </span>
-          <span>
-            <span className="block text-[15px] font-semibold">{t(`imagery.${i.id}` as MessageKey)}</span>
-            <span className="block text-[13px] text-xisto-soft">{t(`imagery.${i.id}.detail` as MessageKey)}</span>
-          </span>
-        </button>
-      ))}
-    </div>
   );
 }

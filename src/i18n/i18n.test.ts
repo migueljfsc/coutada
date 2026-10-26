@@ -44,6 +44,8 @@ describe("the dictionaries", () => {
     const shared = keys.filter((k) => en[k] === pt[k]);
     expect(shared.sort()).toEqual([
       "app.name",
+      "auth.done",
+      "auth.email",
       "colour.magenta",
       "edit.armada",
       "imagery.esri",

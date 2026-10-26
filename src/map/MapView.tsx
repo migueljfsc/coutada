@@ -20,7 +20,7 @@ setWorkerUrl(workerUrl);
 export type View = { center: Position; zoom: number };
 
 /** How long a chosen source may go without delivering a tile before it counts as failing (D18). */
-const SOURCE_PATIENCE_MS = 10_000;
+const SOURCE_PATIENCE_MS = 20_000;
 /** Half the side of the square a tap searches, CSS px: a fingertip, not a pixel. */
 const TAP_SLOP = 14;
 
@@ -36,6 +36,7 @@ type Props = {
   drawing: boolean;
   /** CSS px covered by the sheet, so the map centres in what is visible. */
   inset: { bottom: number; left: number };
+  /** The map, as soon as it exists — before its style and tiles have loaded. */
   onReady?: (map: MapLibreMap) => void;
   onViewChange?: (view: View) => void;
   /** True while the chosen imagery is not delivering tiles. */
@@ -77,13 +78,15 @@ export function MapView(props: Props) {
       map = m;
       m.touchZoomRotate.disableRotation();
       mapRef.current = m;
+      // Handed over at once: the camera can move before the first tiles, which may take a while.
+      latest.current.onReady?.(m);
 
       m.setMissingStyleImageResolver((id) => provideImage(m, id));
-      m.on("load", () => {
+      // `style.load`, not `load`: the drawing must not wait for the imagery's first tiles.
+      m.once("style.load", () => {
         loaded.current = true;
         m.addImage("me-cone", headingCone(), { pixelRatio: 2 });
         sync(m, latest.current);
-        latest.current.onReady?.(m);
       });
       m.on("moveend", () => {
         const c = m.getCenter();
