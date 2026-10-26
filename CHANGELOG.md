@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.4.0 (2026-10-26)
+
+### Feat
+
+- **draw**: draw and edit portas, armadas, routes and areas
+
 ## v0.3.0 (2026-10-26)
 
 ### Feat
