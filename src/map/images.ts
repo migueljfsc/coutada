@@ -38,16 +38,23 @@ function svgOf(icon: ComponentType<LucideProps>): string {
 
 /** Loads the face and the pin glyphs; the map is created once this resolves. */
 export async function prepareImages(): Promise<void> {
-  await Promise.all([
+  // Called from an effect, where `flushSync` cannot render synchronously; one tick out of React's
+  // commit, it can.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await Promise.allSettled([
     document.fonts.load(`700 28px ${FONT}`),
     document.fonts.load(`800 36px ${FONT}`),
     ...Object.entries(GLYPHS).map(async ([type, icon]) => {
       const img = new Image();
       img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgOf(icon!))}`;
-      await img.decode();
-      glyphImages.set(type as PinType, img);
+      try {
+        await img.decode();
+        glyphImages.set(type as PinType, img);
+      } catch (cause) {
+        console.error("pin glyph", type, cause);
+      }
     }),
-  ]).catch(() => undefined);
+  ]);
 }
 
 function canvas(w: number, h: number) {

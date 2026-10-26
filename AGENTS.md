@@ -84,6 +84,8 @@ local dry run — CI owns the deploy.
   offline prefetch must ask for byte-identical URLs, or the cache misses.
 - **Images come from `setMissingStyleImageResolver`**, never the `styleimagemissing` event: in
   MapLibre v6 an image added from the event is not drawn until some later repaint.
+- **Pin glyphs are rendered with `flushSync` one tick after the effect that asks for them** — inside
+  an effect it renders nothing, the SVG is empty and fails to decode, and every badge is blank.
 - **A drag swallows the click that follows its release, and only that one** — the flag is cleared
   on the next tick, or the first tap after a drag (the first corner of an area) is lost.
 - **Orange is for people.** `PERSON` marks you and other hunters; no drawing colour may be orange.
