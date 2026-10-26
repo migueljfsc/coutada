@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { Check, ListOrdered, Trash2, X } from "lucide-react";
+import { Check, ListOrdered, Navigation2, Trash2, X } from "lucide-react";
 import { DEFAULT_COLOR, PALETTE, PALETTE_KEYS, type PaletteKey } from "../../doc/catalogue";
 import { isFeatureName } from "../../doc/schema";
 import type { FeatureId, MapDoc, MapFeature, PinFeature } from "../../doc/types";
@@ -55,11 +55,14 @@ export function FeatureDetails({
   doc,
   vertex,
   commands,
+  onNavigate,
 }: {
   feature: MapFeature;
   doc: MapDoc;
   vertex: number | null;
   commands: EditCommands;
+  /** Starts navigating to the feature; absent for an area. */
+  onNavigate?: () => void;
 }) {
   const { t, tn, locale } = useI18n();
   const title = useFeatureTitle();
@@ -72,6 +75,8 @@ export function FeatureDetails({
 
   return (
     <div className="flex flex-col gap-5" key={feature.id}>
+      {onNavigate && <NavigateButton feature={feature} onNavigate={onNavigate} />}
+
       <TextField
         label={t("edit.name")}
         initial={p.name ?? ""}
@@ -183,6 +188,21 @@ export function FeatureDetails({
         </button>
       </div>
     </div>
+  );
+}
+
+/** "Go here" for a pin, "Follow this route" for a route. */
+export function NavigateButton({ feature, onNavigate }: { feature: MapFeature; onNavigate: () => void }) {
+  const { t } = useI18n();
+  return (
+    <button
+      type="button"
+      onClick={onNavigate}
+      className="flex min-h-12 items-center justify-center gap-2 rounded-[14px] bg-anil px-4 text-[15px] font-semibold text-white"
+    >
+      <Navigation2 size={18} fill="currentColor" />
+      {feature.geometry.type === "LineString" ? t("nav.follow") : t("nav.go")}
+    </button>
   );
 }
 

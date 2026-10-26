@@ -12,7 +12,7 @@ import { EMPTY, PERSON } from "./me";
 export type Style = Exclude<MapOptions["style"], string | undefined>;
 
 export const ME_SOURCE = "me";
-export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft"] as const;
+export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide"] as const;
 export type DrawingSource = (typeof DRAWING_SOURCES)[number];
 export const imageryLayer = (id: ImageryId) => `imagery-${id}`;
 
@@ -104,6 +104,20 @@ const drawingLayers = [
     source: "draft",
     filter: ["==", ["get", "role"], "vertex"],
     paint: { "circle-radius": 6, "circle-color": "#ffffff", "circle-stroke-color": ANIL, "circle-stroke-width": 3 },
+  },
+  {
+    id: "guide-casing",
+    type: "line",
+    source: "guide",
+    layout: { "line-cap": "round" },
+    paint: { "line-color": "#ffffff", "line-width": 6, "line-opacity": 0.8 },
+  },
+  {
+    id: "guide-line",
+    type: "line",
+    source: "guide",
+    layout: { "line-cap": "round" },
+    paint: { "line-color": ANIL, "line-width": 3, "line-dasharray": [1.5, 1.5] },
   },
   {
     id: "pin-halo",

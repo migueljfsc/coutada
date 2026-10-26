@@ -16,6 +16,8 @@ import { render } from "../map/drawing";
 import { imageryOf } from "../map/imagery";
 import { MapView, type View } from "../map/MapView";
 import { useFollow } from "../map/useFollow";
+import { useNavigation } from "../nav/useNavigation";
+import { NavPanel } from "../components/NavPanel";
 import { api } from "../share/api";
 import { storedImagery, storeImagery } from "../share/prefs";
 import { bboxOf, type Position } from "../geo/geo";
@@ -23,11 +25,10 @@ import { ImageryPicker } from "../components/ImageryPicker";
 import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
 import { primaryButton } from "../components/ui";
-import { FeatureHeader } from "../components/editor/FeatureEditor";
+import { FeatureHeader, NavigateButton } from "../components/editor/FeatureEditor";
 import { FeatureList } from "../components/editor/FeatureList";
 
 const PANEL_PX = 392;
-const IDLE = { kind: "idle" } as const;
 
 /** Fits the view to everything drawn on the map. */
 function frameMap(m: MapLibreMap, d: MapDoc) {
@@ -69,10 +70,25 @@ export function SharedScreen({ slug }: { slug: string }) {
     if (doc && follow.map.current) frameMap(follow.map.current, doc);
   }, [doc, follow.map]);
 
-  const rendered = useMemo(() => render(doc ?? { type: "FeatureCollection", coutada: { v: 1, name: "" }, features: [] }, selected, IDLE), [doc, selected]);
+  const { navigation, start: startNavigation, stop: stopNavigation } = useNavigation(doc, follow.fix);
+  const navTarget = doc && navigation ? featureById(doc, navigation.target.id) : undefined;
+  const shown = navigation ? navigation.target.id : selected;
+  const rendered = useMemo(
+    () => render(doc ?? { type: "FeatureCollection", coutada: { v: 1, name: "" }, features: [] }, { selected: shown, guide: navigation?.guide ?? null }),
+    [doc, shown, navigation],
+  );
   const feature = doc && selected ? featureById(doc, selected) : undefined;
 
-  const peekContent = failed ? (
+  const navigateTo = (id: FeatureId) => {
+    follow.ensure();
+    startNavigation(id);
+    setSelected(null);
+    setSheetOpen(false);
+  };
+
+  const peekContent = navigation && navTarget ? (
+    <NavPanel navigation={navigation} feature={navTarget} fix={follow.fix} status={follow.status} onStop={stopNavigation} />
+  ) : failed ? (
     <div>
       <h1 className="text-xl leading-tight font-bold">{t("shared.gone")}</h1>
       <p className="mt-1 text-[15px] text-xisto-soft">{t("shared.goneExplain")}</p>
@@ -86,12 +102,15 @@ export function SharedScreen({ slug }: { slug: string }) {
     </div>
   );
 
-  const body = failed ? (
+  const body = navigation ? null : failed ? (
     <a href="/" className={primaryButton}>
       {t("shared.openApp")}
     </a>
   ) : feature ? (
-    feature.properties.note ? <p className="text-[16px] leading-snug whitespace-pre-wrap">{feature.properties.note}</p> : null
+    <div className="flex flex-col gap-4">
+      {feature.geometry.type !== "Polygon" && <NavigateButton feature={feature} onNavigate={() => navigateTo(feature.id)} />}
+      {feature.properties.note && <p className="text-[16px] leading-snug whitespace-pre-wrap">{feature.properties.note}</p>}
+    </div>
   ) : doc ? (
     <div className="flex flex-col gap-6">
       <FeatureList doc={doc} onChoose={(id) => setSelected(id)} />
@@ -115,7 +134,10 @@ export function SharedScreen({ slug }: { slug: string }) {
           follow.attach(m);
           if (doc) frameMap(m, doc);
         }}
-        onTap={(_at, hit) => setSelected(hit)}
+        onTap={(_at, hit) => {
+          setSelected(hit);
+          setSheetOpen(hit !== null);
+        }}
       />
 
       <p className="pointer-events-none absolute bottom-[calc(var(--peek)+0.5rem)] left-3 z-10 rounded-md bg-cal/80 px-2 py-0.5 text-[11px] text-xisto md:bottom-3 md:left-[404px]">

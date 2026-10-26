@@ -18,7 +18,7 @@ function doc() {
 
 describe("render", () => {
   it("draws every feature, with its colour and the image a pin wears", () => {
-    const { shapes } = render(doc(), null, { kind: "idle" });
+    const { shapes } = render(doc());
     const byId = Object.fromEntries(shapes.features.map((f) => [f.properties.fid, f.properties]));
     expect(byId[ID("a")]).toMatchObject({ kind: "pin", icon: pinImage("gate", "yellow"), colour: "#ffd23f", sel: 0 });
     expect(byId[ID("b")].icon).toBe(portaImage(undefined));
@@ -27,26 +27,30 @@ describe("render", () => {
   });
 
   it("labels only what has a name", () => {
-    const { labels } = render(doc(), null, { kind: "idle" });
+    const { labels } = render(doc());
     expect(labels.features.map((l) => l.properties.label)).toEqual(["label:Caminho do açude"]);
   });
 
   it("gives the selected route its vertices and midpoints, and marks it", () => {
-    const { shapes, handles } = render(doc(), ID("c"), { kind: "idle" });
+    const { shapes, handles } = render(doc(), { selected: ID("c"), editing: true });
     expect(shapes.features.find((f) => f.properties.fid === ID("c"))?.properties.sel).toBe(1);
     expect(handles.features.filter((h) => h.properties.role === "vertex")).toHaveLength(3);
     expect(handles.features.filter((h) => h.properties.role === "mid")).toHaveLength(2);
   });
 
+  it("shows no handles unless the shape is being edited", () => {
+    expect(render(doc(), { selected: ID("c") }).handles.features).toEqual([]);
+  });
+
   it("closes an area's midpoints round, and gives a pin no handles", () => {
-    expect(render(doc(), ID("d"), { kind: "idle" }).handles.features.filter((h) => h.properties.role === "mid")).toHaveLength(3);
-    expect(render(doc(), ID("a"), { kind: "idle" }).handles.features).toEqual([]);
+    expect(render(doc(), { selected: ID("d"), editing: true }).handles.features.filter((h) => h.properties.role === "mid")).toHaveLength(3);
+    expect(render(doc(), { selected: ID("a"), editing: true }).handles.features).toEqual([]);
   });
 
   it("draws the line in progress, and the area once it has three points", () => {
-    const two = render(createMapDoc("m"), null, { kind: "area", type: "mancha", points: [S, destination(S, 0, 10)] });
+    const two = render(createMapDoc("m"), { tool: { kind: "area", type: "mancha", points: [S, destination(S, 0, 10)] } });
     expect(two.draft.features.map((f) => f.properties.role)).toEqual(["line", "vertex", "vertex"]);
-    const three = render(createMapDoc("m"), null, { kind: "area", type: "mancha", points: [S, destination(S, 0, 10), destination(S, 90, 10)] });
+    const three = render(createMapDoc("m"), { tool: { kind: "area", type: "mancha", points: [S, destination(S, 0, 10), destination(S, 90, 10)] } });
     expect(three.draft.features[0].properties.role).toBe("area");
   });
 });

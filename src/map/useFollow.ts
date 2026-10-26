@@ -54,6 +54,13 @@ export function useFollow() {
     }
   };
 
+  /** Turns the position on, if it is not, and centres on the first fix. */
+  const ensure = useCallback(() => {
+    if (status === "on" || status === "asking") return;
+    centreNext.current = true;
+    void start();
+  }, [status, start]);
+
   const attach = useCallback((m: MapLibreMap) => {
     map.current = m;
     m.on("dragstart", () => setFollowing(false));
@@ -61,5 +68,5 @@ export function useFollow() {
 
   const label = status === "on" ? (following ? t("locate.stop") : t("locate.recenter")) : t("locate.start");
 
-  return { map, status, fix, following, onLocate, attach, label };
+  return { map, status, fix, following, onLocate, ensure, attach, label };
 }

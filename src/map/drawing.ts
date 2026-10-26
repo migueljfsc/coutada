@@ -106,15 +106,36 @@ function draft(tool: Tool): RenderFeature[] {
   return out;
 }
 
-export type Rendered = { shapes: Collection; labels: Collection; handles: Collection; draft: Collection };
+export type Rendered = { shapes: Collection; labels: Collection; handles: Collection; draft: Collection; guide: Collection };
 
-export function render(doc: MapDoc, selected: FeatureId | null, tool: Tool, vertex: number | null = null): Rendered {
-  const chosen = selected ? doc.features.find((f) => f.id === selected) : undefined;
+/** The line from the person to what they navigate to. */
+function guide(points: readonly Position[] | null): RenderFeature[] {
+  if (!points || points.length < 2) return [];
+  return [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: points.map(pos) } }];
+}
+
+export type RenderOptions = {
+  selected?: FeatureId | null;
+  tool?: Tool;
+  /** The selected shape shows its handles: only while editing it. */
+  editing?: boolean;
+  /** The vertex chosen for deletion. */
+  vertex?: number | null;
+  /** From the person to what they navigate to. */
+  guide?: readonly Position[] | null;
+};
+
+const IDLE: Tool = { kind: "idle" };
+
+export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
+  const { selected = null, tool = IDLE, editing = false, vertex = null, guide: guideLine = null } = options;
+  const chosen = editing && selected ? doc.features.find((f) => f.id === selected) : undefined;
   return {
     shapes: collection(doc.features.map((f) => shape(f, f.id === selected))),
     labels: collection(doc.features.map(label).filter((l): l is RenderFeature => l !== null)),
     handles: collection(handles(chosen, vertex)),
     draft: collection(draft(tool)),
+    guide: collection(guide(guideLine)),
   };
 }
 

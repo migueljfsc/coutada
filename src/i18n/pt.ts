@@ -199,6 +199,17 @@ export const pt: Dictionary = {
   "error.captcha": "A verificação de que é uma pessoa falhou. Tente de novo.",
   "error.unknown": "Algo correu mal. Tente de novo.",
 
+  // -------------------------------------------------------------- navigation
+  "nav.go": "Ir até aqui",
+  "nav.follow": "Seguir este percurso",
+  "nav.goingTo": "A caminho de {name}",
+  "nav.following": "A seguir {name}",
+  "nav.arrived": "Chegou",
+  "nav.offRoute": "Está a {m} m do percurso",
+  "nav.noCompass": "Sem bússola: a seta aponta no mapa, com o norte para cima.",
+  "nav.accuracy": "A sua posição, com uma margem de {m} m.",
+  "nav.stop": "Parar",
+
   // -------------------------------------------------------------- documents
   "doc.notAMap": "Este ficheiro não é um mapa do Coutada.",
   "doc.tooNew": "Este mapa foi guardado por uma versão mais recente do Coutada (v{version}). Recarregue a página para atualizar.",

@@ -25,6 +25,8 @@ import { dragShape, render, withoutVertex } from "../map/drawing";
 import { imageryOf } from "../map/imagery";
 import { MapView, type DragPhase, type Handle, type View } from "../map/MapView";
 import { useFollow } from "../map/useFollow";
+import { useNavigation } from "../nav/useNavigation";
+import { NavPanel } from "../components/NavPanel";
 import type { LocationStatus } from "../map/useLocation";
 import { api } from "../share/api";
 import { PORTUGAL, storedImagery, storedView, storeImagery, storeView } from "../share/prefs";
@@ -80,8 +82,21 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
   const wide = useMedia("(min-width: 48rem)");
 
   const { doc, tool, selected } = editor;
+  const { navigation, start: startNavigation, stop: stopNavigation } = useNavigation(doc, follow.fix);
+  const navTarget = navigation ? featureById(doc, navigation.target.id) : undefined;
   const selectedFeature = selected ? featureById(doc, selected) : undefined;
-  const rendered = useMemo(() => render(doc, selected, tool, vertex), [doc, selected, tool, vertex]);
+  const shown = navigation ? navigation.target.id : selected;
+  const rendered = useMemo(
+    () => render(doc, { selected: shown, tool, editing: !navigation, vertex, guide: navigation?.guide ?? null }),
+    [doc, shown, tool, vertex, navigation],
+  );
+
+  const navigateTo = (id: FeatureId) => {
+    follow.ensure();
+    startNavigation(id);
+    dispatch({ type: "select", id: null });
+    setSheetOpen(false);
+  };
   const now = () => Date.now();
 
   const chooseImagery = (id: ImageryId) => {
@@ -231,7 +246,10 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
 
   let peekContent: React.ReactNode;
   let body: React.ReactNode;
-  if (picking) {
+  if (navigation && navTarget) {
+    peekContent = <NavPanel navigation={navigation} feature={navTarget} fix={fix} status={follow.status} onStop={stopNavigation} />;
+    body = null;
+  } else if (picking) {
     peekContent = <TypePicker picking={picking} onPick={pickType} onCancel={() => setPicking(null)} />;
     body = null;
   } else if (tool.kind !== "idle") {
@@ -246,7 +264,15 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     body = null;
   } else if (selectedFeature && commands) {
     peekContent = <FeatureHeader feature={selectedFeature} onClose={commands.close} />;
-    body = <FeatureDetails feature={selectedFeature} doc={doc} vertex={vertex} commands={commands} />;
+    body = (
+      <FeatureDetails
+        feature={selectedFeature}
+        doc={doc}
+        vertex={vertex}
+        commands={commands}
+        onNavigate={selectedFeature.geometry.type === "Polygon" ? undefined : () => navigateTo(selectedFeature.id)}
+      />
+    );
   } else {
     peekContent = (
       <div>

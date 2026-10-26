@@ -207,6 +207,17 @@ export const en = {
   "error.captcha": "The check that you are a person failed. Try again.",
   "error.unknown": "Something went wrong. Try again.",
 
+  // -------------------------------------------------------------- navigation
+  "nav.go": "Go here",
+  "nav.follow": "Follow this route",
+  "nav.goingTo": "Going to {name}",
+  "nav.following": "Following {name}",
+  "nav.arrived": "You are there",
+  "nav.offRoute": "{m} m off the route",
+  "nav.noCompass": "No compass: the arrow points on the map, north up.",
+  "nav.accuracy": "Your position, to within {m} m.",
+  "nav.stop": "Stop",
+
   // -------------------------------------------------------------- documents
   "doc.notAMap": "This file is not a Coutada map.",
   "doc.tooNew": "This map was saved by a newer version of Coutada (v{version}). Reload the page to update.",
