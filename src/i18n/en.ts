@@ -15,6 +15,11 @@ export const en = {
   "app.locale": "Language",
   "app.soon": "Under construction.",
 
+  // -------------------------------------------------------------- documents
+  "doc.notAMap": "This file is not a Coutada map.",
+  "doc.tooNew": "This map was saved by a newer version of Coutada (v{version}). Reload the page to update.",
+  "doc.invalid": "This map is damaged or too large to open.",
+
   // ----------------------------------------------------------------- safety
   "safety.notice": "Not a safety system. Always confirm by sight and by radio.",
 } as const;
