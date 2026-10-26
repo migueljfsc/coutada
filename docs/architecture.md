@@ -37,7 +37,8 @@ follow a route; during a hunt everyone sees everyone's live position and trail. 
  Phone (PWA)
    MapLibre ◀── tiles ── DGT WMS (ortosat2023, ortos2021), Esri (keyed)  — direct, CORS *
    service worker: app shell + prefetched tiles (Cache Storage)
-   IndexedDB: opened maps, own trail during a hunt
+   IndexedDB: opened maps
+   localStorage: map drafts, hunt passes, own trail during a hunt
    geolocation.watchPosition, Wake Lock, DeviceOrientation
 ```
 

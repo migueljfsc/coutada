@@ -12,6 +12,7 @@ import { EnterCode } from "./account/TransferDialog";
 import { Dialog } from "./components/Dialog";
 import { primaryButton, secondaryButton } from "./components/ui";
 import { useI18n } from "./i18n/context";
+import { HuntScreen } from "./pages/HuntScreen";
 import { MapScreen } from "./pages/MapScreen";
 import { SharedScreen } from "./pages/SharedScreen";
 import { api } from "./share/api";
@@ -21,7 +22,13 @@ export function App() {
   const route = useRoute();
   return (
     <>
-      {route.kind === "shared" ? <SharedScreen slug={route.slug} /> : <MapScreen mapId={route.kind === "map" ? route.id : null} />}
+      {route.kind === "shared" ? (
+        <SharedScreen slug={route.slug} />
+      ) : route.kind === "hunt" ? (
+        <HuntScreen key={route.id} huntId={route.id} />
+      ) : (
+        <MapScreen mapId={route.kind === "map" ? route.id : null} />
+      )}
       <Links />
       <ClaimOffer />
       {route.kind === "transfer" && <TransferLink code={route.code} />}

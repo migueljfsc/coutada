@@ -35,6 +35,7 @@ import { ImageryPicker } from "../components/ImageryPicker";
 import { MapPanel, type PanelActions } from "../components/MapPanel";
 import { Notice } from "../components/Notice";
 import { OfflineDialog } from "../components/OfflineDialog";
+import { JoinHuntDialog, StartHuntDialog } from "../components/hunt/HuntDialogs";
 import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
 import { noticeButton, noticeQuiet } from "../components/ui";
@@ -61,6 +62,8 @@ type DialogState =
   | { kind: "deleteAccount" }
   | { kind: "deleteDevice" }
   | { kind: "offline" }
+  | { kind: "startHunt" }
+  | { kind: "joinHunt" }
   | null;
 
 export function MapScreen({ mapId }: { mapId: string | null }) {
@@ -233,6 +236,8 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     deleteAccount: () => setDialog({ kind: "deleteAccount" }),
     deleteDevice: () => setDialog({ kind: "deleteDevice" }),
     offline: () => setDialog({ kind: "offline" }),
+    startHunt: () => setDialog({ kind: "startHunt" }),
+    joinHunt: () => setDialog({ kind: "joinHunt" }),
   };
 
   const afterErase = async () => {
@@ -411,6 +416,8 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
       )}
       {dialog?.kind === "transfer" && <TransferDialog onClose={() => setDialog(null)} />}
       {dialog?.kind === "offline" && <OfflineDialog doc={doc} imagery={imagery} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "startHunt" && remote && <StartHuntDialog mapId={remote.id} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "joinHunt" && <JoinHuntDialog onClose={() => setDialog(null)} />}
       {dialog?.kind === "share" && remote && (
         <ShareDialog mapId={remote.id} slug={shareSlug} onSlug={setShareSlug} onClose={() => setDialog(null)} />
       )}

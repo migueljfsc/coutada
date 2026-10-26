@@ -106,7 +106,19 @@ function draft(tool: Tool): RenderFeature[] {
   return out;
 }
 
-export type Rendered = { shapes: Collection; labels: Collection; handles: Collection; draft: Collection; guide: Collection };
+export type Rendered = {
+  shapes: Collection;
+  labels: Collection;
+  handles: Collection;
+  draft: Collection;
+  guide: Collection;
+  people: Collection;
+  trails: Collection;
+};
+
+/** Another hunter on the map: where, who, and how fresh the position is (D15). */
+export type Person = { id: string; name: string; at: Position; state: "fresh" | "stale" | "lost"; away: boolean };
+export type Trail = { id: string; points: readonly Position[] };
 
 /** The line from the person to what they navigate to. */
 function guide(points: readonly Position[] | null): RenderFeature[] {
@@ -123,12 +135,15 @@ export type RenderOptions = {
   vertex?: number | null;
   /** From the person to what they navigate to. */
   guide?: readonly Position[] | null;
+  /** The other hunters, in a live hunt. */
+  people?: readonly Person[];
+  trails?: readonly Trail[];
 };
 
 const IDLE: Tool = { kind: "idle" };
 
 export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
-  const { selected = null, tool = IDLE, editing = false, vertex = null, guide: guideLine = null } = options;
+  const { selected = null, tool = IDLE, editing = false, vertex = null, guide: guideLine = null, people = [], trails = [] } = options;
   const chosen = editing && selected ? doc.features.find((f) => f.id === selected) : undefined;
   return {
     shapes: collection(doc.features.map((f) => shape(f, f.id === selected))),
@@ -136,6 +151,18 @@ export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
     handles: collection(handles(chosen, vertex)),
     draft: collection(draft(tool)),
     guide: collection(guide(guideLine)),
+    people: collection(
+      people.map((p) => ({
+        type: "Feature",
+        properties: { pid: p.id, label: labelImage(p.name), state: p.state, away: p.away ? 1 : 0 },
+        geometry: { type: "Point", coordinates: pos(p.at) },
+      })),
+    ),
+    trails: collection(
+      trails
+        .filter((t) => t.points.length >= 2)
+        .map((t) => ({ type: "Feature", properties: { pid: t.id }, geometry: { type: "LineString", coordinates: t.points.map(pos) } })),
+    ),
   };
 }
 

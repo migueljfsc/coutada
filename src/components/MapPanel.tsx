@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { CloudDownload, CloudOff, Link2, Plus, Save, Smartphone } from "lucide-react";
+import { CloudDownload, CloudOff, Link2, Plus, Radio, Save, Smartphone, Users } from "lucide-react";
 import { hasIdentity, useAccount } from "../account/context";
 import { isFeatureName } from "../doc/schema";
 import type { FeatureId, MapDoc } from "../doc/types";
@@ -31,6 +31,8 @@ export type PanelActions = {
   deleteAccount: () => void;
   deleteDevice: () => void;
   offline: () => void;
+  startHunt: () => void;
+  joinHunt: () => void;
 };
 
 type Props = {
@@ -130,6 +132,8 @@ export function MapPanel({ doc, mapId, status, fix, actions }: Props) {
         </section>
       )}
 
+      <HuntSection canStart={!!mapId && identified} onStart={actions.startHunt} onJoin={actions.joinHunt} />
+
       <section className="flex flex-col gap-1">
         <h3 className="text-[15px] font-semibold">{t("maps.drawn")}</h3>
         <FeatureList doc={doc} onChoose={actions.choose} />
@@ -166,6 +170,25 @@ export function MapPanel({ doc, mapId, status, fix, actions }: Props) {
 
       <p className="border-l-4 border-person pl-3 text-[15px] leading-snug">{t("safety.notice")}</p>
     </div>
+  );
+}
+
+export function HuntSection({ canStart, onStart, onJoin }: { canStart: boolean; onStart?: () => void; onJoin: () => void }) {
+  const { t } = useI18n();
+  return (
+    <section className="flex flex-col gap-2">
+      <h3 className="text-[15px] font-semibold">{t("hunt.section")}</h3>
+      {canStart && onStart && (
+        <button type="button" onClick={onStart} className={secondaryButton}>
+          <Radio size={18} />
+          {t("hunt.start")}
+        </button>
+      )}
+      <button type="button" onClick={onJoin} className={secondaryButton}>
+        <Users size={18} />
+        {t("hunt.join")}
+      </button>
+    </section>
   );
 }
 

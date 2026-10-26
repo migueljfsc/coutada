@@ -1,18 +1,26 @@
 /**
  * The app's routes: `/` the map you were on, `/map/<id>` a saved map, `/m/<slug>` a shared map,
- * `/transfer?c=<code>` a device handed over. History is the browser's; `navigate` pushes.
+ * `/hunt/<id>` a live hunt, `/transfer?c=<code>` a device handed over. History is the browser's; `navigate` pushes.
  */
 
 import { useSyncExternalStore } from "react";
 
-export type Route = { kind: "home" } | { kind: "map"; id: string } | { kind: "shared"; slug: string } | { kind: "transfer"; code: string };
+export type Route =
+  | { kind: "home" }
+  | { kind: "map"; id: string }
+  | { kind: "shared"; slug: string }
+  | { kind: "hunt"; id: string }
+  | { kind: "transfer"; code: string };
 
 const MAP = /^\/map\/([A-Za-z0-9_-]{22})\/?$/;
 const SHARED = /^\/m\/([2-9bcdfghjkmnpqrstvwxz]{8})\/?$/;
+const HUNT = /^\/hunt\/([A-Za-z0-9_-]{22})\/?$/;
 
 export function parseRoute(pathname: string, search: string): Route {
   const map = MAP.exec(pathname);
   if (map) return { kind: "map", id: map[1] };
+  const hunt = HUNT.exec(pathname);
+  if (hunt) return { kind: "hunt", id: hunt[1] };
   const shared = SHARED.exec(pathname);
   if (shared) return { kind: "shared", slug: shared[1] };
   if (pathname === "/transfer") return { kind: "transfer", code: new URLSearchParams(search).get("c") ?? "" };
@@ -20,6 +28,7 @@ export function parseRoute(pathname: string, search: string): Route {
 }
 
 export const mapPath = (id: string) => `/map/${id}`;
+export const huntPath = (id: string) => `/hunt/${id}`;
 export const sharedUrl = (slug: string) => `${location.origin}/m/${slug}`;
 export const transferUrl = (code: string) => `${location.origin}/transfer?c=${code}`;
 

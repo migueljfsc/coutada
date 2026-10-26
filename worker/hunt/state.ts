@@ -127,7 +127,7 @@ export function welcome(state: State, memberId: string, now: number): ServerMess
 /** A socket opened or closed for a member: everyone sees them come and go. */
 export function connected(state: State, memberId: string, delta: 1 | -1): { state: State; out: Out[] } {
   const m = state.members.find((x) => x.id === memberId);
-  if (!m) return { state, out: [] };
+  if (!m || m.kicked) return { state, out: [] };
   const online = { ...state.online, [memberId]: Math.max(0, (state.online[memberId] ?? 0) + delta) };
   const next = { ...state, online };
   return { state: next, out: [send("others", { t: "member", m: memberInfo(next, m) })] };

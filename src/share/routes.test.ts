@@ -6,6 +6,7 @@ describe("routes", () => {
     expect(parseRoute("/map/abcdefghijklmnopqrstuv", "")).toEqual({ kind: "map", id: "abcdefghijklmnopqrstuv" });
     expect(parseRoute("/m/bcdf2345", "")).toEqual({ kind: "shared", slug: "bcdf2345" });
     expect(parseRoute("/transfer", "?c=BCDF2345")).toEqual({ kind: "transfer", code: "BCDF2345" });
+    expect(parseRoute("/hunt/abcdefghijklmnopqrstuv", "")).toEqual({ kind: "hunt", id: "abcdefghijklmnopqrstuv" });
   });
 
   it("treats anything else as home", () => {

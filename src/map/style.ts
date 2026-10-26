@@ -12,7 +12,7 @@ import { EMPTY, PERSON } from "./me";
 export type Style = Exclude<MapOptions["style"], string | undefined>;
 
 export const ME_SOURCE = "me";
-export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide"] as const;
+export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide", "people", "trails"] as const;
 export type DrawingSource = (typeof DRAWING_SOURCES)[number];
 export const imageryLayer = (id: ImageryId) => `imagery-${id}`;
 
@@ -41,6 +41,13 @@ const drawingLayers = [
     source: "shapes",
     filter: ["all", ["==", ["get", "sel"], 1], ["!=", ["get", "kind"], "pin"]],
     paint: { "line-color": ANIL, "line-width": 11, "line-opacity": 0.6 },
+  },
+  {
+    id: "trails",
+    type: "line",
+    source: "trails",
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: { "line-color": PERSON, "line-width": 3, "line-opacity": 0.55 },
   },
   {
     id: "zones-solid",
@@ -143,6 +150,26 @@ const drawingLayers = [
       "icon-offset": ["case", ["==", ["get", "kind"], "pin"], ["literal", [0, 22]], ["literal", [0, 0]]],
       "icon-optional": true,
     },
+  },
+  {
+    id: "people",
+    type: "circle",
+    source: "people",
+    paint: {
+      "circle-radius": 7,
+      "circle-color": ["match", ["get", "state"], "lost", "#9aa093", PERSON],
+      "circle-opacity": ["match", ["get", "state"], "fresh", 1, 0.5],
+      "circle-stroke-color": "#ffffff",
+      "circle-stroke-width": 2.5,
+      "circle-stroke-opacity": ["match", ["get", "state"], "fresh", 1, 0.6],
+    },
+  },
+  {
+    id: "people-labels",
+    type: "symbol",
+    source: "people",
+    layout: { "icon-image": ["get", "label"], "icon-anchor": "top", "icon-offset": ["literal", [0, 12]], "icon-optional": true },
+    paint: { "icon-opacity": ["match", ["get", "state"], "fresh", 1, 0.6] },
   },
   {
     id: "pin-grab",

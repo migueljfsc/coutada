@@ -27,7 +27,8 @@ import { Sheet } from "../components/Sheet";
 import { primaryButton } from "../components/ui";
 import { FeatureHeader, NavigateButton } from "../components/editor/FeatureEditor";
 import { FeatureList } from "../components/editor/FeatureList";
-import { OfflineSection } from "../components/MapPanel";
+import { HuntSection, OfflineSection } from "../components/MapPanel";
+import { JoinHuntDialog } from "../components/hunt/HuntDialogs";
 import { OfflineDialog } from "../components/OfflineDialog";
 
 const PANEL_PX = 392;
@@ -52,6 +53,7 @@ export function SharedScreen({ slug }: { slug: string }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [peek, setPeek] = useState(96);
   const [offline, setOffline] = useState(false);
+  const [joining, setJoining] = useState(false);
   const follow = useFollow();
   const wide = useMedia("(min-width: 48rem)");
   const [initialView] = useState<View>({ center: [-8.1, 39.6], zoom: 6 });
@@ -117,6 +119,7 @@ export function SharedScreen({ slug }: { slug: string }) {
   ) : doc ? (
     <div className="flex flex-col gap-6">
       <FeatureList doc={doc} onChoose={(id) => setSelected(id)} />
+      <HuntSection canStart={false} onJoin={() => setJoining(true)} />
       <OfflineSection onDownload={() => setOffline(true)} />
       <p className="border-l-4 border-person pl-3 text-[15px] leading-snug">{t("safety.notice")}</p>
       <a href="/" className={primaryButton}>
@@ -174,6 +177,7 @@ export function SharedScreen({ slug }: { slug: string }) {
         {body}
       </Sheet>
       {offline && doc && <OfflineDialog doc={doc} imagery={imagery} onClose={() => setOffline(false)} />}
+      {joining && <JoinHuntDialog onClose={() => setJoining(false)} />}
     </main>
   );
 }

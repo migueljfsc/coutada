@@ -14,7 +14,7 @@ deployed at something you can open on a phone in the field.
 | P0 | Shipped (v0.1.0) |
 | P1 | Shipped: map document and geometry; the map screen, imagery and the GPS dot with heading; drawing and editing; accounts, anonymous devices, transfer and claim; maps saved with conflict handling; view links |
 | P2 | Shipped: go to a pin, follow a route with the off-route warning; the app opens offline and keeps imagery seen; the area download with estimate, progress and removal; installable, with the iOS hint |
-| P3 | P3.1 shipped: the hunt object, codes, join, the live protocol, host controls, expiry. Next: the hunt screen |
+| P3 | P3.1 shipped: the hunt object, codes, join, the live protocol, host controls, expiry. P3.2 shipped: the hunt screen — start, join, everyone's positions and trails, staleness and `away`, the host's controls. Next: live drawing sync and observations |
 | P4 | Not started |
 
 ## Phases
@@ -60,7 +60,7 @@ Ends at: in flight mode at the property, the map, your dot, navigation and drawi
   jurisdiction with hibernation; `hunts` table; code generation and rotation (D9, D10).
 - Join page: code, username, Turnstile; `JOIN_LIMIT`; lock, kick, rotate, end.
 - Position sampler with the per-type intervals; positions, staleness, `away` (D15).
-- Trails: own trail in IndexedDB, relay cache, `trail.request` / `trail.sync`; distance walked (D13).
+- Trails: own trail in `localStorage`, relay cache, `trail.request` / `trail.sync`; distance walked (D13).
 - Live drawing sync with write-back; observations, keeping one (D11, D12).
 - End of hunt: "save my trail" (D14); trails list.
 

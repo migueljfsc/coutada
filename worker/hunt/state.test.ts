@@ -121,6 +121,7 @@ describe("the host's controls", () => {
     expect(sent(out).map((o) => o.msg)).toContainEqual({ t: "member.gone", id: ID("a") });
     s = state;
     expect(run(s, ID("a"), { t: "pos", c: S, acc: 5, at: T }).state).toBe(s);
+    expect(connected(s, ID("a"), -1).out).toEqual([]);
   });
 
   it("are the host's alone", () => {

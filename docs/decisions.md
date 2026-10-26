@@ -198,7 +198,7 @@ so what must survive it lives where storage is not:
 
 - **The last position of each member** rides in their socket's attachment
   (`serializeAttachment`, ≤ 2 KB), which the runtime holds with the connection.
-- **Each phone is the authority for its own trail.** It keeps it in IndexedDB for the hunt, so it
+- **Each phone is the authority for its own trail.** It keeps it in `localStorage` for the hunt, so it
   survives the app being killed by the OS. When the object wakes without trails in memory, it
   broadcasts `trail.request` and each phone sends its own (`trail.sync`); a phone that reconnects
   after losing signal does the same for the gap.
