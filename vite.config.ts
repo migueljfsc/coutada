@@ -21,6 +21,13 @@ const alias = { "@": path.resolve(import.meta.dirname, "./src") };
 export default defineConfig(() => ({
   plugins: [react(), securityHeaders()],
   resolve: { alias },
+  build: {
+    rollupOptions: {
+      // The service worker is its own entry, served at the root so its scope is the whole app.
+      input: { index: path.resolve(import.meta.dirname, "index.html"), sw: path.resolve(import.meta.dirname, "src/sw.ts") },
+      output: { entryFileNames: (chunk: { name: string }) => (chunk.name === "sw" ? "sw.js" : "assets/[name]-[hash].js") },
+    },
+  },
   server: {
     port: 5173,
   },

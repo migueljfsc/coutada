@@ -272,7 +272,9 @@ All three cover Salvaterra do Extremo; all three answer `Access-Control-Allow-Or
   basemaps; stolen, it spends a free quota that stops rather than bills.
 - **Attribution** is always on screen for the active source: "© DGT — OrtoSat 2023", "© DGT —
   Ortofotos 2021", "Esri, Maxar, Earthstar Geographics, and the GIS User Community".
-- One function builds each source's tile URL; the map and the offline prefetch both call it (D19).
+- A cached tile is found by a key — host, layer and the bounding box rounded to 0.1 m
+  (`src/offline/tiles.ts`) — never by its URL: MapLibre and the prefetch write the box's numbers
+  differently, and both must hit the same entry (D19).
 - **`cartografia.dgterritorio.gov.pt` is unreliable** (most requests timed out when measured), so
   `ortos2021` is a secondary source: its failures show as a source notice, and prefetch retries
   with backoff and resumes.
@@ -310,9 +312,12 @@ same.
 - **Esri is online-only.** Its tiles go through the browser's HTTP cache like any page, never into
   the prefetch.
 - **Politeness:** 4 requests in flight, retries with backoff, resumable.
-- **Drawings offline:** every map opened is kept in IndexedDB with its version; offline it opens
-  read-only, and editing waits for a connection. A live hunt needs signal; GPS, the map, navigation
-  and the user's own trail do not.
+- **Drawings offline:** the map being worked on is the browser's draft, with its server version;
+  offline it opens and edits as usual, and the edits are sent when a connection returns. A live hunt
+  needs signal; GPS, the map, navigation and the user's own trail do not.
+- **The service worker** (`src/sw.ts`) serves the page network-first with the cached copy as the
+  fallback, hashed assets and the font cache-first, and tiles from the pack cache, then the runtime
+  cache, then DGT. It never caches `/api/*`.
 - **iOS** evicts script-writable storage of a site not used for 7 days unless it is installed to
   the home screen; the download dialog says to install first.
 

@@ -277,21 +277,22 @@ disconnected are not queued — only the trail catches up.
 
 ## 9. Imagery and offline
 
-```ts
-tileUrl(source: ImageryId): string   // the ONE builder; map sources and prefetch both call it
-// ortosat2023:
-// https://ortos.dgterritorio.gov.pt/wms/ortosat2023?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap
-//   &LAYERS=ortoSat2023-CorVerdadeira&STYLES=&CRS=EPSG:3857&BBOX={bbox-epsg-3857}
-//   &WIDTH=512&HEIGHT=512&FORMAT=image/jpeg
-```
+`src/map/imagery.ts` builds each DGT source as a WMS GetMap template with `BBOX={bbox-epsg-3857}`
+at 512 px. `src/offline/tiles.ts` is shared by the page and the service worker: `tileKey(url)`
+turns any DGT tile request into a cache key (host, layer, box rounded to 0.1 m), `tileBBox` and
+`tilesCovering` give the tiles of an area.
 
-Prefetch (D19): `src/geo` covers the map's bbox + 500 m at z10–18 with 512 px tiles, `src/offline`
-substitutes each tile's bbox into the same template, fetches 4 at a time into Cache Storage
-`tiles-<source>-v1`, and records the pack (map, source, bbox, zooms, count, bytes, date) in
-IndexedDB. The service worker serves `tiles-*` cache-first, keeps DGT tiles viewed online in
-`tiles-runtime-v1` (2,000 entries, oldest out), precaches the app shell and the font (D24)
-from the build manifest, and never caches `/api/*`. Opened maps are kept in IndexedDB with their
-version.
+The service worker (`src/sw.ts`, built as `/sw.js`, registered in production only) answers:
+
+| request | strategy | cache |
+|---|---|---|
+| navigation | network first, the cached page when offline | `shell-v1` |
+| `/assets/*`, `/fonts/*`, `/icons/*`, manifest, favicon | cache first | `shell-v1` |
+| DGT tile | pack, then runtime, then network (kept) | `tiles-pack-v1`, `tiles-runtime-v1` (2,000, oldest out) |
+| `/api/*`, anything else | network only | — |
+
+The area download (D19) writes tiles into `tiles-pack-v1` under the same keys. The map in use is the
+draft in localStorage (`share/draft.ts`) with its server version.
 
 ## 10. Worker API
 

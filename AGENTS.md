@@ -84,8 +84,12 @@ local dry run — CI owns the deploy.
 ### Map (D18, D24)
 - **MapLibre's stylesheet is unlayered, so it beats Tailwind utilities.** `.maplibregl-map` sets
   `position: relative`; position the map with a wrapper, never with classes on its container.
-- **`tileUrl` in `src/map/imagery.ts` is the one place a tile URL is built** — the map and the
-  offline prefetch must ask for byte-identical URLs, or the cache misses.
+- **A cached tile is found by `tileKey`, never by URL** — MapLibre and the prefetch format the
+  bounding box differently; the key rounds it. A new imagery host joins `TILE_HOSTS` or it is
+  never cached.
+- **The service worker is its own entry and tsconfig** (`src/sw.ts`, `tsconfig.sw.json`, WebWorker
+  lib) and registers only in production. A cache layout change is a new cache name; `activate`
+  deletes the rest.
 - **Images come from `setMissingStyleImageResolver`**, never the `styleimagemissing` event: in
   MapLibre v6 an image added from the event is not drawn until some later repaint.
 - **Pin glyphs are rendered with `flushSync` one tick after the effect that asks for them** — inside
