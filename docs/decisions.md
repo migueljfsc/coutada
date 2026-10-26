@@ -314,16 +314,21 @@ same.
 - **iOS** evicts script-writable storage of a site not used for 7 days unless it is installed to
   the home screen; the download dialog says to install first.
 
-## D20 — Drawing: Terra Draw for geometry, MapLibre layers for what is drawn
-Terra Draw (with its MapLibre adapter) edits geometry — point, line, polygon, select/drag vertices
-— with touch as the first input. It is not the store: the map document is, and Terra Draw is loaded
-with the one feature being edited and hands back its geometry. Everything at rest is drawn by
-MapLibre layers from the document — typed pin icons registered with `addImage`, labels, lines,
-fills — so editing and viewing render the same way.
+## D20 — Drawing is our own, on MapLibre's events; the document is the store
+Drawing and reshaping are a pure reducer (`src/draw/editor.ts`) over the map document, driven by
+MapLibre's tap and drag events, and everything is drawn by MapLibre layers from the document —
+typed pin badges, labels (D24), lines, fills, the line in progress and the edit handles — so
+drawing, editing and viewing render one way.
 
-Touch rules: a pin is placed by a tap in pin mode, never by a long-press (it fights map panning);
-vertices are dragged by handles ≥ 44 px; finishing a line or a polygon is a button, not a
-double-tap.
+Terra Draw was rejected: a line or area finishes only by a double-tap or a keyboard key, and the
+finish here is a button; and editing with it means a second store of the same geometry and a
+second owner of the map's pointer events.
+
+Touch rules: a pin is placed by a tap with its type already chosen, never by a long-press (it fights
+panning); a line or area grows a point per tap and finishes from the sheet; the selected shape shows
+vertex handles to drag and midpoint handles that become a new vertex when dragged; a tapped vertex
+can be deleted from the sheet. A drag is one undo step. A porta placed within 40 m of an armada
+stands on it and the armada is renumbered along its length.
 
 ## D24 — Labels and icons are images the app draws
 Pin names, porta numbers and zone names are MapLibre symbol layers, not DOM markers: MapLibre

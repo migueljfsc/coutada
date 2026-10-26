@@ -53,7 +53,7 @@ src/doc/                    pure: MapDoc types, zod schema (shared with the Work
                             operations (add/move/renumber/delete), feature catalogue
 src/map/                    MapLibre setup, imagery sources (one URL builder per source), layers,
                             icons, attribution
-src/draw/                   Terra Draw ↔ one feature at a time
+src/draw/                   the editor: tools, selection, undo — a pure reducer (D20)
 src/live/                   WebSocket client, reconnect, position sampler (D15), own trail store
 src/nav/                    navigate-to-pin and follow-route state over src/geo
 src/offline/                prefetch planner and runner, map cache (IndexedDB)

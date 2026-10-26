@@ -26,6 +26,9 @@ const position = z.tuple([z.number().min(-180).max(180), z.number().min(-90).max
 const label = (max: number) =>
   z.string().trim().min(1).max(max).regex(LABEL);
 
+/** Whether `text` can be a feature's name: the rule the schema applies, for a form to check first. */
+export const isFeatureName = (text: string): boolean => label(LIMITS.name).safeParse(text).success;
+
 const common = {
   name: label(LIMITS.name).optional(),
   note: z.string().max(LIMITS.note).regex(PRINTABLE).optional(),

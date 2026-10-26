@@ -129,6 +129,51 @@ export function bufferBBox(box: BBox, metres: number): BBox {
   return [w - dLon, s - dLat, e + dLon, n + dLat];
 }
 
+/** The point `metres` along a polyline from its start, clamped to its ends. */
+export function pointAlong(line: readonly Position[], metres: number): Position {
+  let left = Math.max(0, metres);
+  for (let i = 1; i < line.length; i++) {
+    const seg = distance(line[i - 1], line[i]);
+    if (left <= seg && seg > 0) {
+      const t = left / seg;
+      return [line[i - 1][0] + t * (line[i][0] - line[i - 1][0]), line[i - 1][1] + t * (line[i][1] - line[i - 1][1])];
+    }
+    left -= seg;
+  }
+  return line[line.length - 1];
+}
+
+/** Planar area and centroid of a ring in a local metric frame — exact enough for a property. */
+function ringMetrics(ring: readonly Position[]): { area: number; centroid: Position } {
+  const ref = ring[0];
+  const kx = EARTH_RADIUS_M * RAD * Math.cos(ref[1] * RAD);
+  const ky = EARTH_RADIUS_M * RAD;
+  let twice = 0;
+  let cx = 0;
+  let cy = 0;
+  for (let i = 0; i < ring.length - 1; i++) {
+    const x0 = (ring[i][0] - ref[0]) * kx;
+    const y0 = (ring[i][1] - ref[1]) * ky;
+    const x1 = (ring[i + 1][0] - ref[0]) * kx;
+    const y1 = (ring[i + 1][1] - ref[1]) * ky;
+    const cross = x0 * y1 - x1 * y0;
+    twice += cross;
+    cx += (x0 + x1) * cross;
+    cy += (y0 + y1) * cross;
+  }
+  if (twice === 0) return { area: 0, centroid: ref };
+  return {
+    area: Math.abs(twice) / 2,
+    centroid: [ref[0] + cx / (3 * twice) / kx, ref[1] + cy / (3 * twice) / ky],
+  };
+}
+
+/** Area of a closed ring, square metres. */
+export const ringArea = (ring: readonly Position[]): number => ringMetrics(ring).area;
+
+/** Centroid of a closed ring. */
+export const ringCentroid = (ring: readonly Position[]): Position => ringMetrics(ring).centroid;
+
 /** A closed ring approximating the circle of `metres` around `center`, `steps` sides. */
 export function circle(center: Position, metres: number, steps = 48): Position[] {
   const ring: Position[] = [];

@@ -196,6 +196,42 @@ export function numberPortas(doc: MapDoc, armadaId: FeatureId, now: number, from
   );
 }
 
+/** Sets a porta's number by hand, or clears it (null). */
+export function setPortaNumber(doc: MapDoc, portaId: FeatureId, n: number | null, now: number): MapDoc {
+  return withFeatures(
+    doc,
+    doc.features.map((f): MapFeature => {
+      if (f.id !== portaId || f.properties.kind !== "pin" || f.properties.type !== "porta") return f;
+      const props = { ...(f as PinFeature).properties, updatedAt: now };
+      if (n === null) delete props.n;
+      else props.n = Math.max(1, Math.min(LIMITS.portaNumber, Math.round(n)));
+      return { ...(f as PinFeature), properties: props };
+    }),
+  );
+}
+
+/** The armada nearest to `at` within `withinM`, or null. */
+export function nearestArmada(doc: MapDoc, at: Position, withinM: number): FeatureId | null {
+  let best: { id: FeatureId; d: number } | null = null;
+  for (const f of doc.features) {
+    if (f.properties.kind !== "route" || f.properties.type !== "armada") continue;
+    const d = Math.abs(nearestOnLine((f as RouteFeature).geometry.coordinates, at).cross);
+    if (d <= withinM && (!best || d < best.d)) best = { id: f.id, d };
+  }
+  return best?.id ?? null;
+}
+
+/** The lowest number among an armada's portas, which renumbering keeps as its start. */
+export function firstPortaNumber(doc: MapDoc, armadaId: FeatureId): number {
+  let first = Infinity;
+  for (const f of doc.features) {
+    if (f.properties.kind === "pin" && f.properties.armada === armadaId && f.properties.n !== undefined) {
+      first = Math.min(first, f.properties.n);
+    }
+  }
+  return first === Infinity ? 1 : first;
+}
+
 export function renameMap(doc: MapDoc, name: string): MapDoc {
   return { ...doc, coutada: { ...doc.coutada, name } };
 }

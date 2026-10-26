@@ -42,7 +42,18 @@ describe("the dictionaries", () => {
 
   it("are translated, not copied", () => {
     const shared = keys.filter((k) => en[k] === pt[k]);
-    expect(shared.sort()).toEqual(["app.name", "imagery.esri", "locale.en", "locale.pt"]);
+    expect(shared.sort()).toEqual([
+      "app.name",
+      "colour.magenta",
+      "edit.armada",
+      "imagery.esri",
+      "list.portaN",
+      "locale.en",
+      "locale.pt",
+      "type.armada",
+      "type.mancha",
+      "type.porta",
+    ]);
   });
 });
 

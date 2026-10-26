@@ -12,7 +12,7 @@ deployed at something you can open on a phone in the field.
 | Phase | State |
 |---|---|
 | P0 | Shipped (v0.1.0) |
-| P1 | Slices 1–2 shipped: map document and geometry; the map screen, imagery and the GPS dot |
+| P1 | Slices 1–3 shipped: map document and geometry; the map screen, imagery and the GPS dot; drawing and editing, kept in the browser |
 | P2–P4 | Not started |
 
 ## Phases
@@ -35,7 +35,7 @@ Ends at: CI green, `https://coutada.migueljfsc.dev` serves the shell.
 ### P1 — Map, imagery, drawing, saving, my GPS dot
 - `src/doc` (schema, operations, migrate) and `src/geo` basics, tested.
 - MapLibre with `ortosat2023`, `ortos2021`, `esri`; switcher; attribution (D18).
-- Drawing with Terra Draw, touch first: typed pins, routes, armadas with numbered portas, zones;
+- Drawing on MapLibre's own events, touch first (D20): typed pins, routes, armadas with numbered portas, zones;
   names, colours, notes (D20).
 - Accounts copied from pitchboard (D4); devices, transfer codes and claim (D5, D6).
 - Maps in D1 with caps and optimistic concurrency; view links (D8).
@@ -77,7 +77,6 @@ and a redeploy of the Worker, and nothing about positions is in D1 or object sto
 | react, react-dom, zod, tailwind-merge, clsx, class-variance-authority, lucide-react | as pitchboard | P0 |
 | vite, @vitejs/plugin-react, typescript, eslint (+ plugins), tailwindcss, @tailwindcss/postcss, postcss, vitest, wrangler, globals, @types/* | as pitchboard | P0 |
 | maplibre-gl | map | P1 |
-| terra-draw, terra-draw-maplibre-gl-adapter | drawing | P1 |
 | qrcode (or a hand-rolled encoder) | transfer QR (D5) | P1 |
 | @cloudflare/vitest-plugin (formerly `@cloudflare/vitest-pool-workers`) | testing the Worker and the object shell against the runtime | P0 |
 | Atkinson Hyperlegible Next, woff2 (static files, OFL, not a package) | UI and map labels (D24) | P1 |

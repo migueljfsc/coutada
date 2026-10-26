@@ -8,6 +8,9 @@ import {
   distance,
   lineLength,
   nearestOnLine,
+  pointAlong,
+  ringArea,
+  ringCentroid,
   roundCoord,
   type Position,
 } from "./geo";
@@ -112,6 +115,25 @@ describe("boxes and rounding", () => {
     const box = bufferBBox([S[0], S[1], S[0], S[1]], 500);
     expect(distance([box[0], S[1]], S)).toBeCloseTo(500, 0);
     expect(distance([S[0], box[3]], S)).toBeCloseTo(500, 0);
+  });
+
+  it("finds the point along a line, clamped to its ends", () => {
+    const line: Position[] = [S, destination(S, 90, 400), destination(destination(S, 90, 400), 0, 300)];
+    expect(distance(pointAlong(line, 100), destination(S, 90, 100))).toBeLessThan(0.05);
+    expect(distance(pointAlong(line, 550), destination(line[1], 0, 150))).toBeLessThan(0.05);
+    expect(pointAlong(line, -5)).toEqual(S);
+    expect(pointAlong(line, 1e6)).toEqual(line[2]);
+  });
+
+  it("measures a square's area and centre", () => {
+    const a = S;
+    const b = destination(a, 90, 200);
+    const c = destination(b, 0, 200);
+    const d = destination(a, 0, 200);
+    const ring = [a, b, c, d, a];
+    expect(ringArea(ring)).toBeCloseTo(40_000, -1);
+    expect(distance(ringCentroid(ring), destination(destination(a, 90, 100), 0, 100))).toBeLessThan(0.5);
+    expect(ringArea([...ring].reverse())).toBeCloseTo(40_000, -1);
   });
 
   it("draws a closed circle at the radius", () => {

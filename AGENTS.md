@@ -37,7 +37,8 @@ hunt types: montaria/batida (mostly stationary) and salto (walked up, on the mov
 ```
 docs/                     architecture, implementation plan, decisions
 src/geo/  src/doc/        pure modules (P1)
-src/map/ src/draw/ src/live/ src/nav/ src/offline/   shells around them (P1–P3)
+src/draw/                 the editor reducer (pure)
+src/map/ src/live/ src/nav/ src/offline/   shells around them (P1–P3)
 src/i18n/                 PT and EN; en.ts declares the keys
 src/share/                storage.ts (the ONLY localStorage access; never throws)
 worker/index.ts           routes /api/*
@@ -81,6 +82,10 @@ local dry run — CI owns the deploy.
   `position: relative`; position the map with a wrapper, never with classes on its container.
 - **`tileUrl` in `src/map/imagery.ts` is the one place a tile URL is built** — the map and the
   offline prefetch must ask for byte-identical URLs, or the cache misses.
+- **Images come from `setMissingStyleImageResolver`**, never the `styleimagemissing` event: in
+  MapLibre v6 an image added from the event is not drawn until some later repaint.
+- **A drag swallows the click that follows its release, and only that one** — the flag is cleared
+  on the next tick, or the first tap after a drag (the first corner of an area) is lost.
 - **Orange is for people.** `PERSON` marks you and other hunters; no drawing colour may be orange.
 - **`src/doc` and `src/geo` use relative imports** — the Worker imports the schema, and its bundler
   does not know the `@/` alias.
