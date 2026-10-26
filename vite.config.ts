@@ -53,6 +53,7 @@ export default defineConfig(() => ({
                 RESEND_API_KEY: "test-resend",
                 GOOGLE_CLIENT_ID: "test-client",
                 GOOGLE_CLIENT_SECRET: "test-secret",
+                HUNT_JURISDICTION: "",
               },
             },
           })),

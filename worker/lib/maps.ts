@@ -7,6 +7,7 @@ import { parseMapDoc } from "../../src/doc/schema";
 import { randomCode, newId } from "./crypto";
 import { fail, json, limited, readJson } from "./http";
 import { MAX_MAP_REQUEST_BYTES, MAX_MAPS_PER_DEVICE, MAX_MAPS_PER_USER, SLUG_ALPHABET, SLUG_ATTEMPTS, SLUG_LENGTH } from "./limits";
+import { huntOnMap } from "./hunts";
 import { ownerColumn, principalKey, type Principal } from "./principal";
 
 export interface MapCtx {
@@ -69,6 +70,9 @@ export async function updateMap(ctx: MapCtx, id: string): Promise<Response> {
   const version = body?.version;
   if (!doc) return fail("invalid_document", 400);
   if (typeof version !== "number" || !Number.isInteger(version)) return fail("invalid_version", 400);
+
+  // While a hunt runs on the map, its edits go through the hunt, which writes them back (D8, D12).
+  if (await huntOnMap(ctx.env, id, ctx.now)) return fail("hunt_active", 409);
 
   const [column, owner] = ownerColumn(ctx.principal);
   const result = await ctx.env.DB.prepare(

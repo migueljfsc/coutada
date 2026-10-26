@@ -25,10 +25,13 @@ import {
 } from "./lib/google";
 import { timingSafeEqual } from "./lib/crypto";
 import { fail, json, secured } from "./lib/http";
+import { connectHunt, createHunt, joinHunt } from "./lib/hunts";
 import { createMap, deleteMap, getMap, listMaps, publishMap, readShare, unpublishMap, updateMap, type MapCtx } from "./lib/maps";
 import { resolvePrincipal } from "./lib/principal";
 import { clearedSessionCookie, createSession, destroySession, resolveSession, sessionCookie, SESSION_TTL_S } from "./lib/session";
 import { userForGoogleIdentity } from "./lib/users";
+
+export { Hunt } from "./hunt/object";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -44,6 +47,7 @@ const ID = "([A-Za-z0-9_-]{22})";
 const MAP = new RegExp(`^/api/maps/${ID}$`);
 const MAP_PUBLISH = new RegExp(`^/api/maps/${ID}/publish$`);
 const SHARE = /^\/api\/shares\/([2-9bcdfghjkmnpqrstvwxz]{8})$/;
+const HUNT_WS = new RegExp(`^/api/hunts/${ID}/ws$`);
 
 /** Sign-in by Google ends in a navigation, so a failure is a query parameter the page can show. */
 function backToApp(origin: string, error?: string): Response {
@@ -143,6 +147,13 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
       return startTransfer(env, device, now);
     }
 
+    case "POST /api/hunts": {
+      const principal = await resolvePrincipal(env, request, now);
+      return principal ? createHunt(env, request, principal, now) : fail("unauthorized", 401);
+    }
+    case "POST /api/hunts/join":
+      return joinHunt(env, request, await resolvePrincipal(env, request, now), now);
+
     case "GET /api/maps":
     case "POST /api/maps": {
       const principal = await resolvePrincipal(env, request, now);
@@ -151,6 +162,9 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
       return request.method === "GET" ? listMaps(mapCtx) : createMap(mapCtx);
     }
   }
+
+  const huntWs = HUNT_WS.exec(url.pathname);
+  if (huntWs && request.method === "GET") return connectHunt(env, request, huntWs[1], url.origin);
 
   const share = SHARE.exec(url.pathname);
   if (share && request.method === "GET") return readShare(env, share[1]);

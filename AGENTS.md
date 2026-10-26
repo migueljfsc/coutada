@@ -115,6 +115,16 @@ local dry run — CI owns the deploy.
   needs `wrangler d1 migrations apply coutada-prod --local`. On localhost the app uses Turnstile's
   always-pass test sitekey, which pairs with the test secret.
 
+### Live hunts (D9–D13)
+- **The hunt reducer (`worker/hunt/state.ts`) decides; the object only carries out.** Anything
+  decidable — who may do what, a stale edit, a trail — goes in the reducer and its tests.
+- **`persist` names the durable fields one by one** — positions and trails must never reach
+  storage (D13); spreading the state would write them.
+- **Send through `sendTo`** — a kicked or dropping member's socket throws on `send`, and one
+  throw ends the broadcast for everyone after it.
+- **`HUNT_JURISDICTION` is `"eu"` in wrangler.jsonc and blank only in tests and `.dev.vars`** —
+  workerd has no jurisdictions; `src/share/deploy.test.ts` fails if production loses it.
+
 ### Language (D3)
 - **A pure module must not return prose** — it returns a `Message`.
 - **Never assemble a sentence from fragments** — a whole key with a placeholder.

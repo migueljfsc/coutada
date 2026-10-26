@@ -162,9 +162,11 @@ enough to guess, so the defence is layered:
    valid locked code from an unused one.
 
 Joining returns `{ huntId, memberId, token }`; the token (256 bits, stored as a digest in the
-object) is what the WebSocket authenticates with and what reconnects after a dropped signal.
-Usernames are unique within a hunt; a signed-in member's name carries a mark the anonymous cannot
-fake. Cap: 30 members.
+object) is what the WebSocket authenticates with — offered as a subprotocol beside `coutada.v1`
+and checked before the socket is accepted, so no unauthenticated socket is ever open — and what
+reconnects after a dropped signal. A name already used in the hunt is suffixed ("João (2)")
+rather than refused, which would confirm that a guessed code is live. A signed-in member's name
+carries a mark the anonymous cannot fake. Cap: 30 members.
 
 ## D11 — Roles: the host edits, members see and share; members may add observations
 - **Host** — whoever created the hunt; edits drawings, locks, kicks, rotates, ends.
@@ -237,8 +239,9 @@ offset taken from `welcome`. A position older than twice its expected interval f
 group reads "app em segundo plano" rather than a silent fade.
 
 ## D16 — EU jurisdiction, no third-party analytics
-The `Hunt` namespace is used only through `jurisdiction("eu")`; D1 is created with jurisdiction
-`eu` (`cloudflare_d1_database.jurisdiction`). No analytics script; the daily
+The `Hunt` namespace is used through the jurisdiction in `HUNT_JURISDICTION`, `"eu"` in
+wrangler.jsonc and held there by a test; local workerd does not implement jurisdictions, so tests
+and `.dev.vars` blank it. D1 is created with jurisdiction `eu` (`cloudflare_d1_database.jurisdiction`). No analytics script; the daily
 usage counters of pb-D119 (no person, device, map or hunt named) arrive in phase 4 with `/admin`
 (pb-D108).
 

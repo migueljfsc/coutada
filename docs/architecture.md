@@ -176,9 +176,9 @@ member: POST /api/hunts/join {code, username, turnstile}
               → stub.join({ username, principal kind }) → { huntId, memberId, token }
               (unknown code, expired, locked, full: all 404 not_found)
 
-both: GET /api/hunts/:id/ws (Upgrade)
-      Worker: Origin must be the app's → stub.fetch → ctx.acceptWebSocket
-      first message must be hello{token} within 10 s, else close 4001
+both: GET /api/hunts/:id/ws (Upgrade, Sec-WebSocket-Protocol: coutada.v1, <token>)
+      Worker: Origin must be the app's → stub.fetch
+      object: token digest must match a member not kicked, else 401 → ctx.acceptWebSocket
 
 end:  host `hunt.end` or alarm at expires_at
       → write doc to D1 → broadcast ended → close all (4004) → storage.deleteAll()
@@ -208,7 +208,7 @@ close a socket). Everything decidable is in the reducer and tested there.
 
 | | where | survives hibernation | survives the hunt |
 |---|---|---|---|
-| members (token digest, name, role, kicked) | DO SQLite | yes | no — deleteAll |
+| members (token digest, name, role, kicked) | DO storage | yes | no — deleteAll |
 | map doc + rev | DO SQLite, written back to D1 | yes | in D1 |
 | observations | DO SQLite | yes | only if kept |
 | lock, code, expiry | DO SQLite + alarm | yes | no |
@@ -226,7 +226,6 @@ and both sides import it. Positions are `[lon, lat]` at 5 decimals (~1 m); times
 
 | t | fields | who |
 |---|---|---|
-| `hello` | `v: 1, token, trailSince?` | all, first frame |
 | `pos` | `c, acc, hdg?, spd?, at` | all |
 | `away` / `back` | — | all (page hidden / shown) |
 | `trail.sync` | `pts: [lon, lat, t][]` (own trail from `trailSince` or the start) | all |
@@ -257,8 +256,8 @@ and both sides import it. Positions are `[lon, lat]` at 5 decimals (~1 m); times
 Close codes: 4001 unauthenticated, 4003 kicked, 4004 ended, 4008 over a limit. Limits per socket:
 frames ≤ 64 KB (`trail.sync` ≤ 1 MB), ≤ 4 frames a second averaged over 10 s.
 
-**Reconnect:** exponential backoff with jitter, `hello` with the same token and `trailSince` = the
-last point the object acknowledged seeing; `welcome` replaces all live state. Positions taken while
+**Reconnect:** exponential backoff with jitter, with the same token as the subprotocol; `welcome`
+replaces all live state, and the phone sends its own trail again (`trail.sync`). Positions taken while
 disconnected are not queued — only the trail catches up.
 
 ## 8. Position, navigation and the phone

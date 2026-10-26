@@ -33,6 +33,8 @@ export async function claim(env: Env, user: SessionUser, device: Device): Promis
 
   await env.DB.batch([
     env.DB.prepare("UPDATE maps SET owner_user_id = ?1, owner_device_id = NULL WHERE owner_device_id = ?2").bind(user.id, device.id),
+    env.DB.prepare("UPDATE trails SET owner_user_id = ?1, owner_device_id = NULL WHERE owner_device_id = ?2").bind(user.id, device.id),
+    env.DB.prepare("UPDATE hunts SET host_user_id = ?1, host_device_id = NULL WHERE host_device_id = ?2").bind(user.id, device.id),
     env.DB.prepare("DELETE FROM device_transfers WHERE device_id = ?1").bind(device.id),
     env.DB.prepare("DELETE FROM device_tokens WHERE device_id = ?1").bind(device.id),
     env.DB.prepare("DELETE FROM devices WHERE id = ?1").bind(device.id),
@@ -42,6 +44,8 @@ export async function claim(env: Env, user: SessionUser, device: Device): Promis
 
 export async function eraseAccount(env: Env, id: string, email: string): Promise<void> {
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM trails WHERE owner_user_id = ?1").bind(id),
+    env.DB.prepare("DELETE FROM hunts WHERE host_user_id = ?1").bind(id),
     env.DB.prepare("DELETE FROM maps WHERE owner_user_id = ?1").bind(id),
     env.DB.prepare("DELETE FROM identities WHERE user_id = ?1").bind(id),
     env.DB.prepare("DELETE FROM sessions WHERE user_id = ?1").bind(id),

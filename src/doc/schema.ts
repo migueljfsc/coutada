@@ -8,6 +8,7 @@ import {
   IMAGERY_IDS,
   LIMITS,
   PALETTE_KEYS,
+  type PaletteKey,
   PIN_TYPES,
   ROUTE_TYPES,
   ZONE_TYPES,
@@ -32,7 +33,7 @@ export const isFeatureName = (text: string): boolean => label(LIMITS.name).safeP
 const common = {
   name: label(LIMITS.name).optional(),
   note: z.string().max(LIMITS.note).regex(PRINTABLE).optional(),
-  color: z.enum(PALETTE_KEYS as [string, ...string[]]).optional(),
+  color: z.enum(PALETTE_KEYS as [PaletteKey, ...PaletteKey[]]).optional(),
   updatedAt: z.number().int().nonnegative(),
 };
 
@@ -80,6 +81,9 @@ const zone = z.object({
   properties: z.object({ ...common, kind: z.literal("zone"), type: z.enum(ZONE_TYPES) }),
 });
 
+/** One feature, as a live hunt sends it (D12). */
+export const mapFeatureSchema = z.union([pin, route, zone]);
+
 export const mapDocSchema = z.object({
   type: z.literal("FeatureCollection"),
   coutada: z.object({
@@ -89,7 +93,7 @@ export const mapDocSchema = z.object({
     view: z.object({ center: position, zoom: z.number().min(0).max(22) }).optional(),
   }),
   features: z
-    .array(z.union([pin, route, zone]))
+    .array(mapFeatureSchema)
     .max(LIMITS.features)
     .refine((fs) => new Set(fs.map((f) => f.id)).size === fs.length, {
       message: "feature ids are unique",
