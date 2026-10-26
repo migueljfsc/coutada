@@ -11,6 +11,14 @@ export type LocationStatus = "off" | "asking" | "on" | "denied" | "unavailable";
 
 /** Below this speed the GPS course is noise. */
 const MOVING_MPS = 0.5;
+/** A compass reading is applied at most this often, and only when it turned this far. */
+const COMPASS_EVERY_MS = 100;
+const COMPASS_STEP_DEG = 3;
+
+/** The screen's own rotation, so the beam points where the phone points in landscape too. */
+const screenAngle = (): number => (typeof screen !== "undefined" && screen.orientation ? screen.orientation.angle : 0);
+
+const turned = (a: number, b: number): number => Math.abs(((a - b + 540) % 360) - 180);
 
 type CompassEvent = DeviceOrientationEvent & { webkitCompassHeading?: number };
 type OrientationPermission = { requestPermission?: () => Promise<"granted" | "denied"> };
@@ -20,13 +28,22 @@ export function useLocation() {
   const [fix, setFix] = useState<Fix | null>(null);
   const watch = useRef<number | null>(null);
   const compass = useRef<number | null>(null);
+  const applied = useRef({ at: 0, heading: -1 });
 
   const onOrientation = useCallback((e: Event) => {
     const o = e as CompassEvent;
-    if (typeof o.webkitCompassHeading === "number") compass.current = o.webkitCompassHeading;
-    else if (o.absolute && typeof o.alpha === "number") compass.current = (360 - o.alpha) % 360;
+    let heading: number;
+    if (typeof o.webkitCompassHeading === "number") heading = o.webkitCompassHeading;
+    else if (o.absolute && typeof o.alpha === "number") heading = 360 - o.alpha;
     else return;
-    setFix((f) => (f ? { ...f, heading: compass.current } : f));
+    heading = (heading + screenAngle() + 360) % 360;
+    compass.current = heading;
+
+    const now = performance.now();
+    const last = applied.current;
+    if (now - last.at < COMPASS_EVERY_MS || (last.heading >= 0 && turned(heading, last.heading) < COMPASS_STEP_DEG)) return;
+    applied.current = { at: now, heading };
+    setFix((f) => (f ? { ...f, heading } : f));
   }, []);
 
   const stop = useCallback(() => {

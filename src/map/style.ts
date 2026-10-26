@@ -183,6 +183,7 @@ const meLayers: AddLayerObject[] = [
     filter: ["all", ["==", ["get", "role"], "dot"], [">=", ["get", "heading"], 0]],
     layout: {
       "icon-image": "me-cone",
+      "icon-anchor": "center",
       "icon-rotate": ["get", "heading"],
       "icon-rotation-alignment": "map",
       "icon-allow-overlap": true,
@@ -233,18 +234,22 @@ export function baseStyle(imagery: ImageryId): Style {
   } as Style;
 }
 
-/** The heading cone drawn beside the dot: a soft wedge pointing up, rotated by the map. */
-export function headingCone(size = 96): ImageData {
+/**
+ * The heading beam drawn under the dot, as Google Maps does: a wedge pointing up (north before the
+ * map rotates it), solid at the dot and fading out, wide enough to read at a glance.
+ */
+export function headingCone(size = 176): ImageData {
   const canvas = new OffscreenCanvas(size, size);
   const ctx = canvas.getContext("2d")!;
   const c = size / 2;
   const gradient = ctx.createRadialGradient(c, c, 0, c, c, c);
-  gradient.addColorStop(0, "rgba(255, 90, 31, 0.55)");
+  gradient.addColorStop(0, "rgba(255, 90, 31, 0.75)");
+  gradient.addColorStop(0.35, "rgba(255, 90, 31, 0.45)");
   gradient.addColorStop(1, "rgba(255, 90, 31, 0)");
   ctx.fillStyle = gradient;
   ctx.beginPath();
   ctx.moveTo(c, c);
-  ctx.arc(c, c, c, -Math.PI / 2 - 0.45, -Math.PI / 2 + 0.45);
+  ctx.arc(c, c, c, -Math.PI / 2 - 0.62, -Math.PI / 2 + 0.62);
   ctx.closePath();
   ctx.fill();
   return ctx.getImageData(0, 0, size, size);
