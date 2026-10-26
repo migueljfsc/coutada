@@ -1,0 +1,45 @@
+name: release
+
+# Bumps the version from conventional commits, updates CHANGELOG.md, tags, and opens a GitHub
+# Release. The bump commit carries [skip ci] (.cz.yaml), so it does not retrigger this.
+#
+# Requires a CZ_TOKEN secret: a PAT with `contents: write` that may push to the protected main.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.CZ_TOKEN || github.token }}
+          fetch-depth: 0
+
+      - id: cz
+        uses: commitizen-tools/commitizen-action@0.27.1
+        with:
+          github_token: ${{ secrets.CZ_TOKEN || github.token }}
+          changelog_increment_filename: body.md
+
+      - if: ${{ env.REVISION != '' }}
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ env.REVISION }}
+          bodyFile: body.md
+          skipIfReleaseExists: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.CZ_TOKEN || github.token }}
+
+      - if: ${{ env.REVISION != '' }}
+        run: echo "Released ${{ steps.cz.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"

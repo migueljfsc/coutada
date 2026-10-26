@@ -1,0 +1,77 @@
+name: deploy-worker
+
+# Builds the SPA and deploys it, with the API Worker, to Cloudflare. The deploy belongs to
+# wrangler, not OpenTofu: a Worker with assets needs a completion JWT that expires in an hour,
+# obtained by uploading dist/ first (D1, pb-D40).
+#
+# Required GitHub secrets (shared with the terraform workflow):
+#   CLOUDFLARE_API_TOKEN    — Account · Workers Scripts · Edit, Account · D1 · Edit
+#   CLOUDFLARE_ACCOUNT_ID
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "worker/**"
+      - "wrangler.jsonc"
+      - "public/**"
+      - "index.html"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "vite.config.ts"
+      - "tsconfig*.json"
+      - "eslint.config.js"
+      - ".github/workflows/deploy-worker.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: cloudflare-production
+      url: https://coutada.migueljfsc.dev
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.9.0
+
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      - run: pnpm build
+
+      # Schema before code. Migrations are forward-only and additive; this runs unattended.
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.151.2"
+          command: d1 migrations apply coutada-prod --remote
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.151.2"
+          command: deploy

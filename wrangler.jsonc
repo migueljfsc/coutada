@@ -1,0 +1,32 @@
+{
+  // Deployed by .github/workflows/deploy-worker.yml. Locally: pnpm build && pnpm deploy:worker --dry-run
+  //
+  // Static assets are free and outside the 100k requests/day budget; only the paths in
+  // run_worker_first invoke the script (D1). The hunt WebSocket lives under /api/.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "coutada",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-26",
+
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+
+  "routes": [{ "pattern": "coutada.migueljfsc.dev", "custom_domain": true }],
+  "workers_dev": false,
+
+  // database_id comes from `tofu output d1_database_id` after the stack's first apply.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "coutada-prod",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "./worker/migrations"
+    }
+  ],
+
+  "observability": { "enabled": true }
+}

@@ -1,0 +1,5 @@
+# wrangler pulls workerd, whose postinstall fetches the runtime binary; pnpm runs only the
+# build scripts listed here.
+allowBuilds:
+  esbuild: true
+  workerd: true
