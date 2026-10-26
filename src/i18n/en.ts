@@ -11,9 +11,38 @@
 export const en = {
   // ------------------------------------------------------------------- app
   "app.name": "Coutada",
-  "app.tagline": "The hunt on the map: portas, armadas, manchas and routes, and where everyone is.",
   "app.locale": "Language",
-  "app.soon": "Under construction.",
+  "locale.pt": "Português",
+  "locale.en": "English",
+
+  // ------------------------------------------------------------------- map
+  "map.untitled": "Untitled map",
+  "sheet.label": "Map details",
+  "sheet.expand": "Show details",
+  "sheet.collapse": "Hide details",
+
+  // --------------------------------------------------------------- imagery
+  "imagery.title": "Imagery",
+  "imagery.ortosat2023": "Satellite, 2023",
+  "imagery.ortosat2023.detail": "30 cm, all of mainland Portugal",
+  "imagery.ortos2021": "Aerial photo, 2021",
+  "imagery.ortos2021.detail": "25 cm, north of the Tejo, sometimes slow",
+  "imagery.esri": "Esri World Imagery",
+  "imagery.esri.detail": "Worldwide, online only",
+  "imagery.failing": "{source} is not responding. The map shows what has already loaded.",
+  "imagery.useDefault": "Use the satellite",
+
+  // ------------------------------------------------------------ my position
+  "locate.start": "Show my position",
+  "locate.recenter": "Centre on my position",
+  "locate.stop": "Stop showing my position",
+  "locate.off": "Your position is not shown.",
+  "locate.asking": "Finding your position…",
+  "locate.accuracy": "You are here, to within {m} m.",
+  "locate.denied": "Location is blocked for this site. Allow it in the browser's settings to see yourself on the map.",
+  "locate.unavailable": "No GPS fix yet. Move to open sky and try again.",
+  "position.coords": "Coordinates",
+  "position.accuracy": "Accuracy",
 
   // -------------------------------------------------------------- documents
   "doc.notAMap": "This file is not a Coutada map.",

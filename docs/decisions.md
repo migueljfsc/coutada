@@ -325,17 +325,18 @@ Touch rules: a pin is placed by a tap in pin mode, never by a long-press (it fig
 vertices are dragged by handles ≥ 44 px; finishing a line or a polygon is a button, not a
 double-tap.
 
-## D24 — Labels are MapLibre text, with self-hosted glyphs
+## D24 — Labels and icons are images the app draws
 Pin names, porta numbers and zone names are MapLibre symbol layers, not DOM markers: MapLibre
-places them on the GPU, hides colliding ones, keeps them on the map while it pans and rotates, and
-draws them in the same pass as everything else. DOM markers re-layout on every frame of a pan and
-cannot collide, which on a phone with a hundred portas is jank and overlap.
+places them on the GPU, hides colliding ones and keeps them on the map while it pans. DOM markers
+re-layout on every frame of a pan and cannot collide, which on a phone with a hundred portas is
+jank and overlap.
 
-Symbol text needs glyph PBFs. They are static files committed under `public/fonts/<stack>/`,
-ranges `0-255` and `256-511` only (Latin with every Portuguese accent), from an OFL font — a few
-hundred KB, no dependency, precached by the service worker so labels work offline. No other glyph
-range is requested; a character outside them renders as nothing, and the name validator rejects
-it at input.
+The symbols are images, not text: each label is drawn on a canvas in the UI's own face (Atkinson
+Hyperlegible Next, self-hosted, OFL) and registered with `addImage`, as are the pin silhouettes and
+the heading cone. The style therefore has no `glyphs` and no `sprite` — no glyph PBFs to generate,
+no build tool, one face across the chrome and the map, and the same font files the service worker
+already precaches for offline. Names are limited to what that face's two subsets cover (Latin with
+every Portuguese accent); the schema rejects anything else at input.
 
 ## D21 — Import and export: GeoJSON, GPX and KML, in phase 4
 GeoJSON is the document (D7). GPX (waypoints → pins, tracks and routes → routes) and KML (Placemark

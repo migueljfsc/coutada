@@ -129,6 +129,14 @@ export function bufferBBox(box: BBox, metres: number): BBox {
   return [w - dLon, s - dLat, e + dLon, n + dLat];
 }
 
+/** A closed ring approximating the circle of `metres` around `center`, `steps` sides. */
+export function circle(center: Position, metres: number, steps = 48): Position[] {
+  const ring: Position[] = [];
+  for (let i = 0; i < steps; i++) ring.push(destination(center, (360 * i) / steps, metres));
+  ring.push(ring[0]);
+  return ring;
+}
+
 /** Rounds a coordinate to `places` decimals; 6 is ~0.1 m, 5 is ~1 m. */
 export const roundCoord = (value: number, places: number): number => {
   const k = 10 ** places;

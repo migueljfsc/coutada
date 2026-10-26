@@ -42,15 +42,15 @@ describe("the dictionaries", () => {
 
   it("are translated, not copied", () => {
     const shared = keys.filter((k) => en[k] === pt[k]);
-    expect(shared.sort()).toEqual(["app.name"]);
+    expect(shared.sort()).toEqual(["app.name", "imagery.esri", "locale.en", "locale.pt"]);
   });
 });
 
 describe("translate", () => {
-  it("leaves a placeholder alone when nothing was passed for it", () => {
-    const dict = { ...en, "app.soon": "Ready in {n} days." } as Dictionary;
-    expect(translate(dict, "app.soon", { n: 2 })).toBe("Ready in 2 days.");
-    expect(translate(dict, "app.soon")).toContain("{n}");
+  it("fills placeholders, and leaves one alone when nothing was passed for it", () => {
+    expect(translate(en, "locate.accuracy", { m: 8 })).toBe("You are here, to within 8 m.");
+    expect(translate(pt, "locate.accuracy", { m: 8 })).toBe("Está aqui, com uma margem de 8 m.");
+    expect(translate(en, "locate.accuracy")).toContain("{m}");
   });
 
   it("resolves a message a pure module handed back", () => {

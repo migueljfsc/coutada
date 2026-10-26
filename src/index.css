@@ -1,20 +1,61 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink-900: #1f2a1c;
-  --color-ink-800: #263322;
-  --color-ink-700: #33432d;
-  --color-ink-600: #4a5c42;
-  --color-ink-400: #a3b096;
-  --color-ink-100: #eef0e6;
-  /* Ochre: what is active or chosen. */
-  --color-accent: #d9a441;
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/atkinson-next-latin-var.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/atkinson-next-latin-ext-var.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@theme {
+  /* Cal: lime-wash white, the panels. */
+  --color-cal: #f2f4f0;
+  --color-cal-deep: #e3e8df;
+  /* Xisto: schist, the ink. */
+  --color-xisto: #23281f;
+  --color-xisto-soft: #59614f;
+  --color-rule: rgb(35 40 31 / 0.14);
+  /* Anil: the painted door band; what is selected and the primary action. */
+  --color-anil: #1e4fa0;
+  /* Blaze orange: people, and nothing else. */
+  --color-person: #ff5a1f;
+
+  --font-sans: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --shadow-float: 0 1px 0 rgb(35 40 31 / 0.08), 0 8px 22px -8px rgb(35 40 31 / 0.55);
 }
 
 html,
-body {
-  background: var(--color-ink-900);
+body,
+#root {
+  height: 100%;
+  background: var(--color-xisto);
+  color: var(--color-xisto);
   overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-anil);
+  outline-offset: 2px;
+}
+
+.maplibregl-canvas:focus-visible {
+  outline-offset: -3px;
 }

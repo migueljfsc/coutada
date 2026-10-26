@@ -76,6 +76,17 @@ local dry run — CI owns the deploy.
 - **A new table that stores anything about a person joins `deleteAccount`'s list** (D22); a new
   table with an expiry joins the daily sweep.
 
+### Map (D18, D24)
+- **MapLibre's stylesheet is unlayered, so it beats Tailwind utilities.** `.maplibregl-map` sets
+  `position: relative`; position the map with a wrapper, never with classes on its container.
+- **`tileUrl` in `src/map/imagery.ts` is the one place a tile URL is built** — the map and the
+  offline prefetch must ask for byte-identical URLs, or the cache misses.
+- **Orange is for people.** `PERSON` marks you and other hunters; no drawing colour may be orange.
+- **`src/doc` and `src/geo` use relative imports** — the Worker imports the schema, and its bundler
+  does not know the `@/` alias.
+- **The write tool turns `\uXXXX` escapes into raw characters.** Write regex ranges with `\xXX`
+  or check the bytes; ESLint's `no-irregular-whitespace` catches a raw NBSP.
+
 ### Language (D3)
 - **A pure module must not return prose** — it returns a `Message`.
 - **Never assemble a sentence from fragments** — a whole key with a placeholder.

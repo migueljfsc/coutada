@@ -11,8 +11,9 @@ deployed at something you can open on a phone in the field.
 
 | Phase | State |
 |---|---|
-| P0 | Built and green locally; first `tofu apply` and deploy pending |
-| P1–P4 | Not started |
+| P0 | Shipped (v0.1.0) |
+| P1 | Slices 1–2 shipped: map document and geometry; the map screen, imagery and the GPS dot |
+| P2–P4 | Not started |
 
 ## Phases
 
@@ -79,7 +80,7 @@ and a redeploy of the Worker, and nothing about positions is in D1 or object sto
 | terra-draw, terra-draw-maplibre-gl-adapter | drawing | P1 |
 | qrcode (or a hand-rolled encoder) | transfer QR (D5) | P1 |
 | @cloudflare/vitest-plugin (formerly `@cloudflare/vitest-pool-workers`) | testing the Worker and the object shell against the runtime | P0 |
-| glyph PBFs from an OFL font (static files, not a package) | map labels (D24) | P1 |
+| Atkinson Hyperlegible Next, woff2 (static files, OFL, not a package) | UI and map labels (D24) | P1 |
 
 `pmtiles` is no longer needed: offline is per-phone prefetch (D19). No PWA plugin — the service
 worker is hand-written and built as a Vite entry.

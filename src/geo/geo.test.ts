@@ -3,6 +3,7 @@ import {
   bboxOf,
   bearing,
   bufferBBox,
+  circle,
   destination,
   distance,
   lineLength,
@@ -111,6 +112,13 @@ describe("boxes and rounding", () => {
     const box = bufferBBox([S[0], S[1], S[0], S[1]], 500);
     expect(distance([box[0], S[1]], S)).toBeCloseTo(500, 0);
     expect(distance([S[0], box[3]], S)).toBeCloseTo(500, 0);
+  });
+
+  it("draws a closed circle at the radius", () => {
+    const ring = circle(S, 25, 36);
+    expect(ring).toHaveLength(37);
+    expect(ring[0]).toEqual(ring[36]);
+    for (const p of ring) expect(distance(S, p)).toBeCloseTo(25, 6);
   });
 
   it("rounds to decimals", () => {

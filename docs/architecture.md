@@ -288,7 +288,7 @@ Prefetch (D19): `src/geo` covers the map's bbox + 500 m at z10–18 with 512 px 
 substitutes each tile's bbox into the same template, fetches 4 at a time into Cache Storage
 `tiles-<source>-v1`, and records the pack (map, source, bbox, zooms, count, bytes, date) in
 IndexedDB. The service worker serves `tiles-*` cache-first, keeps DGT tiles viewed online in
-`tiles-runtime-v1` (2,000 entries, oldest out), precaches the app shell and the label glyphs (D24)
+`tiles-runtime-v1` (2,000 entries, oldest out), precaches the app shell and the font (D24)
 from the build manifest, and never caches `/api/*`. Opened maps are kept in IndexedDB with their
 version.
 
