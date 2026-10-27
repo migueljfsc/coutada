@@ -4,7 +4,7 @@
  */
 
 import { nearestOnLine, roundCoord, type Position } from "../geo/geo";
-import { LIMITS, type PaletteKey, type PinType, type RouteType, type ZoneType } from "./catalogue";
+import { LIMITS, type PaletteKey, type PinType, type RouteType, type Species, type ZoneType } from "./catalogue";
 import {
   DOC_VERSION,
   type FeatureId,
@@ -39,14 +39,20 @@ export const canAdd = (doc: MapDoc): boolean => doc.features.length < LIMITS.fea
 
 export function addPin(
   doc: MapDoc,
-  pin: { id: FeatureId; type: PinType; at: Position; name?: string },
+  pin: { id: FeatureId; type: PinType; at: Position; name?: string; species?: Species },
   now: number,
 ): MapDoc {
   const feature: PinFeature = {
     type: "Feature",
     id: pin.id,
     geometry: { type: "Point", coordinates: round(pin.at) },
-    properties: { kind: "pin", type: pin.type, updatedAt: now, ...(pin.name ? { name: pin.name } : {}) },
+    properties: {
+      kind: "pin",
+      type: pin.type,
+      updatedAt: now,
+      ...(pin.name ? { name: pin.name } : {}),
+      ...(pin.type === "game" && pin.species ? { species: pin.species } : {}),
+    },
   };
   return withFeatures(doc, [...doc.features, feature]);
 }
@@ -83,17 +89,20 @@ export type PropsPatch = {
   name?: string | null;
   note?: string | null;
   color?: PaletteKey | null;
+  /** A game pin's only. */
+  species?: Species | null;
 };
 
-/** Sets or clears (null, or an empty string) a feature's name, note and colour. */
+/** Sets or clears (null, or an empty string) a feature's name, note, colour and a game pin's species. */
 export function updateProps(doc: MapDoc, id: FeatureId, patch: PropsPatch, now: number): MapDoc {
   return withFeatures(
     doc,
     doc.features.map((f) => {
       if (f.id !== id) return f;
       const props: Record<string, unknown> = { ...f.properties, updatedAt: now };
-      for (const key of ["name", "note", "color"] as const) {
+      for (const key of ["name", "note", "color", "species"] as const) {
         if (!(key in patch)) continue;
+        if (key === "species" && f.properties.type !== "game") continue;
         const value = patch[key];
         if (value === null || value === "") delete props[key];
         else props[key] = value;

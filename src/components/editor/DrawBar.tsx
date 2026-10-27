@@ -22,9 +22,11 @@ export function DrawBar({ tool, onUndoPoint, onCancel, onFinish }: { tool: Exclu
   return (
     <div>
       <div className="flex items-center gap-3">
-        <TypeIcon type={tool.type} size={36} />
+        <TypeIcon type={tool.type} species={tool.kind === "pin" ? tool.species : undefined} size={36} />
         <div className="min-w-0">
-          <h2 className="text-xl leading-tight font-bold">{t(`type.${tool.type}` as MessageKey)}</h2>
+          <h2 className="text-xl leading-tight font-bold">
+            {tool.kind === "pin" && tool.species ? t(`species.${tool.species}`) : t(`type.${tool.type}` as MessageKey)}
+          </h2>
           <p className="text-[15px] text-xisto-soft" role="status">
             {shaped && points.length > 0
               ? [tn("draw.points", points.length), measure].filter(Boolean).join(", ")

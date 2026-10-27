@@ -5,7 +5,7 @@
  */
 
 import type { Position } from "../geo/geo";
-import type { ImageryId, PaletteKey, PinType, RouteType, ZoneType } from "./catalogue";
+import type { ImageryId, PaletteKey, PinType, RouteType, Species, ZoneType } from "./catalogue";
 
 export const DOC_VERSION = 1;
 
@@ -27,6 +27,8 @@ export type PinProps = Common & {
   n?: number;
   /** The armada (a route id) a porta stands on. */
   armada?: FeatureId;
+  /** What a `game` pin marks. */
+  species?: Species;
 };
 export type RouteProps = Common & { kind: "route"; type: RouteType };
 export type ZoneProps = Common & { kind: "zone"; type: ZoneType };

@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { Check, ListOrdered, Navigation2, Trash2, X } from "lucide-react";
-import { DEFAULT_COLOR, PALETTE, PALETTE_KEYS, type PaletteKey } from "../../doc/catalogue";
+import { DEFAULT_COLOR, PALETTE, PALETTE_KEYS, SPECIES, type PaletteKey, type Species } from "../../doc/catalogue";
 import { isFeatureName } from "../../doc/schema";
 import type { FeatureId, MapDoc, MapFeature, PinFeature } from "../../doc/types";
 import { lineLength, ringArea } from "../../geo/geo";
@@ -19,6 +19,7 @@ export type EditCommands = {
   rename: (name: string | null) => void;
   note: (note: string | null) => void;
   colour: (colour: PaletteKey | null) => void;
+  species: (species: Species | null) => void;
   number: (n: number | null) => void;
   armada: (armada: FeatureId | null) => void;
   numberPortas: () => void;
@@ -33,10 +34,12 @@ export function FeatureHeader({ feature, onClose }: { feature: MapFeature; onClo
   const p = feature.properties;
   return (
     <div className="flex items-center gap-3">
-      <TypeIcon type={p.type} colour={p.color} n={p.kind === "pin" ? p.n : undefined} size={40} />
+      <TypeIcon type={p.type} colour={p.color} n={p.kind === "pin" ? p.n : undefined} species={p.kind === "pin" ? p.species : undefined} size={40} />
       <div className="min-w-0 flex-1">
         <h2 className="truncate text-xl leading-tight font-bold">{title(feature)}</h2>
-        <p className="text-[15px] text-xisto-soft">{t(`type.${p.type}` as MessageKey)}</p>
+        <p className="text-[15px] text-xisto-soft">
+          {p.kind === "pin" && p.species && p.name ? t(`species.${p.species}`) : t(`type.${p.type}` as MessageKey)}
+        </p>
       </div>
       <button
         type="button"
@@ -80,7 +83,7 @@ export function FeatureDetails({
       <TextField
         label={t("edit.name")}
         initial={p.name ?? ""}
-        placeholder={t(`type.${p.type}` as MessageKey)}
+        placeholder={p.kind === "pin" && p.species ? t(`species.${p.species}`) : t(`type.${p.type}` as MessageKey)}
         maxLength={60}
         validate={(v) => v === "" || isFeatureName(v)}
         error={t("edit.nameInvalid")}
@@ -110,6 +113,24 @@ export function FeatureDetails({
           })}
         </div>
       </fieldset>
+
+      {p.kind === "pin" && p.type === "game" && (
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[15px] font-semibold">{t("edit.species")}</span>
+          <select
+            value={p.species ?? ""}
+            onChange={(e) => commands.species((e.target.value || null) as Species | null)}
+            className="min-h-12 rounded-[12px] border border-rule bg-white px-3 text-[16px]"
+          >
+            <option value="">{t("type.game")}</option>
+            {SPECIES.map((s) => (
+              <option key={s} value={s}>
+                {t(`species.${s}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       {p.kind === "pin" && p.type === "porta" && (
         <div className="flex flex-col gap-3">

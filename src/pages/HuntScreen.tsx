@@ -21,7 +21,7 @@ import { MapView, type Handle, type View } from "../map/MapView";
 import { useFollow } from "../map/useFollow";
 import { ageMs, type HuntView } from "../live/huntState";
 import { forgetHunt, forgetTrail } from "../live/huntStore";
-import type { MemberInfo, Observation, ObservationType, Role } from "../live/protocol";
+import type { MemberInfo, Observation, Role, SightingEvent, Subject } from "../live/protocol";
 import { cadence, LOST_AFTER_MS, staleAfterMs } from "../live/sampler";
 import { useHunt, type Link } from "../live/useHunt";
 import { useHuntEditor } from "../live/useHuntEditor";
@@ -61,7 +61,8 @@ export function HuntScreen({ huntId }: { huntId: string }) {
   const now = useNow(5000);
   const editing = useEditing(editor, dispatch, { map: follow.map, wide, setSheetOpen });
   const [choosingSighting, setChoosingSighting] = useState(false);
-  const [placing, setPlacing] = useState<ObservationType | null>(null);
+  const [event, setEvent] = useState<SightingEvent>("seen");
+  const [placing, setPlacing] = useState<Subject | null>(null);
   const [sightingId, setSightingId] = useState<string | null>(null);
   const sighting = sightingId ? view.obs.find((o) => o.id === sightingId) : undefined;
 
@@ -76,7 +77,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     () => Object.entries(view.trails).map(([id, pts]) => ({ id, points: pts.map((p): Position => [p[0], p[1]]) })),
     [view.trails],
   );
-  const observations = useMemo(() => view.obs.map((o) => ({ id: o.id, type: o.type, at: o.c })), [view.obs]);
+  const observations = useMemo(() => view.obs.map((o) => ({ id: o.id, subject: o.subject, event: o.event, at: o.c })), [view.obs]);
   const rendered = useMemo(
     () =>
       render(editor.doc, {
@@ -101,8 +102,8 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     dispatch({ type: "select", id: null });
   };
 
-  const mark = (type: ObservationType, at: Position) => {
-    send({ t: "obs.put", obs: { id: newFeatureId(), type, c: round(at) } });
+  const mark = (subject: Subject, at: Position) => {
+    send({ t: "obs.put", obs: { id: newFeatureId(), subject, event, c: round(at) } });
     setPlacing(null);
   };
 
@@ -117,15 +118,17 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     if (host) editing.onTap(at, hit, handle);
   };
 
-  /** The host keeps a sighting: a landmark where it was, named for what and when (D11). */
+  /** The host keeps a sighting: a game pin where it was (a landmark for a dog), named for what and when (D11). */
   const keep = (o: Observation) => {
     if (!canAdd(editor.doc)) return;
     const id = newFeatureId();
     const time = new Date(o.at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
     const at = Date.now();
-    dispatch({ type: "tool", tool: { kind: "pin", type: "landmark" } });
+    const name = t("obs.keptName", { type: t(`species.${o.subject}`), time });
+    const note = o.note ?? t(`obs.event.${o.event}`);
+    dispatch({ type: "tool", tool: o.subject === "dog" ? { kind: "pin", type: "landmark" } : { kind: "pin", type: "game", species: o.subject } });
     dispatch({ type: "tap", at: o.c, hit: null, id, now: at });
-    dispatch({ type: "props", id, patch: { name: t("obs.keptName", { type: t(`obs.type.${o.type}`), time }), ...(o.note ? { note: o.note } : {}) }, now: at });
+    dispatch({ type: "props", id, patch: { name, note }, now: at });
     send({ t: "obs.del", id: o.id });
     setSightingId(null);
   };
@@ -146,14 +149,19 @@ export function HuntScreen({ huntId }: { huntId: string }) {
   if (done) tools = null;
   else if (placing) {
     const fix = follow.fix;
-    tools = { peek: <SightingPlaceBar type={placing} onHere={fix ? () => mark(placing, fix.at) : null} onCancel={() => setPlacing(null)} />, body: null };
+    tools = {
+      peek: <SightingPlaceBar subject={placing} event={event} onHere={fix ? () => mark(placing, fix.at) : null} onCancel={() => setPlacing(null)} />,
+      body: null,
+    };
   } else if (choosingSighting) {
     tools = {
       peek: (
         <SightingPicker
-          onPick={(type) => {
+          event={event}
+          onEvent={setEvent}
+          onPick={(subject) => {
             setChoosingSighting(false);
-            setPlacing(type);
+            setPlacing(subject);
             setSheetOpen(false);
           }}
           onCancel={() => setChoosingSighting(false)}

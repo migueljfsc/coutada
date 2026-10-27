@@ -4,7 +4,7 @@
  */
 
 import type { Position } from "../geo/geo";
-import type { PaletteKey, PinType, RouteType, ZoneType } from "../doc/catalogue";
+import type { PaletteKey, PinType, RouteType, Species, ZoneType } from "../doc/catalogue";
 import {
   addPin,
   addRoute,
@@ -31,7 +31,7 @@ const HISTORY = 50;
 
 export type Tool =
   | { kind: "idle" }
-  | { kind: "pin"; type: PinType }
+  | { kind: "pin"; type: PinType; species?: Species }
   | { kind: "line"; type: RouteType; points: Position[] }
   | { kind: "area"; type: ZoneType; points: Position[] };
 
@@ -118,7 +118,7 @@ export function reduce(state: EditorState, action: Action): EditorState {
         const doc =
           tool.type === "porta"
             ? placePorta(state.doc, action.id, action.at, action.now)
-            : addPin(state.doc, { id: action.id, type: tool.type, at: action.at }, action.now);
+            : addPin(state.doc, { id: action.id, type: tool.type, at: action.at, species: tool.species }, action.now);
         return { ...commit(state, doc), tool: IDLE, selected: action.id };
       }
       return { ...state, tool: { ...tool, points: [...tool.points, action.at] } };

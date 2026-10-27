@@ -29,7 +29,13 @@ export function FeatureList({ doc, onChoose }: { doc: MapDoc; onChoose: (id: Fea
             onClick={() => onChoose(f.id)}
             className="flex min-h-12 w-full items-center gap-3 rounded-[12px] px-2 py-1.5 text-left active:bg-cal-deep"
           >
-            <TypeIcon type={f.properties.type} colour={f.properties.color} n={f.properties.kind === "pin" ? f.properties.n : undefined} size={30} />
+            <TypeIcon
+              type={f.properties.type}
+              colour={f.properties.color}
+              n={f.properties.kind === "pin" ? f.properties.n : undefined}
+              species={f.properties.kind === "pin" ? f.properties.species : undefined}
+              size={30}
+            />
             <span className="truncate text-[16px] font-semibold">{title(f)}</span>
           </button>
         </li>

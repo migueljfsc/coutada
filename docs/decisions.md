@@ -169,10 +169,14 @@ carries a mark the anonymous cannot fake. Cap: 30 members.
 
 ## D11 — Roles: the host edits, members see and share; members may add observations
 - **Host** — whoever created the hunt; edits drawings, locks, kicks, rotates, ends.
-- **Member** — sees everything, shares their position, and adds **observations**: hunt-scoped pins
-  of type `covey` (bando levantado), `game_seen`, `game_down`, `dog`. A member deletes their own;
-  the host deletes any and may **keep** one, which turns it into a map feature. Unkept observations
-  are deleted with the hunt.
+- **Member** — sees everything, shares their position, and adds **observations**: hunt-scoped
+  marks of a subject (a species from the catalogue, or a dog) and an event (`seen`, `flushed`,
+  `down`). A member deletes their own; the host deletes any and may **keep** one, which turns it
+  into a `game` pin of that species (a landmark for a dog). Unkept observations are deleted with
+  the hunt.
+- **Game pins name their species** (`species` on a `game` pin, nowhere else): partridge, quail,
+  pheasant, pigeon, turtle dove, thrush, woodcock, duck, rabbit, hare, fox, mongoose, boar, red
+  deer, fallow deer, roe deer, mouflon. Each wears its own silhouette (`src/map/species.ts`).
 - **In a montaria, each member is `porta` or `batedor`** (batedor covers matilheiros): the role
   sets the update interval and whether a trail is drawn (D15). The host assigns it; a member may
   change their own. A salto has one role.

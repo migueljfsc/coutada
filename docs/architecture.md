@@ -88,15 +88,16 @@ type MapDoc = {
 };
 
 type MapFeature =
-  | Feature<Point,      Props & { kind: "pin";   type: PinType;   n?: number; armada?: Id }>
+  | Feature<Point,      Props & { kind: "pin";   type: PinType;   n?: number; armada?: Id; species?: Species }>
   | Feature<LineString, Props & { kind: "route"; type: RouteType }>
   | Feature<Polygon,    Props & { kind: "zone";  type: ZoneType }>;
 
 type Props    = { name?: string; note?: string; color?: PaletteKey; updatedAt: number };
-type PinType  = "porta" | "landmark" | "gate" | "parking" | "meeting" | "danger" | "water";
+type PinType  = "porta" | "landmark" | "gate" | "parking" | "meeting" | "danger" | "water" | "game";
+type Species  = "partridge" | "quail" | … | "mouflon";                 // SPECIES in catalogue.ts
 type RouteType = "walk" | "armada";
 type ZoneType = "mancha" | "no_shoot" | "boundary";
-type ObservationType = "covey" | "game_seen" | "game_down" | "dog";   // hunt-scoped, D11
+type Observation = { subject: Species | "dog"; event: "seen" | "flushed" | "down" };  // hunt-scoped, D11
 ```
 
 `id` is on the Feature (22-char base64url). Coordinates `[lon, lat]`, 6 decimals. Names ≤ 60
@@ -187,7 +188,7 @@ end:  host `hunt.end` or alarm at expires_at
 | trails | batedor on, porta off | on |
 | suggested pins | porta, meeting, parking, danger, gate | meeting, water, gate, parking, danger |
 | suggested routes / zones | armada; mancha, no_shoot, boundary | walk; boundary, no_shoot |
-| observations | game_seen, game_down, dog | covey, game_seen, game_down, dog |
+| observations | big game seen or down, dog | birds flushed, game seen or down, dog |
 
 "Suggested" orders the palette; every type stays available.
 

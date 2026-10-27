@@ -1,21 +1,26 @@
 /**
- * Observations in the sheet (D11): choosing what was seen, placing it, and the one chosen on the
- * map — who marked it and when, removing it, and for the host, keeping it as a pin.
+ * Sightings in the sheet (D11): what was seen and what happened, placing it, and the one chosen
+ * on the map — who marked it and when, removing it, and for the host, keeping it as a pin.
  */
 
 import { Bookmark, LocateFixed, Trash2, X } from "lucide-react";
 import { useI18n } from "../../i18n/context";
-import { OBSERVATION_GLYPHS } from "../../map/images";
-import { OBSERVATION_TYPES, type Observation, type ObservationType } from "../../live/protocol";
+import { EVENTS, SUBJECTS, type Observation, type SightingEvent, type Subject } from "../../live/protocol";
+import { SpeciesGlyph } from "../editor/TypeIcon";
 import { secondaryButton, primaryButton } from "../ui";
 
-/** The diamond the map draws, for the sheet. */
-export function SightingIcon({ type, size = 36 }: { type: ObservationType; size?: number }) {
-  const Glyph = OBSERVATION_GLYPHS[type];
+const EVENT_MARK: Record<SightingEvent, string | null> = { seen: null, flushed: "bg-anil", down: "bg-[#c23a2b]" };
+
+/** The diamond the map draws, for the sheet: the subject, and a corner mark for what happened. */
+export function SightingIcon({ subject, event, size = 36 }: { subject: Subject; event: SightingEvent; size?: number }) {
+  const mark = EVENT_MARK[event];
   return (
     <span className="relative flex shrink-0 items-center justify-center" style={{ width: size, height: size }} aria-hidden>
       <span className="absolute inset-[15%] rotate-45 rounded-[3px] border-[2.5px] border-xisto bg-white" />
-      <Glyph size={size * 0.44} strokeWidth={2.4} className="relative text-xisto" />
+      <span className="relative">
+        <SpeciesGlyph subject={subject} size={Math.round(size * 0.56)} />
+      </span>
+      {mark && <span className={`absolute top-0 right-0 size-[30%] rounded-full border-2 border-white ${mark}`} />}
     </span>
   );
 }
@@ -28,7 +33,17 @@ function CloseButton({ label, onClick }: { label: string; onClick: () => void })
   );
 }
 
-export function SightingPicker({ onPick, onCancel }: { onPick: (type: ObservationType) => void; onCancel: () => void }) {
+export function SightingPicker({
+  event,
+  onEvent,
+  onPick,
+  onCancel,
+}: {
+  event: SightingEvent;
+  onEvent: (event: SightingEvent) => void;
+  onPick: (subject: Subject) => void;
+  onCancel: () => void;
+}) {
   const { t } = useI18n();
   return (
     <div>
@@ -36,16 +51,30 @@ export function SightingPicker({ onPick, onCancel }: { onPick: (type: Observatio
         <h2 className="text-xl leading-tight font-bold">{t("obs.pick")}</h2>
         <CloseButton label={t("draw.cancel")} onClick={onCancel} />
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {OBSERVATION_TYPES.map((type) => (
+      <div role="radiogroup" className="mt-3 grid grid-cols-3 rounded-xl bg-cal-deep p-1">
+        {EVENTS.map((e) => (
           <button
-            key={type}
+            key={e}
             type="button"
-            onClick={() => onPick(type)}
+            role="radio"
+            aria-checked={e === event}
+            onClick={() => onEvent(e)}
+            className="min-h-11 rounded-lg px-2 text-[15px] font-semibold text-xisto-soft aria-checked:bg-cal aria-checked:text-xisto aria-checked:shadow-sm"
+          >
+            {t(`obs.event.${e}`)}
+          </button>
+        ))}
+      </div>
+      <div className="mt-2 grid max-h-[50vh] grid-cols-2 gap-2 overflow-y-auto md:max-h-none">
+        {SUBJECTS.map((subject) => (
+          <button
+            key={subject}
+            type="button"
+            onClick={() => onPick(subject)}
             className="flex min-h-14 items-center gap-3 rounded-[14px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white"
           >
-            <SightingIcon type={type} size={32} />
-            {t(`obs.type.${type}`)}
+            <SightingIcon subject={subject} event={event} size={34} />
+            {t(`species.${subject}`)}
           </button>
         ))}
       </div>
@@ -53,14 +82,24 @@ export function SightingPicker({ onPick, onCancel }: { onPick: (type: Observatio
   );
 }
 
-export function SightingPlaceBar({ type, onHere, onCancel }: { type: ObservationType; onHere: (() => void) | null; onCancel: () => void }) {
+export function SightingPlaceBar({
+  subject,
+  event,
+  onHere,
+  onCancel,
+}: {
+  subject: Subject;
+  event: SightingEvent;
+  onHere: (() => void) | null;
+  onCancel: () => void;
+}) {
   const { t } = useI18n();
   return (
     <div>
       <div className="flex items-center gap-3">
-        <SightingIcon type={type} />
+        <SightingIcon subject={subject} event={event} />
         <div className="min-w-0">
-          <h2 className="text-xl leading-tight font-bold">{t(`obs.type.${type}`)}</h2>
+          <h2 className="text-xl leading-tight font-bold">{t(`species.${subject}`)}</h2>
           <p className="text-[15px] text-xisto-soft" role="status">
             {t("obs.place")}
           </p>
@@ -90,9 +129,12 @@ export function SightingHeader({ obs, by, ageMs, onClose }: { obs: Observation; 
   const m = Math.floor(ageMs / 60_000);
   return (
     <div className="flex items-center gap-3">
-      <SightingIcon type={obs.type} size={40} />
+      <SightingIcon subject={obs.subject} event={obs.event} size={40} />
       <div className="min-w-0 flex-1">
-        <h2 className="truncate text-xl leading-tight font-bold">{t(`obs.type.${obs.type}`)}</h2>
+        <h2 className="flex items-baseline gap-2 text-xl leading-tight font-bold">
+          <span className="truncate">{t(`species.${obs.subject}`)}</span>
+          <span className="shrink-0 text-[14px] font-semibold text-xisto-soft">{t(`obs.event.${obs.event}`)}</span>
+        </h2>
         <p className="text-[15px] text-xisto-soft">{m < 1 ? t("obs.markedNow", { name: by }) : t("obs.marked", { name: by, m })}</p>
       </div>
       <CloseButton label={t("edit.close")} onClick={onClose} />

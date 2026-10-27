@@ -100,7 +100,7 @@ describe("the map, live", () => {
 });
 
 describe("observations", () => {
-  const obs = { id: ID("o"), type: "covey" as const, c: S };
+  const obs = { id: ID("o"), subject: "partridge" as const, event: "flushed" as const, c: S };
 
   it("are anybody's to add and their own to remove, and any to the host", () => {
     const added = run(hunt(), ID("a"), { t: "obs.put", obs }).state;

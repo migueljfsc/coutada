@@ -8,7 +8,7 @@ import { lineLength, pointAlong, ringCentroid, type Position } from "../geo/geo"
 import { DEFAULT_COLOR, PALETTE } from "../doc/catalogue";
 import type { FeatureId, MapDoc, MapFeature } from "../doc/types";
 import type { Tool } from "../draw/editor";
-import type { ObservationType } from "../live/protocol";
+import type { SightingEvent, Subject } from "../live/protocol";
 
 type Geometry =
   | { type: "Point"; coordinates: number[] }
@@ -22,9 +22,10 @@ const collection = (features: RenderFeature[]): Collection => ({ type: "FeatureC
 const pos = (p: Position): number[] => [p[0], p[1]];
 
 export const pinImage = (type: string, colour: string) => `pin:${type}:${colour}`;
+export const gameImage = (species: string, colour: string) => `game:${species}:${colour}`;
 export const portaImage = (n: number | undefined) => `porta:${n ?? ""}`;
 export const labelImage = (text: string) => `label:${text}`;
-export const observationImage = (type: string) => `obs:${type}`;
+export const observationImage = (subject: string, event: string) => `obs:${subject}:${event}`;
 
 const colourKey = (f: MapFeature) => f.properties.color ?? DEFAULT_COLOR[f.properties.type];
 
@@ -38,7 +39,9 @@ function shape(f: MapFeature, selected: boolean): RenderFeature {
     colour: PALETTE[key],
     sel: selected ? 1 : 0,
   };
-  if (p.kind === "pin") properties.icon = p.type === "porta" ? portaImage(p.n) : pinImage(p.type, key);
+  if (p.kind === "pin") {
+    properties.icon = p.type === "porta" ? portaImage(p.n) : p.species ? gameImage(p.species, key) : pinImage(p.type, key);
+  }
   const g = f.geometry;
   const geometry: Geometry =
     g.type === "Point"
@@ -123,7 +126,7 @@ export type Rendered = {
 export type Person = { id: string; name: string; at: Position; state: "fresh" | "stale" | "lost"; away: boolean };
 export type Trail = { id: string; points: readonly Position[] };
 /** Something a hunter marked during the hunt: a covey flushed, game seen or down, a dog (D11). */
-export type Sighting = { id: string; type: ObservationType; at: Position };
+export type Sighting = { id: string; subject: Subject; event: SightingEvent; at: Position };
 
 /** The line from the person to what they navigate to. */
 function guide(points: readonly Position[] | null): RenderFeature[] {
@@ -184,7 +187,7 @@ export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
     observations: collection(
       observations.map((o) => ({
         type: "Feature",
-        properties: { fid: o.id, icon: observationImage(o.type), sel: o.id === sighting ? 1 : 0 },
+        properties: { fid: o.id, icon: observationImage(o.subject, o.event), sel: o.id === sighting ? 1 : 0 },
         geometry: { type: "Point", coordinates: pos(o.at) },
       })),
     ),

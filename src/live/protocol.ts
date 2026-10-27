@@ -5,6 +5,7 @@
  */
 
 import { z } from "zod";
+import { SPECIES, type Species } from "../doc/catalogue";
 import { mapFeatureSchema } from "../doc/schema";
 import type { MapDoc, MapFeature } from "../doc/types";
 import type { TrailPoint } from "./trail";
@@ -18,8 +19,12 @@ export type HuntType = (typeof HUNT_TYPES)[number];
 export const ROLES = ["porta", "batedor", "member"] as const;
 export type Role = (typeof ROLES)[number];
 
-export const OBSERVATION_TYPES = ["covey", "game_seen", "game_down", "dog"] as const;
-export type ObservationType = (typeof OBSERVATION_TYPES)[number];
+/** What a sighting is of: a species, or a dog (D11). */
+export const SUBJECTS = [...SPECIES, "dog"] as const;
+export type Subject = Species | "dog";
+/** What happened: seen, flushed (a covey getting up), or shot down. */
+export const EVENTS = ["seen", "flushed", "down"] as const;
+export type SightingEvent = (typeof EVENTS)[number];
 
 /** Frames larger than this are refused; a trail sync may be larger. */
 export const MAX_FRAME_BYTES = 64 * 1024;
@@ -48,7 +53,8 @@ const trailPoint = z.tuple([lon, lat, z.number().int().nonnegative()]);
 
 export const observationInput = z.object({
   id,
-  type: z.enum(OBSERVATION_TYPES),
+  subject: z.enum(SUBJECTS),
+  event: z.enum(EVENTS),
   c: coord,
   note: z.string().max(200).regex(/^[^\p{Cc}]*$/u).optional(),
 });

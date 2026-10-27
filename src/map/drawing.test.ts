@@ -57,14 +57,14 @@ describe("render", () => {
   it("draws the hunt's sightings, tappable by id, the chosen one marked", () => {
     const { observations } = render(createMapDoc("m"), {
       observations: [
-        { id: ID("o"), type: "covey", at: S },
-        { id: ID("p"), type: "dog", at: S },
+        { id: ID("o"), subject: "partridge", event: "flushed", at: S },
+        { id: ID("p"), subject: "dog", event: "seen", at: S },
       ],
       sighting: ID("p"),
     });
     expect(observations.features.map((f) => f.properties)).toEqual([
-      { fid: ID("o"), icon: observationImage("covey"), sel: 0 },
-      { fid: ID("p"), icon: observationImage("dog"), sel: 1 },
+      { fid: ID("o"), icon: observationImage("partridge", "flushed"), sel: 0 },
+      { fid: ID("p"), icon: observationImage("dog", "seen"), sel: 1 },
     ]);
   });
 });

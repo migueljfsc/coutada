@@ -3,13 +3,35 @@
  * Pure; the UI reads names and icons from its own tables keyed by these ids.
  */
 
-export const PIN_TYPES = ["porta", "landmark", "gate", "parking", "meeting", "danger", "water"] as const;
+export const PIN_TYPES = ["porta", "landmark", "gate", "parking", "meeting", "danger", "water", "game"] as const;
 export const ROUTE_TYPES = ["walk", "armada"] as const;
 export const ZONE_TYPES = ["mancha", "no_shoot", "boundary"] as const;
 
 export type PinType = (typeof PIN_TYPES)[number];
 export type RouteType = (typeof ROUTE_TYPES)[number];
 export type ZoneType = (typeof ZONE_TYPES)[number];
+
+/** The game a `game` pin or a sighting names: birds, then small game, then big game. */
+export const SPECIES = [
+  "partridge",
+  "quail",
+  "pheasant",
+  "pigeon",
+  "turtle_dove",
+  "thrush",
+  "woodcock",
+  "duck",
+  "rabbit",
+  "hare",
+  "fox",
+  "mongoose",
+  "boar",
+  "red_deer",
+  "fallow_deer",
+  "roe_deer",
+  "mouflon",
+] as const;
+export type Species = (typeof SPECIES)[number];
 
 /**
  * Drawing colours, chosen to read against green and brown imagery. Orange is not here: it is
@@ -36,6 +58,7 @@ export const DEFAULT_COLOR: Record<PinType | RouteType | ZoneType, PaletteKey> =
   meeting: "cyan",
   danger: "red",
   water: "cyan",
+  game: "lime",
   walk: "yellow",
   armada: "white",
   mancha: "lime",

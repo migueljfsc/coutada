@@ -5,7 +5,7 @@
 
 import { useCallback, useRef, useState, type Dispatch, type RefObject } from "react";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import type { PinType, RouteType, ZoneType } from "../../doc/catalogue";
+import type { PinType, RouteType, Species, ZoneType } from "../../doc/catalogue";
 import { newFeatureId } from "../../doc/ids";
 import { featureById } from "../../doc/operations";
 import type { FeatureId } from "../../doc/types";
@@ -38,11 +38,11 @@ export function useEditing(editor: EditorState, dispatch: Dispatch<Action>, { ma
     setSheetOpen(true);
   };
 
-  const pickType = (type: FeatureType) => {
+  const pickType = (type: FeatureType, species?: Species) => {
     const kind = picking;
     setPicking(null);
     setSheetOpen(false);
-    if (kind === "pin") dispatch({ type: "tool", tool: { kind: "pin", type: type as PinType } });
+    if (kind === "pin") dispatch({ type: "tool", tool: { kind: "pin", type: type as PinType, ...(species ? { species } : {}) } });
     if (kind === "line") dispatch({ type: "tool", tool: { kind: "line", type: type as RouteType, points: [] } });
     if (kind === "area") dispatch({ type: "tool", tool: { kind: "area", type: type as ZoneType, points: [] } });
   };
@@ -110,6 +110,7 @@ export function useEditing(editor: EditorState, dispatch: Dispatch<Action>, { ma
         rename: (name) => dispatch({ type: "props", id: selectedFeature.id, patch: { name }, now: now() }),
         note: (note) => dispatch({ type: "props", id: selectedFeature.id, patch: { note }, now: now() }),
         colour: (color) => dispatch({ type: "props", id: selectedFeature.id, patch: { color }, now: now() }),
+        species: (species) => dispatch({ type: "props", id: selectedFeature.id, patch: { species }, now: now() }),
         number: (n) => dispatch({ type: "number", id: selectedFeature.id, n, now: now() }),
         armada: (armada) => dispatch({ type: "armada", id: selectedFeature.id, armada, now: now() }),
         numberPortas: () => dispatch({ type: "numberPortas", armada: selectedFeature.id, now: now() }),

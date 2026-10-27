@@ -101,6 +101,19 @@ describe("operations", () => {
     expect(featureById(moved, pid)?.geometry.coordinates).toEqual([-6.9, 39.9]);
     expect(movePin(doc, rid, [-6.9, 39.9], T0 + 1).features[1]).toEqual(doc.features[1]);
   });
+
+  it("give a species to a game pin, and to nothing else", () => {
+    const [game, gate] = [id(), id()];
+    let doc = addPin(createMapDoc("m"), { id: game, type: "game", at: S, species: "boar" }, T0);
+    doc = addPin(doc, { id: gate, type: "gate", at: S, species: "boar" }, T0);
+    expect(featureById(doc, game)?.properties).toMatchObject({ type: "game", species: "boar" });
+    expect(featureById(doc, gate)?.properties).not.toHaveProperty("species");
+    doc = updateProps(updateProps(doc, game, { species: "red_deer" }, T0 + 1), gate, { species: "fox" }, T0 + 1);
+    expect(featureById(doc, game)?.properties).toMatchObject({ species: "red_deer" });
+    expect(featureById(doc, gate)?.properties).not.toHaveProperty("species");
+    expect(parseMapDoc(JSON.parse(JSON.stringify(doc)))).not.toBeNull();
+    expect(featureById(updateProps(doc, game, { species: null }, T0 + 2), game)?.properties).not.toHaveProperty("species");
+  });
 });
 
 describe("portas and armadas", () => {
@@ -156,6 +169,8 @@ describe("the schema", () => {
       { ...base, features: [gate, gate] },
       { ...base, features: [{ ...gate, geometry: { type: "Point", coordinates: [200, 0] } }] },
       { ...base, features: [{ ...gate, properties: { ...gate.properties, n: 3 } }] },
+      { ...base, features: [{ ...gate, properties: { ...gate.properties, species: "boar" } }] },
+      { ...base, features: [{ ...gate, properties: { ...gate.properties, type: "game", species: "unicorn" } }] },
       { ...base, features: [{ ...gate, properties: { ...gate.properties, name: "line\nbreak" } }] },
       { ...base, features: [{ ...gate, properties: { ...gate.properties, name: "日本" } }] },
       { ...base, coutada: { v: 1, name: "" } },

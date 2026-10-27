@@ -11,6 +11,7 @@ import {
   type PaletteKey,
   PIN_TYPES,
   ROUTE_TYPES,
+  SPECIES,
   ZONE_TYPES,
 } from "./catalogue";
 import { DOC_VERSION, type MapDoc } from "./types";
@@ -50,9 +51,13 @@ const pin = z.object({
       type: z.enum(PIN_TYPES),
       n: z.number().int().min(1).max(LIMITS.portaNumber).optional(),
       armada: id.optional(),
+      species: z.enum(SPECIES).optional(),
     })
     .refine((p) => p.type === "porta" || (p.n === undefined && p.armada === undefined), {
       message: "only a porta has a number or an armada",
+    })
+    .refine((p) => p.type === "game" || p.species === undefined, {
+      message: "only a game pin has a species",
     }),
 });
 
