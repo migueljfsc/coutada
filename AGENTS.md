@@ -16,7 +16,7 @@ hunt types: montaria/batida (mostly stationary) and salto (walked up, on the mov
 
 1. **Positions are never stored** (D13). A position goes phone → hunt object → other phones. Not
    to Durable Object storage, not to D1, not to a log. Trails live in memory and on each owner's
-   phone; the only stored trail is one its owner saves (D14).
+   phone, for the hunt only (D14).
 2. **The pure modules stay pure** (D2). `src/geo/`, `src/doc/` and `worker/hunt/state.ts` take
    time and ids as arguments: no DOM, React, `Date.now()`, `Math.random()` or module state.
 3. **The map document is GeoJSON, `[lon, lat]`, WGS84** (D7). Nothing else enters it — no view

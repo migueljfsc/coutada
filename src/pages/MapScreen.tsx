@@ -4,7 +4,7 @@
  * the line being drawn, or the selected feature. The document is kept by `useMapDocument`.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Layers, Locate, LocateFixed } from "lucide-react";
 import { AuthDialog, type AuthMode } from "../account/AuthDialog";
 import { ConfirmDelete } from "../account/ConfirmDelete";
@@ -92,6 +92,12 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     dispatch,
     { map: follow.map, wide, setSheetOpen },
   );
+
+  // While a hunt holds the map, its drawings change through the hunt (D12): a phone in it goes there.
+  const hunting = sync === "hunting";
+  useEffect(() => {
+    if (hunting && huntId && storedPass(huntId)) navigate(huntPath(huntId), true);
+  }, [hunting, huntId]);
 
   const { navigation, start: startNavigation, stop: stopNavigation } = useNavigation(doc, follow.fix);
   const navTarget = navigation ? featureById(doc, navigation.target.id) : undefined;
@@ -228,7 +234,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         onViewChange={storeView}
         onImageryFailing={setImageryFailing}
         onTap={onTap}
-        onDrag={onDrag}
+        onDrag={hunting ? undefined : onDrag}
       />
 
       {sync === "conflict" ? (
@@ -283,14 +289,14 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         </Notice>
       ) : null}
 
-      <HistoryButtons editor={editor} dispatch={dispatch} />
+      {!hunting && <HistoryButtons editor={editor} dispatch={dispatch} />}
 
       <p className="pointer-events-none absolute bottom-[calc(var(--peek)+0.5rem)] left-3 z-10 rounded-md bg-cal/80 px-2 py-0.5 text-[11px] text-xisto md:bottom-3 md:left-[404px]">
         {imageryOf(imagery).attribution}
       </p>
 
       <div className="absolute right-3 bottom-[calc(var(--peek)+1rem)] z-10 flex flex-col items-end gap-3 md:bottom-6">
-        <ToolRail active={toolKind} onPick={openPicker} />
+        {!hunting && <ToolRail active={toolKind} onPick={openPicker} />}
         <div className="relative">
           <RailButton label={t("imagery.title")} active={picker} aria-expanded={picker} onClick={() => setPicker((p) => !p)}>
             <Layers size={22} strokeWidth={2.2} />

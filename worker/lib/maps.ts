@@ -59,7 +59,9 @@ export async function getMap(ctx: MapCtx, id: string): Promise<Response> {
   )
     .bind(id, owner)
     .first<{ id: string; name: string; doc: string; version: number; share_slug: string | null; updated_at: number }>();
-  return row ? json({ map: { ...row, doc: JSON.parse(row.doc) } }) : fail("not_found", 404);
+  if (!row) return fail("not_found", 404);
+  const hunt = await huntOnMap(ctx.env, id, ctx.now, ctx.principal);
+  return json({ map: { ...row, doc: JSON.parse(row.doc), hunt: hunt ? { id: hunt } : null } });
 }
 
 /** The version is in the WHERE clause: a read-then-write would leave a gap for the other tab. */

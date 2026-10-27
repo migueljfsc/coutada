@@ -25,12 +25,12 @@ follow a route; during a hunt everyone sees everyone's live position and trail. 
  ┌───────────────────────────────────────────────────────────────────────────┐
  │ Worker                                                                    │
  │   static assets (dist/) ── free, never invokes the script                 │
- │   /api/*  ── auth, devices, maps, shares, trails, hunts (run_worker_first)│
+ │   /api/*  ── auth, devices, maps, shares, hunts (run_worker_first)        │
  │   /api/hunts/:id/ws ──upgrade──▶ Hunt DO (jurisdiction "eu")              │
  └──────────┬──────────────────────────────────────┬─────────────────────────┘
             │                                      │
         D1 (accounts, devices, maps,          Hunt Durable Object, one per hunt
-            hunts index, trails)                SQLite: members, map doc, observations,
+            hunts index)                        SQLite: members, map doc, observations,
                                                 lock, alarm — never positions
                                                 memory: positions relay, trails cache
 
@@ -67,7 +67,7 @@ src/components/             React chrome; ui/ holds primitives
 worker/index.ts             routes /api/*
 worker/lib/                 by concern, copied from pitchboard where it exists: auth, session,
                             password, google, turnstile, limits, crypto, http, headers, mail,
-                            cleanup, account; new: devices, maps, shares, trails, hunts
+                            cleanup, account; new: devices, maps, shares, hunts
 worker/hunt/                Hunt Durable Object: object.ts (runtime shell), state.ts (pure
                             reducer over messages), protocol.ts (message types, shared with src/)
 worker/migrations/          D1, applied by CI before deploy
@@ -131,17 +131,9 @@ hunts        (id PK, code NULL, map_id → maps CASCADE, type CHECK IN ('montari
               host_user_id NULL, host_device_id NULL, created_at, expires_at)
               UNIQUE INDEX hunts_code ON hunts(code) WHERE code IS NOT NULL
 
--- Saved own trails (D14)
-trails       (id PK, owner_user_id NULL, owner_device_id NULL, map_id NULL → maps SET NULL,
-              hunt_type, started_at, ended_at, distance_m, points INTEGER, line TEXT,
-              created_at, CHECK one owner)
-
 -- Phase 4 (pb-D119)
 usage_daily  (day, event, n, PK(day, event)) WITHOUT ROWID
 ```
-
-`trails.line` is an encoded polyline (precision 5) of `[lon, lat]` plus a parallel delta-encoded
-seconds array — a 6-hour walk is tens of KB, one row.
 
 ## 5. Identity
 
@@ -153,7 +145,7 @@ reading.
 ```
 first write ── POST /api/device {username, turnstile} ──▶ Set-Cookie ct_device (400 d)
                                                         devices row, last_seen_at slides daily
-sign in (password / Google) ──▶ /api/me { user, claimable: {maps, trails} }
+sign in (password / Google) ──▶ /api/me { user, claimable: {maps} }
                               └─ offer ──▶ POST /api/me/claim ──▶ one batch: move rows,
                                                                  delete device, clear cookie
 other browser ── POST /api/device/transfer ──▶ code (10 min, single use)
@@ -193,7 +185,6 @@ end:  host `hunt.end` or alarm at expires_at
 | roles | porta, batedor | member |
 | interval moving / stationary | porta 10 s·25 m / 60 s; batedor 5 s·15 m / 30 s | 5 s·15 m / 30 s |
 | trails | batedor on, porta off | on |
-| distance walked | shown for batedores | shown for everyone |
 | suggested pins | porta, meeting, parking, danger, gate | meeting, water, gate, parking, danger |
 | suggested routes / zones | armada; mancha, no_shoot, boundary | walk; boundary, no_shoot |
 | observations | game_seen, game_down, dog | covey, game_seen, game_down, dog |
@@ -214,7 +205,7 @@ close a socket). Everything decidable is in the reducer and tested there.
 | observations | DO SQLite | yes | only if kept |
 | lock, code, expiry | DO SQLite + alarm | yes | no |
 | last position per member | socket attachment | yes | no |
-| trails | memory; each phone holds its own | no — re-requested | only if saved by its owner |
+| trails | memory; each phone holds its own | no — re-requested | no (D14) |
 
 The runtime answers `ping` with `pong` (`setWebSocketAutoResponse`) without waking the object.
 
@@ -307,7 +298,6 @@ size-capped and zod-validated.
 | `GET/POST /api/maps`, `GET/PUT/PATCH/DELETE /api/maps/:id` | maps; PUT carries `version` (D8) |
 | `POST/DELETE /api/maps/:id/publish`, `GET /api/shares/:slug` | view link (D8) |
 | `POST /api/hunts`, `POST /api/hunts/join`, `GET /api/hunts/:id/ws` | hunts (D9, D10) |
-| `GET/POST /api/trails`, `GET/DELETE /api/trails/:id` | saved own trails (D14) |
 | `POST /api/usage`, `GET /api/admin/…` | phase 4 (pb-D119, pb-D108) |
 
 Rate limiters (`ratelimits` in wrangler.jsonc, per location, 10 or 60 s periods): `AUTH_LIMIT`

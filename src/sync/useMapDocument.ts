@@ -31,7 +31,7 @@ export type SyncStatus =
   /** A hunt runs on the map: its changes go through the hunt until it ends (D12). */
   | "hunting";
 
-type ServerMap = { map: { id: string; doc: unknown; version: number; share_slug: string | null } };
+type ServerMap = { map: { id: string; doc: unknown; version: number; share_slug: string | null; hunt: { id: string } | null } };
 
 export function useMapDocument(mapId: string | null, untitled: string) {
   const [first] = useState(() => storedDraft());
@@ -149,7 +149,8 @@ export function useMapDocument(mapId: string | null, untitled: string) {
       if (!parsed.ok) return "missing";
       load(parsed.doc, { id, version: result.data.map.version });
       setShareSlug(result.data.map.share_slug);
-      return "saved";
+      setHuntId(result.data.map.hunt?.id ?? null);
+      return result.data.map.hunt ? "hunting" : "saved";
     },
     [load],
   );

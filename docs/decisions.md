@@ -54,8 +54,7 @@ Anyone can draw a map, host a hunt or join one without an account.
   load, through `POST /api/device` with a username and a Turnstile token. Browsing creates nothing.
 - **The username** is 1–24 characters, NFC, trimmed, no control characters. It is a display name,
   not an identity: two devices may share one; a hunt may not (D10).
-- **What a device may own:** up to 3 maps and 10 saved trails (D14). Hunts are owned by nobody
-  (D9).
+- **What a device may own:** up to 3 maps. Hunts are owned by nobody (D9).
 - **Lifetime:** 90 days since last use. `last_seen_at` slides at most daily; the daily sweep deletes
   an expired device with everything it owns. The cookie's `Max-Age` is 400 days (Chrome's cap) and
   is not what expires the data — the row is.
@@ -68,7 +67,7 @@ Anyone can draw a map, host a hunt or join one without an account.
 ## D6 — Claiming anonymous data is an offer, not a side effect of signing in
 `/api/me` answers everybody with `{ user, device, claimable }`, never a 401. When a request
 carries both a session and a device cookie, `claimable` says what the device owns. The client offers once per sign-in to move it into the account
-(pb-D30's adoption pattern). `POST /api/me/claim` moves maps and trails in one D1 batch — refused
+(pb-D30's adoption pattern). `POST /api/me/claim` moves maps in one D1 batch — refused
 whole if it would exceed the account's caps — then deletes the device row and clears the cookie.
 Declining leaves the device as it was; it expires on its own clock.
 
@@ -204,19 +203,14 @@ so what must survive it lives where storage is not:
   after losing signal does the same for the gap.
 - **The object's memory is a relay cache** — enough for a late joiner to see the ground covered.
 
-When the hunt ends, phones delete their local trail unless the user saves it (D14). No Worker or
+When the hunt ends, phones delete their local trail (D14). No Worker or
 object code logs a coordinate; `observability` sees request metadata only.
 
-## D14 — "Save my own trail" is the one exception, and it is opt-in and own-only
-At the end of a hunt each member is offered to save **their own** trail — never anyone else's. The
-phone posts it (`POST /api/trails`) from its local copy, so saving works even if the object was
-evicted. Stored: the line (simplified to ≤ 5 m error, ≤ 20,000 points), start and end times, hunt
-type, distance walked, and the map it was on. It belongs to the account or device that saved it
-(caps 200 / 10), is listed, viewable, exportable as GPX (phase 4) and deletable, and goes with the
-account (D22) or the device's expiry (D5).
-
-This contradicts D13 only for the person whose movements they are, by their own act, after the
-hunt — the rule protects people from being tracked by others, not from keeping their own record.
+## D14 — A trail lasts as long as the hunt
+A trail exists for the hunt only: in the object's memory and on each phone, which deletes its own
+when the person leaves the hunt screen. A web page records position only while it is open and in
+front, so the record of a walk is the hunter's own watch or app (Apple Watch, Strava); its GPX
+comes onto a map by import (D21).
 
 ## D15 — Update interval adapts to movement, per hunt type and role
 A phone sends a position when the time **or** the distance since the last send is reached, and
@@ -229,9 +223,7 @@ switches to the sparse interval after 30 s below 0.5 m/s:
 | montaria · porta | 10 s or 25 m | 60 s | off (toggle) |
 
 Fixes worse than 50 m accuracy are shown as a dot with its circle but never sent into a trail;
-trail points need ≤ 25 m and ≥ 5 m from the previous point. **Distance walked** is the trail's
-length after that filter, computed by one pure function on every phone, so everyone reads the same
-number.
+trail points need ≤ 25 m and ≥ 5 m from the previous point.
 
 **Staleness:** the object stamps each position with its receive time; phones compare against a clock
 offset taken from `welcome`. A position older than twice its expected interval fades; older than
@@ -353,10 +345,11 @@ every Portuguese accent); the schema rejects anything else at input.
 ## D21 — Import and export: GeoJSON, GPX and KML, in phase 4
 GeoJSON is the document (D7). GPX (waypoints → pins, tracks and routes → routes) and KML (Placemark
 points, lines, polygons) are converted in the browser, validated by the same schema, capped by the
-same limits, and parsed with `DOMParser` from a size-capped file. Saved trails export as GPX.
+same limits, and parsed with `DOMParser` from a size-capped file. A GPX track from a watch or an
+app (Strava) imports as a route, which puts a walk recorded elsewhere on the map (D14).
 
 ## D22 — Deleting an account or a device is one transaction, by name
-pb-D110: `DELETE /api/me` empties every table naming the user — trails, maps (and their view
+pb-D110: `DELETE /api/me` empties every table naming the user — maps (and their view
 links), identities, sessions, pending email links — then `users`, in one D1 batch. A device erases
 itself the same way (`DELETE /api/device`). A hunt the principal hosts is ended first. The list is
 the contract; `ON DELETE CASCADE` is a backstop.

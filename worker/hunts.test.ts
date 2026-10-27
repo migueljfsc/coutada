@@ -86,6 +86,7 @@ describe("starting and joining", () => {
     const { host, hunt, mapId } = await started();
     const doc = createMapDoc("Outra");
     expect((await host.call("PUT", `/api/maps/${mapId}`, { doc, version: 1 })).body).toEqual({ error: "hunt_active", hunt: { id: hunt.id } });
+    expect((await host.call("GET", `/api/maps/${mapId}`)).body.map.hunt).toEqual({ id: hunt.id });
     const stranger = browser();
     await stranger.call("POST", "/api/device", { username: "Outro", turnstile: "t" });
     expect((await stranger.call("PUT", `/api/maps/${mapId}`, { doc, version: 1 })).status).toBe(404);

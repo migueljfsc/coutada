@@ -133,7 +133,6 @@ export async function redeemTransfer(env: Env, request: Request, now: number): P
 /** Everything a device owns, gone in one batch (D22). */
 export async function eraseDevice(env: Env, id: string): Promise<void> {
   await env.DB.batch([
-    env.DB.prepare("DELETE FROM trails WHERE owner_device_id = ?1").bind(id),
     env.DB.prepare("DELETE FROM hunts WHERE host_device_id = ?1").bind(id),
     env.DB.prepare("DELETE FROM maps WHERE owner_device_id = ?1").bind(id),
     env.DB.prepare("DELETE FROM device_transfers WHERE device_id = ?1").bind(id),

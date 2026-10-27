@@ -19,7 +19,7 @@ deployed by [`deploy-worker.yml`](.github/workflows/deploy-worker.yml) on every 
 | **Drawing** | Terra Draw edits geometry, touch first; the map document is one GeoJSON FeatureCollection. |
 | **Offline** | Each phone prefetches its property's tiles into the service worker's cache; drawings in IndexedDB. |
 | **Live hunts** | One Durable Object per hunt in the EU, WebSocket hibernation, a four-character join code. |
-| **Privacy** | Positions are relayed in memory and never stored; a member may save only their own trail. |
+| **Privacy** | Positions and trails are relayed in memory and never stored. |
 | **Identity** | Accounts as in [pitchboard](https://github.com/migueljfsc/pitchboard) (browser-side KDF, Google, Turnstile); anonymous use by device token. |
 
 ## Stack

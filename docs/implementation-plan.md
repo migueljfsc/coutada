@@ -14,7 +14,7 @@ deployed at something you can open on a phone in the field.
 | P0 | Shipped (v0.1.0) |
 | P1 | Shipped: map document and geometry; the map screen, imagery and the GPS dot with heading; drawing and editing; accounts, anonymous devices, transfer and claim; maps saved with conflict handling; view links |
 | P2 | Shipped: go to a pin, follow a route with the off-route warning; the app opens offline and keeps imagery seen; the area download with estimate, progress and removal; installable, with the iOS hint |
-| P3 | P3.1 shipped: the hunt object, codes, join, the live protocol, host controls, expiry. P3.2 shipped: the hunt screen — start, join, everyone's positions and trails, staleness and `away`, the host's controls. P3.3 shipped: the host draws during the hunt and everyone sees it at once; sightings, kept as pins by the host. Next: saving trails and distance walked |
+| P3 | P3.1 shipped: the hunt object, codes, join, the live protocol, host controls, expiry. P3.2 shipped: the hunt screen — start, join, everyone's positions and trails, staleness and `away`, the host's controls. P3.3 shipped: the host draws during the hunt and everyone sees it at once; sightings, kept as pins by the host. Next: species pins, then P4 |
 | P4 | Not started |
 
 ## Phases
@@ -60,15 +60,15 @@ Ends at: in flight mode at the property, the map, your dot, navigation and drawi
   jurisdiction with hibernation; `hunts` table; code generation and rotation (D9, D10).
 - Join page: code, username, Turnstile; `JOIN_LIMIT`; lock, kick, rotate, end.
 - Position sampler with the per-type intervals; positions, staleness, `away` (D15).
-- Trails: own trail in `localStorage`, relay cache, `trail.request` / `trail.sync`; distance walked (D13).
+- Trails: own trail in `localStorage`, relay cache, `trail.request` / `trail.sync` (D13).
 - Live drawing sync with write-back; observations, keeping one (D11, D12).
-- End of hunt: "save my trail" (D14); trails list.
 
 Ends at: a salto with three phones — everyone sees everyone, trails survive a phone losing signal
 and a redeploy of the Worker, and nothing about positions is in D1 or object storage afterwards.
 
 ### P4 — Import, export, operator, polish
-- GeoJSON, GPX and KML import and export; trails as GPX (D21).
+- GPX import first: a walk from a watch or Strava as a route (D14, D21); then GeoJSON and KML, and
+  export.
 - `/admin` (pb-D108) and anonymous usage counters (pb-D119), extended to maps and hunts by count.
 - Account zip export (pb-D120); privacy page (tile servers, device lifetime, trails).
 
