@@ -3,12 +3,14 @@
  * phone's name, moving to another device, installing, the language, and erasing everything.
  */
 
-import type { ReactNode } from "react";
-import { ChartColumn, Download, LogOut, Smartphone, Trash2, UserRound } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { ChartColumn, Download, FileArchive, LogOut, Smartphone, Trash2, UserRound } from "lucide-react";
 import { useAccount } from "../account/context";
 import { useI18n } from "../i18n/context";
 import { LOCALES } from "../i18n/core";
+import { save } from "../lib/download";
 import { useInstall } from "../lib/useInstall";
+import { myData } from "../share/myData";
 import { navigate } from "../share/routes";
 import { Dialog } from "./Dialog";
 import { RailButton } from "./RailButton";
@@ -30,12 +32,25 @@ function useInitial(): string | null {
   return name ? name.trim().charAt(0).toLocaleUpperCase() : null;
 }
 
-function Row({ icon, children, onClick, danger = false }: { icon: ReactNode; children: ReactNode; onClick: () => void; danger?: boolean }) {
+function Row({
+  icon,
+  children,
+  onClick,
+  danger = false,
+  disabled = false,
+}: {
+  icon: ReactNode;
+  children: ReactNode;
+  onClick: () => void;
+  danger?: boolean;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex min-h-12 w-full items-center gap-3 rounded-[12px] px-2 text-left text-[16px] font-semibold active:bg-cal-deep ${danger ? "text-[#a32a1d]" : ""}`}
+      disabled={disabled}
+      className={`flex min-h-12 w-full items-center gap-3 rounded-[12px] px-2 text-left text-[16px] font-semibold active:bg-cal-deep disabled:opacity-60 ${danger ? "text-[#a32a1d]" : ""}`}
     >
       <span className="flex size-6 shrink-0 items-center justify-center" aria-hidden>
         {icon}
@@ -50,6 +65,15 @@ export function AccountSheet({ actions, onClose }: { actions: AccountActions; on
   const { me } = useAccount();
   const { installed, install, iosHint } = useInstall();
   const initial = useInitial();
+  const [exporting, setExporting] = useState<"idle" | "busy" | "failed">("idle");
+  const exportData = async () => {
+    if (!me) return;
+    setExporting("busy");
+    const blob = await myData(me);
+    if (!blob) return setExporting("failed");
+    save(`coutada-${new Date().toISOString().slice(0, 10)}.zip`, blob);
+    setExporting("idle");
+  };
   const act = (fn: () => void) => () => {
     onClose();
     fn();
@@ -97,6 +121,16 @@ export function AccountSheet({ actions, onClose }: { actions: AccountActions; on
           <Row icon={<Smartphone size={20} />} onClick={act(actions.transfer)}>
             {me?.device ? t("transfer.title") : t("transfer.haveCode")}
           </Row>
+          {(me?.user || me?.device) && (
+            <Row icon={<FileArchive size={20} />} disabled={exporting === "busy"} onClick={() => void exportData()}>
+              {t(exporting === "busy" ? "menu.exporting" : "menu.export")}
+            </Row>
+          )}
+          {exporting === "failed" && (
+            <p role="alert" className="px-2 pb-2 text-[14px] text-[#a32a1d]">
+              {t("menu.exportFailed")}
+            </p>
+          )}
           {!installed && install && (
             <Row icon={<Download size={20} />} onClick={() => void install()}>
               {t("install.app")}
@@ -130,6 +164,10 @@ export function AccountSheet({ actions, onClose }: { actions: AccountActions; on
             </Row>
           )}
         </div>
+
+        <button type="button" onClick={act(() => navigate("/privacidade"))} className="min-h-11 self-start text-[15px] font-semibold text-anil underline-offset-4 hover:underline">
+          {t("privacy.link")}
+        </button>
 
         {(me?.user || me?.device) && (
           <div className="-mx-2 border-t border-rule pt-3">

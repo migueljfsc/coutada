@@ -14,6 +14,7 @@ import { primaryButton, secondaryButton } from "./components/ui";
 import { useI18n } from "./i18n/context";
 import { HuntScreen } from "./pages/HuntScreen";
 import { MapScreen } from "./pages/MapScreen";
+import { PrivacyScreen } from "./pages/PrivacyScreen";
 import { SharedScreen } from "./pages/SharedScreen";
 import { api } from "./share/api";
 import { dropParams, navigate, useRoute } from "./share/routes";
@@ -30,6 +31,7 @@ export function App() {
       </Suspense>
     );
   }
+  if (route.kind === "privacy") return <PrivacyScreen />;
   return (
     <>
       {route.kind === "shared" ? (

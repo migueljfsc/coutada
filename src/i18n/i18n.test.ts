@@ -57,6 +57,7 @@ describe("the dictionaries", () => {
       "locale.en",
       "locale.pt",
       "obs.keptName",
+      "privacy.cookies.title",
       "role.batedor",
       "role.porta",
       "type.armada",

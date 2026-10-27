@@ -84,6 +84,8 @@ local dry run — CI owns the deploy.
 - **`/api/admin/*` answers 404 to everyone but an operator** (D26): a new admin route goes through
   `adminRoute`, which checks the session only once the path matches. A new usage event joins
   `USAGE_EVENTS` in the Worker, and `BROWSER_EVENTS` too if the browser sends it.
+- **The privacy page states what the code keeps** (D27): a change to what is stored, where, or for
+  how long changes `privacy.*` in both dictionaries.
 
 ### Map (D18, D24)
 - **MapLibre's stylesheet is unlayered, so it beats Tailwind utilities.** `.maplibregl-map` sets

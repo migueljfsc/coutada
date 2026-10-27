@@ -1,6 +1,9 @@
 /** Hands the browser a file to save, made from text. */
-export function download(fileName: string, type: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type }));
+export const download = (fileName: string, type: string, text: string) => save(fileName, new Blob([text], { type }));
+
+/** Hands the browser a file to save. */
+export function save(fileName: string, blob: Blob) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = fileName;

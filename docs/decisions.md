@@ -370,6 +370,16 @@ by format. Hunts and links are counted by the Worker as they happen; the rest by
 through `POST /api/usage`, the one unauthenticated write: a fixed list (the browser's held inside
 the Worker's by a test), `USAGE_LIMIT` by address, and a cap per row. Kept 400 days by the sweep.
 
+## D27 — Your data as a zip, and a page that says what is kept
+pb-D120. **Everything an account or a phone holds, as a zip**, from the menu: each map as GeoJSON
+(`coutada/maps/<name>.geojson`, which opens in Coutada again and in GIS software) and
+`coutada/account.json`. Built in the browser from the maps' own endpoints; there is no export
+route. `share/zip.ts` writes it over `CompressionStream` with UTF-8 names, read back by a test.
+
+**`/privacidade`** (and `/privacy`) says, in both languages, what is kept and where, that positions
+never are, what the imagery hosts see, what is counted (D26), the cookies, and how to download or
+erase it. It describes what the code does; a change to what is kept changes the page.
+
 ## D21 — Import and export: GeoJSON, GPX and KML
 Files are added to the open map, from the Ficheiros tile, read from a file's text (20 MB at most)
 by pure readers in `src/io/`, which the tests run without a DOM. The format is told by the

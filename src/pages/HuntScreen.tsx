@@ -141,9 +141,11 @@ export function HuntScreen({ huntId }: { huntId: string }) {
 
   const over: Link[] = ["ended", "kicked", "denied"];
   const done = over.includes(link);
-  // A hunt that is over for this phone is not one to go back to.
+  // A hunt that is over for this phone is not one to go back to, and its trail goes with it (D14).
   useEffect(() => {
-    if (done) forgetHunt(huntId);
+    if (!done) return;
+    forgetHunt(huntId);
+    forgetTrail(huntId);
   }, [done, huntId]);
   const members = Object.values(view.members).sort((a, b) => Number(b.host) - Number(a.host) || a.name.localeCompare(b.name));
 

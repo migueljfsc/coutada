@@ -28,6 +28,6 @@ export function count(event: BrowserEvent): void {
 
 /** The page a load opened, by its route's kind, counted once per load; the operator's page is not. */
 export function pageEvent(kind: string): BrowserEvent | null {
-  if (kind === "admin") return null;
+  if (kind === "admin" || kind === "privacy") return null;
   return kind === "shared" ? "page.shared" : kind === "hunt" ? "page.hunt" : "page.map";
 }

@@ -15,7 +15,7 @@ deployed at something you can open on a phone in the field.
 | P1 | Shipped: map document and geometry; the map screen, imagery and the GPS dot with heading; drawing and editing; accounts, anonymous devices, transfer and claim; maps saved with conflict handling; view links |
 | P2 | Shipped: go to a pin, follow a route with the off-route warning; the app opens offline and keeps imagery seen; the area download with estimate, progress and removal; installable, with the iOS hint |
 | P3 | P3.1 shipped: the hunt object, codes, join, the live protocol, host controls, expiry. P3.2 shipped: the hunt screen — start, join, everyone's positions and trails, staleness and `away`, the host's controls. P3.3 shipped: the host draws during the hunt and everyone sees it at once; sightings by species and event, kept by the host as game pins; game pins by species. Next: P4, GPX import first |
-| P4 | Import and export shipped: GPX, KML and GeoJSON in and out (D21). The panel redesign shipped (D25). `/admin` and usage counters shipped (D26). Next: the account export and the privacy page |
+| P4 | Shipped: GPX, KML and GeoJSON in and out (D21); the panel redesign (D25); `/admin` and usage counters (D26); your data as a zip and the privacy page (D27) |
 
 ## Phases
 
