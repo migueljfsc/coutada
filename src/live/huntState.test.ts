@@ -57,6 +57,9 @@ describe("a phone's view of the hunt", () => {
     expect(v.rev).toBe(4);
     v = applyServer(v, { t: "feature.reject", id: ID("p"), f: null, rev: 5 }, 0);
     expect(v.doc?.features).toHaveLength(0);
+    expect(v.rejected).toEqual([ID("p")]);
+    v = applyServer(applyServer(v, { t: "error", code: "too_many" }, 0), { t: "error", code: "too_many" }, 0);
+    expect(v.errors).toBe(2);
   });
 
   it("follows the code, the lock and the end", () => {

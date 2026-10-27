@@ -122,6 +122,11 @@ local dry run — CI owns the deploy.
   storage (D13); spreading the state would write them.
 - **Send through `sendTo`** — a kicked or dropping member's socket throws on `send`, and one
   throw ends the broadcast for everyone after it.
+- **Compare features with `same` (`src/live/docSync.ts`), never as JSON strings** — the hunt
+  parses every feature with zod, which can reorder keys; a string compare sees every echo as a new
+  edit and resends it forever.
+- **The host's edits wait for the last batch's answer** — the hunt refuses a `base` older than the
+  feature's rev, so a second edit to the same feature sent before the echo is rejected.
 - **`HUNT_JURISDICTION` is `"eu"` in wrangler.jsonc and blank only in tests and `.dev.vars`** —
   workerd has no jurisdictions; `src/share/deploy.test.ts` fails if production loses it.
 

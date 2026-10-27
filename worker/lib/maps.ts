@@ -72,7 +72,8 @@ export async function updateMap(ctx: MapCtx, id: string): Promise<Response> {
   if (typeof version !== "number" || !Number.isInteger(version)) return fail("invalid_version", 400);
 
   // While a hunt runs on the map, its edits go through the hunt, which writes them back (D8, D12).
-  if (await huntOnMap(ctx.env, id, ctx.now)) return fail("hunt_active", 409);
+  const hunt = await huntOnMap(ctx.env, id, ctx.now, ctx.principal);
+  if (hunt) return json({ error: "hunt_active", hunt: { id: hunt } }, 409);
 
   const [column, owner] = ownerColumn(ctx.principal);
   const result = await ctx.env.DB.prepare(

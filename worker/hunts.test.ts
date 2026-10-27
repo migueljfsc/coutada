@@ -83,9 +83,12 @@ describe("starting and joining", () => {
   });
 
   it("holds the map's REST saves while it runs", async () => {
-    const { host, mapId } = await started();
+    const { host, hunt, mapId } = await started();
     const doc = createMapDoc("Outra");
-    expect((await host.call("PUT", `/api/maps/${mapId}`, { doc, version: 1 })).body.error).toBe("hunt_active");
+    expect((await host.call("PUT", `/api/maps/${mapId}`, { doc, version: 1 })).body).toEqual({ error: "hunt_active", hunt: { id: hunt.id } });
+    const stranger = browser();
+    await stranger.call("POST", "/api/device", { username: "Outro", turnstile: "t" });
+    expect((await stranger.call("PUT", `/api/maps/${mapId}`, { doc, version: 1 })).status).toBe(404);
   });
 });
 

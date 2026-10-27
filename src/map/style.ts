@@ -12,7 +12,7 @@ import { EMPTY, PERSON } from "./me";
 export type Style = Exclude<MapOptions["style"], string | undefined>;
 
 export const ME_SOURCE = "me";
-export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide", "people", "trails"] as const;
+export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide", "people", "trails", "observations"] as const;
 export type DrawingSource = (typeof DRAWING_SOURCES)[number];
 export const imageryLayer = (id: ImageryId) => `imagery-${id}`;
 
@@ -22,8 +22,8 @@ const INK = "#23281f";
 const kindIs = (kind: string) => ["==", ["get", "kind"], kind] as const;
 const typeIn = (...types: string[]) => ["in", ["get", "type"], ["literal", types]] as const;
 
-/** Layers a tap can select, in priority order: a pin beats a route beats an area. */
-export const HIT_LAYERS = ["pins", "routes-solid", "routes-dashed", "zones-fill", "zones-solid", "zones-dashed"];
+/** Layers a tap can select, in priority order: an observation beats a pin beats a route beats an area. */
+export const HIT_LAYERS = ["observations", "pins", "routes-solid", "routes-dashed", "zones-fill", "zones-solid", "zones-dashed"];
 /** Layers a drag can grab. */
 export const HANDLE_LAYERS = ["handles-vertex", "handles-mid", "pin-grab"];
 
@@ -150,6 +150,19 @@ const drawingLayers = [
       "icon-offset": ["case", ["==", ["get", "kind"], "pin"], ["literal", [0, 22]], ["literal", [0, 0]]],
       "icon-optional": true,
     },
+  },
+  {
+    id: "observations-halo",
+    type: "circle",
+    source: "observations",
+    filter: ["==", ["get", "sel"], 1],
+    paint: { "circle-radius": 24, "circle-color": ANIL, "circle-opacity": 0.45 },
+  },
+  {
+    id: "observations",
+    type: "symbol",
+    source: "observations",
+    layout: { "icon-image": ["get", "icon"], "icon-allow-overlap": true, "icon-ignore-placement": true },
   },
   {
     id: "people",

@@ -127,4 +127,14 @@ describe("the editor", () => {
     expect(s.selected).toBeNull();
     expect(s.doc.features).toHaveLength(0);
   });
+
+  it("takes someone else's change without dropping the tool, and forgets what undo would revert", () => {
+    const { state, armada } = withArmada();
+    const drawing = run(state, { type: "tool", tool: { kind: "pin", type: "gate" } });
+    const s = run(drawing, { type: "remote", doc: createMapDoc("Herdade") });
+    expect(s.tool.kind).toBe("pin");
+    expect(s.past).toEqual([]);
+    expect(run(state, { type: "remote", doc: { ...state.doc } }).selected).toBe(armada);
+    expect(run(state, { type: "remote", doc: createMapDoc("Herdade") }).selected).toBeNull();
+  });
 });

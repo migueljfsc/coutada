@@ -111,6 +111,7 @@ export const en = {
   "sync.offline": "No connection: changes stay on this device and are sent when there is one.",
   "sync.conflict": "This map was changed on another device since you opened it.",
   "sync.missing": "This map no longer exists on the server, or is not yours.",
+  "sync.hunting": "A hunt is running on this map: change it from the hunt.",
   "sync.takeTheirs": "Use the saved one",
   "sync.keepMine": "Keep mine",
   "maps.save": "Save this map",
@@ -293,6 +294,24 @@ export const en = {
   "hunt.host": "Host",
   "hunt.verified": "Has an account",
   "hunt.kick": "Remove {name}",
+  "hunt.open": "Go to the hunt",
+  "hunt.edit.rejected": "That drawing was changed on another device first. This is the latest.",
+  "hunt.edit.refused": "The hunt did not take that change: the map is at its size limit.",
+
+  // ----------------------------------------------------------- observations
+  "obs.add": "Mark a sighting",
+  "obs.pick": "What was it?",
+  "obs.type.covey": "Covey flushed",
+  "obs.type.game_seen": "Game seen",
+  "obs.type.game_down": "Game down",
+  "obs.type.dog": "Dog",
+  "obs.place": "Tap the map where it was.",
+  "obs.here": "Where I am",
+  "obs.markedNow": "Marked by {name} just now",
+  "obs.marked": "Marked by {name} {m} min ago",
+  "obs.remove": "Remove",
+  "obs.keep": "Keep on the map",
+  "obs.keptName": "{type} {time}",
 
   // -------------------------------------------------------------- documents
   "doc.notAMap": "This file is not a Coutada map.",

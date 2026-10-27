@@ -103,6 +103,7 @@ export const pt: Dictionary = {
   "sync.offline": "Sem rede: as alterações ficam neste aparelho e seguem quando houver ligação.",
   "sync.conflict": "Este mapa foi alterado noutro aparelho depois de o abrir.",
   "sync.missing": "Este mapa já não existe no servidor, ou não é seu.",
+  "sync.hunting": "Há uma caçada a decorrer neste mapa: altere-o a partir da caçada.",
   "sync.takeTheirs": "Usar o guardado",
   "sync.keepMine": "Manter o meu",
   "maps.save": "Guardar este mapa",
@@ -285,6 +286,24 @@ export const pt: Dictionary = {
   "hunt.host": "Organiza",
   "hunt.verified": "Tem conta",
   "hunt.kick": "Retirar {name}",
+  "hunt.open": "Ir para a caçada",
+  "hunt.edit.rejected": "Esse desenho foi alterado primeiro noutro aparelho. Esta é a versão mais recente.",
+  "hunt.edit.refused": "A caçada não aceitou essa alteração: o mapa chegou ao limite de tamanho.",
+
+  // ----------------------------------------------------------- observations
+  "obs.add": "Marcar um avistamento",
+  "obs.pick": "O que foi?",
+  "obs.type.covey": "Bando levantado",
+  "obs.type.game_seen": "Caça vista",
+  "obs.type.game_down": "Caça abatida",
+  "obs.type.dog": "Cão",
+  "obs.place": "Toque no mapa onde foi.",
+  "obs.here": "Onde estou",
+  "obs.markedNow": "Marcado por {name} agora mesmo",
+  "obs.marked": "Marcado por {name} há {m} min",
+  "obs.remove": "Apagar",
+  "obs.keep": "Guardar no mapa",
+  "obs.keptName": "{type} {time}",
 
   // -------------------------------------------------------------- documents
   "doc.notAMap": "Este ficheiro não é um mapa do Coutada.",

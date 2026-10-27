@@ -2,38 +2,55 @@
  * A live hunt (D9–D15): the map with everyone on it and the ground covered, the code to bring
  * others in, who is there and how fresh their position is, and the host's controls. Positions
  * start being shared on arrival; the screen says so and says it is not a safety system (D17).
+ * The host draws here and everyone sees it at once (D12); anyone marks a sighting (D11).
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { BadgeCheck, Crown, KeyRound, Layers, Locate, LocateFixed, Lock, LockOpen, LogOut, UserX } from "lucide-react";
+import { BadgeCheck, Binoculars, Crown, KeyRound, Layers, Locate, LocateFixed, Lock, LockOpen, LogOut, UserX } from "lucide-react";
 import { DEFAULT_IMAGERY, type ImageryId } from "../doc/catalogue";
+import { newFeatureId } from "../doc/ids";
+import { canAdd } from "../doc/operations";
+import type { FeatureId } from "../doc/types";
 import type { Position } from "../geo/geo";
 import { useI18n } from "../i18n/context";
 import { useMedia } from "../lib/useMedia";
 import { useNow } from "../lib/useNow";
 import { render, type Person, type Trail } from "../map/drawing";
 import { imageryOf } from "../map/imagery";
-import { MapView, type View } from "../map/MapView";
+import { MapView, type Handle, type View } from "../map/MapView";
 import { useFollow } from "../map/useFollow";
 import { ageMs, type HuntView } from "../live/huntState";
 import { forgetHunt, forgetTrail } from "../live/huntStore";
-import type { MemberInfo, Role } from "../live/protocol";
+import type { MemberInfo, Observation, ObservationType, Role } from "../live/protocol";
 import { cadence, LOST_AFTER_MS, staleAfterMs } from "../live/sampler";
 import { useHunt, type Link } from "../live/useHunt";
+import { useHuntEditor } from "../live/useHuntEditor";
 import { storedImagery, storedView, storeImagery, PORTUGAL } from "../share/prefs";
 import { navigate } from "../share/routes";
 import { ImageryPicker } from "../components/ImageryPicker";
 import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
 import { Dialog } from "../components/Dialog";
-import { primaryButton, secondaryButton } from "../components/ui";
+import { Notice } from "../components/Notice";
+import { noticeQuiet, primaryButton, secondaryButton } from "../components/ui";
+import { DrawBar } from "../components/editor/DrawBar";
+import { HistoryButtons, ToolRail } from "../components/editor/EditRail";
+import { FeatureDetails, FeatureHeader } from "../components/editor/FeatureEditor";
+import { TypePicker } from "../components/editor/TypePicker";
+import { useEditing } from "../components/editor/useEditing";
+import { SightingActions, SightingHeader, SightingPicker, SightingPlaceBar } from "../components/hunt/Sightings";
 
 const PANEL_PX = 392;
 
+/** Six decimals, as the map document keeps them: about 10 cm. */
+const round = (p: Position): [number, number] => [Math.round(p[0] * 1e6) / 1e6, Math.round(p[1] * 1e6) / 1e6];
+
 export function HuntScreen({ huntId }: { huntId: string }) {
-  const { t, tn } = useI18n();
+  const { t, tn, locale } = useI18n();
   const follow = useFollow();
   const { view, link, send } = useHunt(huntId, follow.fix);
+  const host = view.you?.host === true;
+  const { editor, dispatch, notice, dismiss } = useHuntEditor(view, send, host);
   const [imagery, setImagery] = useState<ImageryId>(() => storedImagery() ?? DEFAULT_IMAGERY);
   const [initialView] = useState<View>(() => storedView() ?? PORTUGAL);
   const [picker, setPicker] = useState(false);
@@ -42,6 +59,11 @@ export function HuntScreen({ huntId }: { huntId: string }) {
   const [confirmEnd, setConfirmEnd] = useState(false);
   const wide = useMedia("(min-width: 48rem)");
   const now = useNow(5000);
+  const editing = useEditing(editor, dispatch, { map: follow.map, wide, setSheetOpen });
+  const [choosingSighting, setChoosingSighting] = useState(false);
+  const [placing, setPlacing] = useState<ObservationType | null>(null);
+  const [sightingId, setSightingId] = useState<string | null>(null);
+  const sighting = sightingId ? view.obs.find((o) => o.id === sightingId) : undefined;
 
   // Sharing the position is what being in a hunt means; it starts on arrival (D15).
   const { ensure } = follow;
@@ -54,10 +76,59 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     () => Object.entries(view.trails).map(([id, pts]) => ({ id, points: pts.map((p): Position => [p[0], p[1]]) })),
     [view.trails],
   );
+  const observations = useMemo(() => view.obs.map((o) => ({ id: o.id, type: o.type, at: o.c })), [view.obs]);
   const rendered = useMemo(
-    () => render(view.doc ?? { type: "FeatureCollection", coutada: { v: 1, name: "" }, features: [] }, { people, trails }),
-    [view.doc, people, trails],
+    () =>
+      render(editor.doc, {
+        selected: editor.selected,
+        tool: editor.tool,
+        editing: host,
+        vertex: editing.vertex,
+        people,
+        trails,
+        observations,
+        sighting: sighting?.id ?? null,
+      }),
+    [editor.doc, editor.selected, editor.tool, host, editing.vertex, people, trails, observations, sighting],
   );
+
+  const stopAll = () => {
+    setChoosingSighting(false);
+    setPlacing(null);
+    setSightingId(null);
+    editing.setPicking(null);
+    dispatch({ type: "tool", tool: { kind: "idle" } });
+    dispatch({ type: "select", id: null });
+  };
+
+  const mark = (type: ObservationType, at: Position) => {
+    send({ t: "obs.put", obs: { id: newFeatureId(), type, c: round(at) } });
+    setPlacing(null);
+  };
+
+  const onTap = (at: Position, hit: FeatureId | null, handle: Handle | null) => {
+    if (placing) return mark(placing, at);
+    if (hit && editor.tool.kind === "idle" && view.obs.some((o) => o.id === hit)) {
+      dispatch({ type: "select", id: null });
+      setSightingId(hit);
+      return;
+    }
+    setSightingId(null);
+    if (host) editing.onTap(at, hit, handle);
+  };
+
+  /** The host keeps a sighting: a landmark where it was, named for what and when (D11). */
+  const keep = (o: Observation) => {
+    if (!canAdd(editor.doc)) return;
+    const id = newFeatureId();
+    const time = new Date(o.at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+    const at = Date.now();
+    dispatch({ type: "tool", tool: { kind: "pin", type: "landmark" } });
+    dispatch({ type: "tap", at: o.c, hit: null, id, now: at });
+    dispatch({ type: "props", id, patch: { name: t("obs.keptName", { type: t(`obs.type.${o.type}`), time }), ...(o.note ? { note: o.note } : {}) }, now: at });
+    send({ t: "obs.del", id: o.id });
+    setSightingId(null);
+  };
 
   const leave = () => {
     forgetHunt(huntId);
@@ -67,10 +138,76 @@ export function HuntScreen({ huntId }: { huntId: string }) {
 
   const over: Link[] = ["ended", "kicked", "denied"];
   const done = over.includes(link);
-  const host = view.you?.host === true;
   const members = Object.values(view.members).sort((a, b) => Number(b.host) - Number(a.host) || a.name.localeCompare(b.name));
 
-  const peekContent = done ? (
+  const { picking, selectedFeature, commands } = editing;
+  const tool = editor.tool;
+  let tools: { peek: React.ReactNode; body: React.ReactNode } | null = null;
+  if (done) tools = null;
+  else if (placing) {
+    const fix = follow.fix;
+    tools = { peek: <SightingPlaceBar type={placing} onHere={fix ? () => mark(placing, fix.at) : null} onCancel={() => setPlacing(null)} />, body: null };
+  } else if (choosingSighting) {
+    tools = {
+      peek: (
+        <SightingPicker
+          onPick={(type) => {
+            setChoosingSighting(false);
+            setPlacing(type);
+            setSheetOpen(false);
+          }}
+          onCancel={() => setChoosingSighting(false)}
+        />
+      ),
+      body: null,
+    };
+  } else if (sighting) {
+    const mine = sighting.by === view.you?.id;
+    tools = {
+      peek: (
+        <SightingHeader
+          obs={sighting}
+          by={view.members[sighting.by]?.name ?? "—"}
+          ageMs={Math.max(0, now + view.offset - sighting.at)}
+          onClose={() => setSightingId(null)}
+        />
+      ),
+      body: (
+        <SightingActions
+          onKeep={host ? () => keep(sighting) : null}
+          onRemove={
+            mine || host
+              ? () => {
+                  send({ t: "obs.del", id: sighting.id });
+                  setSightingId(null);
+                }
+              : null
+          }
+        />
+      ),
+    };
+  } else if (host && picking) {
+    tools = { peek: <TypePicker picking={picking} onPick={editing.pickType} onCancel={() => editing.setPicking(null)} />, body: null };
+  } else if (host && tool.kind !== "idle") {
+    tools = {
+      peek: (
+        <DrawBar
+          tool={tool}
+          onUndoPoint={() => dispatch({ type: "undoPoint" })}
+          onCancel={() => dispatch({ type: "tool", tool: { kind: "idle" } })}
+          onFinish={() => dispatch({ type: "finish", id: newFeatureId(), now: Date.now() })}
+        />
+      ),
+      body: null,
+    };
+  } else if (host && selectedFeature && commands) {
+    tools = {
+      peek: <FeatureHeader feature={selectedFeature} onClose={commands.close} />,
+      body: <FeatureDetails feature={selectedFeature} doc={editor.doc} vertex={editing.vertex} commands={commands} />,
+    };
+  }
+
+  const peekContent = tools ? tools.peek : done ? (
     <div>
       <h1 className="text-xl leading-tight font-bold">{t(`hunt.over.${link as "ended" | "kicked" | "denied"}`)}</h1>
       <p className="mt-1 text-[15px] text-xisto-soft">{t(`hunt.over.${link as "ended" | "kicked" | "denied"}.detail`)}</p>
@@ -95,7 +232,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     </div>
   );
 
-  const body = done ? (
+  const body = tools ? tools.body : done ? (
     <button type="button" onClick={leave} className={primaryButton}>
       {t("hunt.backToMap")}
     </button>
@@ -178,16 +315,59 @@ export function HuntScreen({ huntId }: { huntId: string }) {
         initialView={initialView}
         fix={follow.fix}
         rendered={rendered}
-        drawing={false}
+        drawing={tool.kind !== "idle" || placing !== null}
         inset={wide ? { bottom: 0, left: PANEL_PX } : { bottom: sheetOpen ? 0 : peek, left: 0 }}
         onReady={follow.attach}
+        onTap={done ? undefined : onTap}
+        onDrag={host && !done ? editing.onDrag : undefined}
       />
+
+      {notice && !done && (
+        <Notice
+          actions={
+            <button type="button" className={noticeQuiet} onClick={dismiss}>
+              {t("edit.close")}
+            </button>
+          }
+        >
+          {t(notice === "rejected" ? "hunt.edit.rejected" : "hunt.edit.refused")}
+        </Notice>
+      )}
+
+      {host && !done && <HistoryButtons editor={editor} dispatch={dispatch} />}
 
       <p className="pointer-events-none absolute bottom-[calc(var(--peek)+0.5rem)] left-3 z-10 rounded-md bg-cal/80 px-2 py-0.5 text-[11px] text-xisto md:bottom-3 md:left-[404px]">
         {imageryOf(imagery).attribution}
       </p>
 
       <div className="absolute right-3 bottom-[calc(var(--peek)+1rem)] z-10 flex flex-col items-end gap-3 md:bottom-6">
+        {!done && (
+          <div className="flex flex-col gap-2">
+            <RailButton
+              label={t("obs.add")}
+              active={choosingSighting || placing !== null}
+              onClick={() => {
+                const open = !(choosingSighting || placing);
+                stopAll();
+                setChoosingSighting(open);
+                setSheetOpen(true);
+              }}
+            >
+              <Binoculars size={22} strokeWidth={2.2} />
+            </RailButton>
+          </div>
+        )}
+        {host && !done && (
+          <ToolRail
+            active={editing.toolKind}
+            onPick={(kind) => {
+              setChoosingSighting(false);
+              setPlacing(null);
+              setSightingId(null);
+              editing.openPicker(kind);
+            }}
+          />
+        )}
         <div className="relative">
           <RailButton label={t("imagery.title")} active={picker} aria-expanded={picker} onClick={() => setPicker((p) => !p)}>
             <Layers size={22} strokeWidth={2.2} />
@@ -209,7 +389,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
         </RailButton>
       </div>
 
-      <Sheet open={sheetOpen || done} onOpenChange={setSheetOpen} onPeekHeight={setPeek} peek={peekContent}>
+      <Sheet open={(sheetOpen && body !== null) || done} onOpenChange={setSheetOpen} onPeekHeight={setPeek} peek={peekContent}>
         {body}
       </Sheet>
 

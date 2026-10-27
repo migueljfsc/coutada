@@ -32,9 +32,12 @@ export function useHunt(huntId: string, fix: Fix | null) {
     latest.current = { view, ownTrail };
   });
 
-  const send = useCallback((msg: ClientMessage) => {
+  /** Sends a message if the hunt is connected; says whether it went. */
+  const send = useCallback((msg: ClientMessage): boolean => {
     const ws = socket.current;
-    if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+    if (ws?.readyState !== WebSocket.OPEN) return false;
+    ws.send(JSON.stringify(msg));
+    return true;
   }, []);
 
   // The socket, reconnecting with backoff until the hunt ends or this phone is no longer in it.

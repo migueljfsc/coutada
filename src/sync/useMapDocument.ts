@@ -27,7 +27,9 @@ export type SyncStatus =
   /** The server has a newer version than the one these edits started from. */
   | "conflict"
   /** The server map is gone, or not this person's. */
-  | "missing";
+  | "missing"
+  /** A hunt runs on the map: its changes go through the hunt until it ends (D12). */
+  | "hunting";
 
 type ServerMap = { map: { id: string; doc: unknown; version: number; share_slug: string | null } };
 
@@ -37,6 +39,7 @@ export function useMapDocument(mapId: string | null, untitled: string) {
   const [remote, setRemote] = useState<Remote | null>(first?.remote ?? null);
   const [status, setStatus] = useState<SyncStatus>(first?.remote ? (first.dirty ? "offline" : "saved") : "local");
   const [shareSlug, setShareSlug] = useState<string | null>(null);
+  const [huntId, setHuntId] = useState<string | null>(null);
 
   const doc = useRef<MapDoc>(editor.doc);
   const remoteRef = useRef<Remote | null>(remote);
@@ -96,6 +99,11 @@ export function useMapDocument(mapId: string | null, untitled: string) {
     } else if (result.error === "version_conflict") {
       conflictVersion.current = typeof result.data?.version === "number" ? result.data.version : null;
       setStatus("conflict");
+      return;
+    } else if (result.error === "hunt_active") {
+      const hunt = result.data?.hunt as { id?: unknown } | undefined;
+      setHuntId(typeof hunt?.id === "string" ? hunt.id : null);
+      setStatus("hunting");
       return;
     } else if (result.status === 404) {
       setStatus("missing");
@@ -213,5 +221,5 @@ export function useMapDocument(mapId: string | null, untitled: string) {
     navigate("/");
   }, [load, untitled]);
 
-  return { editor, dispatch, remote, status, shareSlug, setShareSlug, saveAsNew, resolve, startNew, unsaved: () => dirty.current };
+  return { editor, dispatch, remote, status, huntId, shareSlug, setShareSlug, saveAsNew, resolve, startNew, unsaved: () => dirty.current };
 }

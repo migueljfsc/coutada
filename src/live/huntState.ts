@@ -23,6 +23,10 @@ export type HuntView = {
   /** The trail.request since the last welcome: the phone answers with its own trail. */
   trailRequested: number;
   lastError: string | null;
+  /** Every error so far, so the same code twice is still seen twice. */
+  errors: number;
+  /** The features whose edits the hunt has refused as stale, oldest first. */
+  rejected: string[];
 };
 
 export const emptyView = (): HuntView => ({
@@ -38,6 +42,8 @@ export const emptyView = (): HuntView => ({
   ended: null,
   trailRequested: 0,
   lastError: null,
+  errors: 0,
+  rejected: [],
 });
 
 const without = <T,>(r: Record<string, T>, key: string): Record<string, T> => Object.fromEntries(Object.entries(r).filter(([k]) => k !== key));
@@ -93,7 +99,8 @@ export function applyServer(view: HuntView, msg: ServerMessage, localNow: number
       const id = msg.t === "feature.put" ? msg.f.id : msg.id;
       const rest = view.doc.features.filter((x) => x.id !== id);
       const features = f ? (view.doc.features.some((x) => x.id === id) ? view.doc.features.map((x) => (x.id === id ? f : x)) : [...rest, f]) : rest;
-      return { ...view, doc: { ...view.doc, features }, rev: Math.max(view.rev, msg.rev) };
+      const rejected = msg.t === "feature.reject" ? [...view.rejected, id] : view.rejected;
+      return { ...view, doc: { ...view.doc, features }, rev: Math.max(view.rev, msg.rev), rejected };
     }
     case "feature.del":
       return view.doc ? { ...view, doc: { ...view.doc, features: view.doc.features.filter((f) => f.id !== msg.id) }, rev: Math.max(view.rev, msg.rev) } : view;
@@ -106,7 +113,7 @@ export function applyServer(view: HuntView, msg: ServerMessage, localNow: number
     case "ended":
       return { ...view, ended: msg.reason };
     case "error":
-      return { ...view, lastError: msg.code };
+      return { ...view, lastError: msg.code, errors: view.errors + 1 };
   }
 }
 

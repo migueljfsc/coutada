@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { destination, type Position } from "../geo/geo";
 import { addPin, addRoute, addZone, createMapDoc, featureById, updateProps } from "../doc/operations";
-import { dragShape, pinImage, portaImage, render, withoutVertex } from "./drawing";
+import { dragShape, observationImage, pinImage, portaImage, render, withoutVertex } from "./drawing";
 
 const S: Position = [-6.918, 39.882];
 const T = 0;
@@ -52,6 +52,20 @@ describe("render", () => {
     expect(two.draft.features.map((f) => f.properties.role)).toEqual(["line", "vertex", "vertex"]);
     const three = render(createMapDoc("m"), { tool: { kind: "area", type: "mancha", points: [S, destination(S, 0, 10), destination(S, 90, 10)] } });
     expect(three.draft.features[0].properties.role).toBe("area");
+  });
+
+  it("draws the hunt's sightings, tappable by id, the chosen one marked", () => {
+    const { observations } = render(createMapDoc("m"), {
+      observations: [
+        { id: ID("o"), type: "covey", at: S },
+        { id: ID("p"), type: "dog", at: S },
+      ],
+      sighting: ID("p"),
+    });
+    expect(observations.features.map((f) => f.properties)).toEqual([
+      { fid: ID("o"), icon: observationImage("covey"), sel: 0 },
+      { fid: ID("p"), icon: observationImage("dog"), sel: 1 },
+    ]);
   });
 });
 

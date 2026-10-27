@@ -113,7 +113,13 @@ export async function connectHunt(env: Env, request: Request, huntId: string, or
   return huntStub(env, huntId).fetch(request);
 }
 
-/** A live hunt on this map, if there is one: its REST writes wait until it ends (D8). */
-export async function huntOnMap(env: Env, mapId: string, now: number): Promise<boolean> {
-  return !!(await env.DB.prepare("SELECT 1 FROM hunts WHERE map_id = ?1 AND expires_at > ?2").bind(mapId, now).first());
+/** The live hunt on a map this principal owns, if there is one: its REST writes wait until it ends (D8). */
+export async function huntOnMap(env: Env, mapId: string, now: number, principal: Principal): Promise<string | null> {
+  const [column, owner] = ownerColumn(principal);
+  const row = await env.DB.prepare(
+    `SELECT h.id FROM hunts h JOIN maps m ON m.id = h.map_id WHERE h.map_id = ?1 AND h.expires_at > ?2 AND m.${column} = ?3`,
+  )
+    .bind(mapId, now, owner)
+    .first<{ id: string }>();
+  return row?.id ?? null;
 }

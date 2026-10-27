@@ -227,6 +227,12 @@ function TextField({
   onCommit: (v: string) => void;
 }) {
   const [value, setValue] = useState(initial);
+  // An undo, or the hunt's own version, changes the feature under the field: the field follows.
+  const [shown, setShown] = useState(initial);
+  if (initial !== shown) {
+    setShown(initial);
+    setValue(initial);
+  }
   const valid = validate(value.trim());
   const commit = () => {
     if (valid && value !== initial) onCommit(value);
@@ -256,6 +262,11 @@ function TextField({
 /** A whole number field that lets an empty value or a partial one stand while typing. */
 function NumberField({ label, value, onCommit }: { label: string; value: number | null; onCommit: (n: number | null) => void }) {
   const [text, setText] = useState(value === null ? "" : String(value));
+  const [shown, setShown] = useState(value);
+  if (value !== shown) {
+    setShown(value);
+    setText(value === null ? "" : String(value));
+  }
   const commit = () => {
     const n = text.trim() === "" ? null : Number.parseInt(text, 10);
     if (n === null || (Number.isFinite(n) && n >= 1 && n <= 999)) {

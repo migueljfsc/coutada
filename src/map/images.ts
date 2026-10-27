@@ -6,9 +6,10 @@
 import { createElement, type ComponentType } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Car, Droplet, Fence, Flag, TriangleAlert, Users, type LucideProps } from "lucide-react";
+import { Bird, Car, Crosshair, Dog, Droplet, Eye, Fence, Flag, TriangleAlert, Users, type LucideProps } from "lucide-react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { PALETTE, type PaletteKey, type PinType } from "../doc/catalogue";
+import type { ObservationType } from "../live/protocol";
 
 const RATIO = 2;
 const INK = "#23281f";
@@ -24,7 +25,14 @@ const GLYPHS: Partial<Record<PinType, ComponentType<LucideProps>>> = {
   water: Droplet,
 };
 
-const glyphImages = new Map<PinType, HTMLImageElement>();
+export const OBSERVATION_GLYPHS: Record<ObservationType, ComponentType<LucideProps>> = {
+  covey: Bird,
+  game_seen: Eye,
+  game_down: Crosshair,
+  dog: Dog,
+};
+
+const glyphImages = new Map<string, HTMLImageElement>();
 
 /** Renders a lucide icon to SVG markup without touching the document. */
 function svgOf(icon: ComponentType<LucideProps>): string {
@@ -44,12 +52,12 @@ export async function prepareImages(): Promise<void> {
   await Promise.allSettled([
     document.fonts.load(`700 28px ${FONT}`),
     document.fonts.load(`800 36px ${FONT}`),
-    ...Object.entries(GLYPHS).map(async ([type, icon]) => {
+    ...[...Object.entries(GLYPHS), ...Object.entries(OBSERVATION_GLYPHS)].map(async ([type, icon]) => {
       const img = new Image();
       img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgOf(icon!))}`;
       try {
         await img.decode();
-        glyphImages.set(type as PinType, img);
+        glyphImages.set(type, img);
       } catch (cause) {
         console.error("pin glyph", type, cause);
       }
@@ -84,6 +92,31 @@ function pin(type: PinType, colour: PaletteKey): ImageData {
   const out = badge(PALETTE[colour]);
   const glyph = glyphImages.get(type);
   if (glyph) out.ctx.drawImage(glyph, 9, 9, 20, 20);
+  return out.done();
+}
+
+/** A white diamond, so a mark made during the hunt is not mistaken for a pin on the map. */
+function observation(type: string): ImageData {
+  const size = 36;
+  const c = size / 2;
+  const out = canvas(size, size);
+  const { ctx } = out;
+  const diamond = (r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(c, c - r);
+    ctx.lineTo(c + r, c);
+    ctx.lineTo(c, c + r);
+    ctx.lineTo(c - r, c);
+    ctx.closePath();
+  };
+  diamond(c - 0.5);
+  ctx.fillStyle = INK;
+  ctx.fill();
+  diamond(c - 3.5);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  const glyph = glyphImages.get(type);
+  if (glyph) ctx.drawImage(glyph, c - 8, c - 8, 16, 16);
   return out.done();
 }
 
@@ -128,6 +161,7 @@ export function provideImage(map: MapLibreMap, id: string): void {
   let image: ImageData | null = null;
   if (kind === "pin" && rest.length === 2) image = pin(rest[0] as PinType, rest[1] as PaletteKey);
   else if (kind === "porta") image = porta(rest.join(":"));
+  else if (kind === "obs" && rest[0] in OBSERVATION_GLYPHS) image = observation(rest[0]);
   else if (kind === "label") image = label(rest.join(":"));
   if (image && !map.hasImage(id)) map.addImage(id, image, { pixelRatio: RATIO });
 }

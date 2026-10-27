@@ -8,6 +8,7 @@ import { lineLength, pointAlong, ringCentroid, type Position } from "../geo/geo"
 import { DEFAULT_COLOR, PALETTE } from "../doc/catalogue";
 import type { FeatureId, MapDoc, MapFeature } from "../doc/types";
 import type { Tool } from "../draw/editor";
+import type { ObservationType } from "../live/protocol";
 
 type Geometry =
   | { type: "Point"; coordinates: number[] }
@@ -23,6 +24,7 @@ const pos = (p: Position): number[] => [p[0], p[1]];
 export const pinImage = (type: string, colour: string) => `pin:${type}:${colour}`;
 export const portaImage = (n: number | undefined) => `porta:${n ?? ""}`;
 export const labelImage = (text: string) => `label:${text}`;
+export const observationImage = (type: string) => `obs:${type}`;
 
 const colourKey = (f: MapFeature) => f.properties.color ?? DEFAULT_COLOR[f.properties.type];
 
@@ -114,11 +116,14 @@ export type Rendered = {
   guide: Collection;
   people: Collection;
   trails: Collection;
+  observations: Collection;
 };
 
 /** Another hunter on the map: where, who, and how fresh the position is (D15). */
 export type Person = { id: string; name: string; at: Position; state: "fresh" | "stale" | "lost"; away: boolean };
 export type Trail = { id: string; points: readonly Position[] };
+/** Something a hunter marked during the hunt: a covey flushed, game seen or down, a dog (D11). */
+export type Sighting = { id: string; type: ObservationType; at: Position };
 
 /** The line from the person to what they navigate to. */
 function guide(points: readonly Position[] | null): RenderFeature[] {
@@ -138,12 +143,25 @@ export type RenderOptions = {
   /** The other hunters, in a live hunt. */
   people?: readonly Person[];
   trails?: readonly Trail[];
+  observations?: readonly Sighting[];
+  /** The observation chosen on the map. */
+  sighting?: string | null;
 };
 
 const IDLE: Tool = { kind: "idle" };
 
 export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
-  const { selected = null, tool = IDLE, editing = false, vertex = null, guide: guideLine = null, people = [], trails = [] } = options;
+  const {
+    selected = null,
+    tool = IDLE,
+    editing = false,
+    vertex = null,
+    guide: guideLine = null,
+    people = [],
+    trails = [],
+    observations = [],
+    sighting = null,
+  } = options;
   const chosen = editing && selected ? doc.features.find((f) => f.id === selected) : undefined;
   return {
     shapes: collection(doc.features.map((f) => shape(f, f.id === selected))),
@@ -162,6 +180,13 @@ export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
       trails
         .filter((t) => t.points.length >= 2)
         .map((t) => ({ type: "Feature", properties: { pid: t.id }, geometry: { type: "LineString", coordinates: t.points.map(pos) } })),
+    ),
+    observations: collection(
+      observations.map((o) => ({
+        type: "Feature",
+        properties: { fid: o.id, icon: observationImage(o.type), sel: o.id === sighting ? 1 : 0 },
+        geometry: { type: "Point", coordinates: pos(o.at) },
+      })),
     ),
   };
 }

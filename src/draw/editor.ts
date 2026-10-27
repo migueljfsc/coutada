@@ -46,6 +46,8 @@ export type EditorState = {
 /** `record` says whether the change is its own undo step; a drag records only its first move. */
 export type Action =
   | { type: "load"; doc: MapDoc }
+  /** Someone else's change to the document: the tool stays in hand, and the history is cleared. */
+  | { type: "remote"; doc: MapDoc }
   | { type: "tool"; tool: Tool }
   | { type: "tap"; at: Position; hit: FeatureId | null; id: FeatureId; now: number }
   | { type: "undoPoint" }
@@ -94,6 +96,16 @@ export function reduce(state: EditorState, action: Action): EditorState {
   switch (action.type) {
     case "load":
       return initialEditor(action.doc);
+
+    case "remote":
+      if (action.doc === state.doc) return state;
+      return {
+        ...state,
+        doc: action.doc,
+        past: [],
+        future: [],
+        selected: state.selected && featureById(action.doc, state.selected) ? state.selected : null,
+      };
 
     case "tool":
       return { ...state, tool: action.tool, selected: action.tool.kind === "idle" ? state.selected : null };

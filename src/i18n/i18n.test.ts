@@ -53,6 +53,7 @@ describe("the dictionaries", () => {
       "list.portaN",
       "locale.en",
       "locale.pt",
+      "obs.keptName",
       "role.batedor",
       "role.porta",
       "type.armada",
