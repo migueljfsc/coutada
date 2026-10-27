@@ -3,8 +3,8 @@
  * is drawn, their position, who they are, the language, and the safety line.
  */
 
-import { useEffect, useState } from "react";
-import { CloudDownload, CloudOff, Link2, Plus, Radio, Save, Smartphone, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CloudDownload, CloudOff, FileUp, Link2, Plus, Radio, Save, Smartphone, Users } from "lucide-react";
 import { hasIdentity, useAccount } from "../account/context";
 import { isFeatureName } from "../doc/schema";
 import type { FeatureId, MapDoc } from "../doc/types";
@@ -33,6 +33,7 @@ export type PanelActions = {
   offline: () => void;
   startHunt: () => void;
   joinHunt: () => void;
+  importFile: (file: File) => void;
 };
 
 type Props = {
@@ -135,7 +136,10 @@ export function MapPanel({ doc, mapId, status, fix, actions }: Props) {
       <HuntSection canStart={!!mapId && identified} onStart={actions.startHunt} onJoin={actions.joinHunt} />
 
       <section className="flex flex-col gap-1">
-        <h3 className="text-[15px] font-semibold">{t("maps.drawn")}</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-[15px] font-semibold">{t("maps.drawn")}</h3>
+          <ImportButton onFile={actions.importFile} />
+        </div>
         <FeatureList doc={doc} onChoose={actions.choose} />
       </section>
 
@@ -170,6 +174,30 @@ export function MapPanel({ doc, mapId, status, fix, actions }: Props) {
 
       <p className="border-l-4 border-person pl-3 text-[15px] leading-snug">{t("safety.notice")}</p>
     </div>
+  );
+}
+
+function ImportButton({ onFile }: { onFile: (file: File) => void }) {
+  const { t } = useI18n();
+  const input = useRef<HTMLInputElement>(null);
+  return (
+    <>
+      <button type="button" onClick={() => input.current?.click()} className={`${linkButton} flex items-center gap-1`}>
+        <FileUp size={16} />
+        {t("import.gpx")}
+      </button>
+      <input
+        ref={input}
+        type="file"
+        accept=".gpx,application/gpx+xml"
+        hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) onFile(file);
+        }}
+      />
+    </>
   );
 }
 

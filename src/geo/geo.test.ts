@@ -12,6 +12,7 @@ import {
   ringArea,
   ringCentroid,
   roundCoord,
+  simplifyLine,
   type Position,
 } from "./geo";
 
@@ -146,5 +147,14 @@ describe("boxes and rounding", () => {
   it("rounds to decimals", () => {
     expect(roundCoord(-6.91834567, 6)).toBe(-6.918346);
     expect(roundCoord(39.882345, 5)).toBe(39.88235);
+  });
+
+  it("thins a straight line to its ends and keeps a corner", () => {
+    const line: Position[] = [];
+    for (let m = 0; m <= 300; m += 10) line.push(destination(S, 90, m));
+    expect(simplifyLine(line, 5)).toHaveLength(2);
+    const corner = destination(S, 90, 300);
+    for (let m = 10; m <= 200; m += 10) line.push(destination(corner, 0, m));
+    expect(simplifyLine(line, 5)).toEqual([line[0], corner, line[line.length - 1]]);
   });
 });

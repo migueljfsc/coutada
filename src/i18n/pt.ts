@@ -328,6 +328,14 @@ export const pt: Dictionary = {
   "species.dog": "Cão",
 
   // -------------------------------------------------------------- documents
+  "import.gpx": "Importar GPX",
+  "import.added.one": "1 elemento adicionado ao mapa a partir do ficheiro.",
+  "import.added.other": "{count} elementos adicionados ao mapa a partir do ficheiro.",
+  "import.partial": "{n} adicionados a partir do ficheiro; {left} ficaram de fora: o mapa chegou ao limite.",
+  "import.full": "Nada adicionado: o mapa chegou ao limite.",
+  "import.notGpx": "Esse ficheiro não é um ficheiro GPX.",
+  "import.empty": "Esse ficheiro não tem trajetos, rotas nem pontos.",
+  "import.tooBig": "Esse ficheiro tem mais de 20 MB.",
   "doc.notAMap": "Este ficheiro não é um mapa do Coutada.",
   "doc.tooNew": "Este mapa foi guardado por uma versão mais recente do Coutada (v{version}). Recarregue a página para atualizar.",
   "doc.invalid": "Este mapa está danificado ou é demasiado grande para abrir.",

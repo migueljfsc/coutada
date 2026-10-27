@@ -46,6 +46,8 @@ export type EditorState = {
 /** `record` says whether the change is its own undo step; a drag records only its first move. */
 export type Action =
   | { type: "load"; doc: MapDoc }
+  /** Features brought in from a file: one undo step. */
+  | { type: "import"; doc: MapDoc }
   /** Someone else's change to the document: the tool stays in hand, and the history is cleared. */
   | { type: "remote"; doc: MapDoc }
   | { type: "tool"; tool: Tool }
@@ -96,6 +98,9 @@ export function reduce(state: EditorState, action: Action): EditorState {
   switch (action.type) {
     case "load":
       return initialEditor(action.doc);
+
+    case "import":
+      return { ...commit(state, action.doc), tool: IDLE, selected: null };
 
     case "remote":
       if (action.doc === state.doc) return state;

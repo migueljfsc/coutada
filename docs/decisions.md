@@ -349,8 +349,10 @@ every Portuguese accent); the schema rejects anything else at input.
 ## D21 — Import and export: GeoJSON, GPX and KML, in phase 4
 GeoJSON is the document (D7). GPX (waypoints → pins, tracks and routes → routes) and KML (Placemark
 points, lines, polygons) are converted in the browser, validated by the same schema, capped by the
-same limits, and parsed with `DOMParser` from a size-capped file. A GPX track from a watch or an
-app (Strava) imports as a route, which puts a walk recorded elsewhere on the map (D14).
+same limits, and read from a size-capped file's text by a pure reader (`src/io/`), which the tests
+run without a DOM. A GPX track from a watch or an app (Strava) imports as a walk route, thinned
+with Douglas–Peucker from 2 m until it fits the vertex cap, which puts a walk recorded elsewhere
+on the map (D14).
 
 ## D22 — Deleting an account or a device is one transaction, by name
 pb-D110: `DELETE /api/me` empties every table naming the user — maps (and their view

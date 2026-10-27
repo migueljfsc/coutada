@@ -38,6 +38,7 @@ hunt types: montaria/batida (mostly stationary) and salto (walked up, on the mov
 docs/                     architecture, implementation plan, decisions
 src/geo/  src/doc/        pure modules (P1)
 src/draw/                 the editor reducer (pure)
+src/io/                   file formats in and out (pure: text in, features out)
 src/map/ src/live/ src/nav/ src/offline/   shells around them (P1–P3)
 src/i18n/                 PT and EN; en.ts declares the keys
 src/share/                storage.ts (the ONLY localStorage access; never throws)

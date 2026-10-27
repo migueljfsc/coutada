@@ -17,6 +17,7 @@ import { DEFAULT_IMAGERY, type ImageryId } from "../doc/catalogue";
 import { newFeatureId } from "../doc/ids";
 import { featureById } from "../doc/operations";
 import type { FeatureId } from "../doc/types";
+import { bboxOf } from "../geo/geo";
 import { type MessageKey } from "../i18n/core";
 import { useI18n } from "../i18n/context";
 import { useMedia } from "../lib/useMedia";
@@ -27,6 +28,7 @@ import { useFollow } from "../map/useFollow";
 import { useNavigation } from "../nav/useNavigation";
 import { NavPanel } from "../components/NavPanel";
 import type { LocationStatus } from "../map/useLocation";
+import { importGpx, MAX_GPX_BYTES, parseGpx } from "../io/gpx";
 import { storedPass } from "../live/huntStore";
 import { api } from "../share/api";
 import { huntPath, navigate } from "../share/routes";
@@ -69,7 +71,7 @@ type DialogState =
   | null;
 
 export function MapScreen({ mapId }: { mapId: string | null }) {
-  const { t } = useI18n();
+  const { t, tn } = useI18n();
   const { me, refresh } = useAccount();
   const [imagery, setImagery] = useState<ImageryId>(() => storedImagery() ?? DEFAULT_IMAGERY);
   const [initialView] = useState<View>(() => storedView() ?? PORTUGAL);
@@ -83,6 +85,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
   const [imageryFailing, setImageryFailing] = useState(false);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [imported, setImported] = useState<string | null>(null);
   const follow = useFollow();
   const wide = useMedia("(min-width: 48rem)");
 
@@ -154,6 +157,28 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     offline: () => setDialog({ kind: "offline" }),
     startHunt: () => setDialog({ kind: "startHunt" }),
     joinHunt: () => setDialog({ kind: "joinHunt" }),
+    importFile: (file) => void importFile(file),
+  };
+
+  /** A GPX file's tracks and waypoints onto this map, framed once they are in. */
+  const importFile = async (file: File) => {
+    setImported(null);
+    if (file.size > MAX_GPX_BYTES) return setImported(t("import.tooBig"));
+    const gpx = parseGpx(await file.text());
+    if (!gpx) return setImported(t("import.notGpx"));
+    if (gpx.lines.length === 0 && gpx.places.length === 0) return setImported(t("import.empty"));
+    const result = importGpx(doc, gpx, newFeatureId, Date.now(), file.name.replace(/\.gpx$/i, ""));
+    if (result.added.length === 0) return setImported(t("import.full"));
+    dispatch({ type: "import", doc: result.doc });
+    const box = bboxOf(
+      result.added.flatMap((id) => {
+        const g = featureById(result.doc, id)?.geometry;
+        return !g ? [] : g.type === "Point" ? [g.coordinates] : g.type === "LineString" ? g.coordinates : g.coordinates[0];
+      }),
+    );
+    if (box) follow.map.current?.fitBounds([box[0], box[1], box[2], box[3]], { padding: 60, maxZoom: 17 });
+    if (!wide) setSheetOpen(false);
+    setImported(result.left > 0 ? t("import.partial", { n: result.added.length, left: result.left }) : tn("import.added", result.added.length));
   };
 
   const afterErase = async () => {
@@ -274,6 +299,16 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
           }
         >
           {t("sync.missing")}
+        </Notice>
+      ) : imported ? (
+        <Notice
+          actions={
+            <button type="button" className={noticeQuiet} onClick={() => setImported(null)}>
+              {t("edit.close")}
+            </button>
+          }
+        >
+          {imported}
         </Notice>
       ) : imageryFailing ? (
         <Notice

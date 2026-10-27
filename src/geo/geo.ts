@@ -187,3 +187,40 @@ export const roundCoord = (value: number, places: number): number => {
   const k = 10 ** places;
   return Math.round(value * k) / k;
 };
+
+/** Douglas–Peucker to within `toleranceM`, keeping the ends. Points may carry more than `[lon, lat]`. */
+export function simplifyLine<T extends readonly number[]>(line: readonly T[], toleranceM: number): T[] {
+  if (line.length <= 2) return [...line];
+  const keep = new Uint8Array(line.length);
+  keep[0] = 1;
+  keep[line.length - 1] = 1;
+  const stack: [number, number][] = [[0, line.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop()!;
+    let worst = -1;
+    let worstD = toleranceM;
+    for (let i = a + 1; i < b; i++) {
+      const d = offSegment(line[i], line[a], line[b]);
+      if (d > worstD) {
+        worst = i;
+        worstD = d;
+      }
+    }
+    if (worst >= 0) {
+      keep[worst] = 1;
+      stack.push([a, worst], [worst, b]);
+    }
+  }
+  return line.filter((_, i) => keep[i]);
+}
+
+/** Metres from `p` to the segment a–b, in a local frame around `a`. */
+function offSegment(p: readonly number[], a: readonly number[], b: readonly number[]): number {
+  const kx = 111_320 * Math.cos((a[1] * Math.PI) / 180);
+  const ky = 110_540;
+  const [px, py] = [(p[0] - a[0]) * kx, (p[1] - a[1]) * ky];
+  const [bx, by] = [(b[0] - a[0]) * kx, (b[1] - a[1]) * ky];
+  const len2 = bx * bx + by * by;
+  const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, (px * bx + py * by) / len2));
+  return Math.hypot(px - t * bx, py - t * by);
+}

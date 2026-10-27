@@ -336,6 +336,14 @@ export const en = {
   "species.dog": "Dog",
 
   // -------------------------------------------------------------- documents
+  "import.gpx": "Import GPX",
+  "import.added.one": "1 thing added to the map from the file.",
+  "import.added.other": "{count} things added to the map from the file.",
+  "import.partial": "{n} added from the file; {left} left out: the map is at its limit.",
+  "import.full": "Nothing added: the map is at its limit.",
+  "import.notGpx": "That file is not a GPX file.",
+  "import.empty": "That file has no tracks, routes or waypoints.",
+  "import.tooBig": "That file is over 20 MB.",
   "doc.notAMap": "This file is not a Coutada map.",
   "doc.tooNew": "This map was saved by a newer version of Coutada (v{version}). Reload the page to update.",
   "doc.invalid": "This map is damaged or too large to open.",
