@@ -27,7 +27,8 @@ import { MapView, type View } from "../map/MapView";
 import { useFollow } from "../map/useFollow";
 import { useNavigation } from "../nav/useNavigation";
 import { NavPanel } from "../components/NavPanel";
-import { importGpx, MAX_GPX_BYTES, parseGpx } from "../io/gpx";
+import { MAX_IMPORT_BYTES } from "../io/incoming";
+import { readInto } from "../io/read";
 import { lastHunt, storedPass } from "../live/huntStore";
 import { api } from "../share/api";
 import { huntPath, navigate } from "../share/routes";
@@ -37,6 +38,7 @@ import { ImageryPicker } from "../components/ImageryPicker";
 import { AccountSheet, MenuButton, type AccountActions } from "../components/AccountSheet";
 import { MapBody, MapPeek, type PanelActions } from "../components/MapPanel";
 import { MapSwitcher } from "../components/MapSwitcher";
+import { FilesDialog } from "../components/FilesDialog";
 import { Notice } from "../components/Notice";
 import { OfflineDialog } from "../components/OfflineDialog";
 import { HuntChooser, JoinHuntDialog, StartHuntDialog } from "../components/hunt/HuntDialogs";
@@ -65,6 +67,7 @@ type DialogState =
   | { kind: "hunt" }
   | { kind: "maps" }
   | { kind: "menu" }
+  | { kind: "files" }
   | null;
 
 export function MapScreen({ mapId }: { mapId: string | null }) {
@@ -146,7 +149,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     share: () => setDialog({ kind: "share" }),
     offline: () => setDialog({ kind: "offline" }),
     hunt: () => (inHunt && ownHunt ? navigate(huntPath(ownHunt)) : setDialog({ kind: "hunt" })),
-    importFile: (file) => void importFile(file),
+    files: () => setDialog({ kind: "files" }),
   };
 
   const accountActions: AccountActions = {
@@ -162,15 +165,13 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     deleteDevice: () => setDialog({ kind: "deleteDevice" }),
   };
 
-  /** A GPX file's tracks and waypoints onto this map, framed once they are in. */
+  /** A GPX, KML or GeoJSON file onto this map, framed once it is in. */
   const importFile = async (file: File) => {
     setImported(null);
-    if (file.size > MAX_GPX_BYTES) return setImported(t("import.tooBig"));
-    const gpx = parseGpx(await file.text());
-    if (!gpx) return setImported(t("import.notGpx"));
-    if (gpx.lines.length === 0 && gpx.places.length === 0) return setImported(t("import.empty"));
-    const result = importGpx(doc, gpx, newFeatureId, Date.now(), file.name.replace(/\.gpx$/i, ""));
-    if (result.added.length === 0) return setImported(t("import.full"));
+    if (file.size > MAX_IMPORT_BYTES) return setImported(t("import.tooBig"));
+    const read = readInto(doc, file.name, await file.text(), newFeatureId, Date.now());
+    if (!read.ok) return setImported(t(`import.${read.error}`));
+    const result = read.imported;
     dispatch({ type: "import", doc: result.doc });
     const box = bboxOf(
       result.added.flatMap((id) => {
@@ -386,6 +387,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         />
       )}
       {dialog?.kind === "menu" && <AccountSheet actions={accountActions} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "files" && <FilesDialog doc={doc} onFile={(file) => void importFile(file)} onClose={() => setDialog(null)} />}
       {dialog?.kind === "share" && remote && (
         <ShareDialog mapId={remote.id} slug={shareSlug} onSlug={setShareSlug} onClose={() => setDialog(null)} />
       )}

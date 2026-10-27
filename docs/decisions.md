@@ -350,18 +350,23 @@ every Portuguese accent); the schema rejects anything else at input.
 The map screen's sheet (the left panel on wide screens) holds this map only. Its peek is the map's
 name, which opens the map switcher (rename, the person's maps, a new one), the save state, and
 four tiles: Caçada (back to a live hunt, or a choice of starting one here or joining by code),
-Partilhar or Guardar, Sem rede, Importar. Expanded, it lists what is drawn. Everything about the
+Partilhar or Guardar, Sem rede, Ficheiros (import and export, D21). Expanded, it lists what is drawn. Everything about the
 person and the app (signing in, the phone's name, moving to another device, installing, the
 language, erasing) sits behind the round menu button in the map's top-left corner. The safety
 notice belongs to the hunt: its screen and its start and join dialogs.
 
-## D21 — Import and export: GeoJSON, GPX and KML, in phase 4
-GeoJSON is the document (D7). GPX (waypoints → pins, tracks and routes → routes) and KML (Placemark
-points, lines, polygons) are converted in the browser, validated by the same schema, capped by the
-same limits, and read from a size-capped file's text by a pure reader (`src/io/`), which the tests
-run without a DOM. A GPX track from a watch or an app (Strava) imports as a walk route, thinned
-with Douglas–Peucker from 2 m until it fits the vertex cap, which puts a walk recorded elsewhere
-on the map (D14).
+## D21 — Import and export: GeoJSON, GPX and KML
+Files are added to the open map, from the Ficheiros tile, read from a file's text (20 MB at most)
+by pure readers in `src/io/`, which the tests run without a DOM. The format is told by the
+content, not the name.
+- **In:** GPX tracks and routes, KML lines and `gx:Track`s, and GeoJSON lines become walk routes;
+  waypoints, KML points and GeoJSON points become landmarks; KML and GeoJSON polygons (the outer
+  ring) become boundaries. Each shape is thinned with Douglas–Peucker from 2 m until it fits the
+  vertex cap, so a walk from a watch or Strava fits (D14). A Coutada GeoJSON comes in whole, under
+  new ids, its portas still on their armadas. What does not fit the map's limits is left out and
+  counted. KMZ is a zip and is refused with a hint to unzip it.
+- **Out:** GeoJSON is the document itself (D7); GPX has pins as waypoints and routes and areas as
+  tracks; KML has every feature in its colour.
 
 ## D22 — Deleting an account or a device is one transaction, by name
 pb-D110: `DELETE /api/me` empties every table naming the user — maps (and their view

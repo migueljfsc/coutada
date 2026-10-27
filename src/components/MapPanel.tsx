@@ -3,8 +3,8 @@
  * switcher, whether it is saved, the four things to do with it, and what is drawn on it.
  */
 
-import { useRef, type ReactNode } from "react";
-import { ChevronDown, CloudDownload, FileUp, Link2, Radio, Save } from "lucide-react";
+import type { ReactNode } from "react";
+import { ChevronDown, CloudDownload, FolderOpen, Link2, Radio, Save } from "lucide-react";
 import type { FeatureId, MapDoc } from "../doc/types";
 import { useI18n } from "../i18n/context";
 import type { MessageKey } from "../i18n/core";
@@ -18,7 +18,7 @@ export type PanelActions = {
   share: () => void;
   offline: () => void;
   hunt: () => void;
-  importFile: (file: File) => void;
+  files: () => void;
 };
 
 /** Each state's dot: settled, on its way, only here, or needing the person. */
@@ -78,7 +78,6 @@ export function MapPeek({
   actions: PanelActions;
 }) {
   const { t } = useI18n();
-  const file = useRef<HTMLInputElement>(null);
   const state = STATE[status];
   return (
     <div className="flex flex-col gap-3">
@@ -105,19 +104,8 @@ export function MapPeek({
           <Tile icon={<Save size={22} />} label={t("tile.save")} primary onClick={actions.save} />
         )}
         <Tile icon={<CloudDownload size={22} />} label={t("tile.offline")} onClick={actions.offline} />
-        <Tile icon={<FileUp size={22} />} label={t("tile.import")} onClick={() => file.current?.click()} />
+        <Tile icon={<FolderOpen size={22} />} label={t("tile.files")} onClick={actions.files} />
       </div>
-      <input
-        ref={file}
-        type="file"
-        accept=".gpx,application/gpx+xml"
-        hidden
-        onChange={(e) => {
-          const chosen = e.target.files?.[0];
-          e.target.value = "";
-          if (chosen) actions.importFile(chosen);
-        }}
-      />
     </div>
   );
 }

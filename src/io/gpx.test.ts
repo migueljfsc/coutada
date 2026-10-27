@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { LIMITS } from "../doc/catalogue";
-import { createMapDoc, featureById } from "../doc/operations";
+import { addPin, addRoute, addZone, createMapDoc, featureById } from "../doc/operations";
 import { parseMapDoc } from "../doc/schema";
 import { destination, type Position } from "../geo/geo";
-import { importGpx, parseGpx } from "./gpx";
+import { parseGpx, toGpx } from "./gpx";
+import { importInto } from "./incoming";
 
 const S: Position = [-6.918, 39.882];
 let n = 0;
@@ -47,7 +48,15 @@ describe("reading GPX", () => {
       { name: "Sobreiro <grande>", at: [-6.91, 39.88] },
       { name: null, at: [-6.912, 39.881] },
     ]);
-    expect(gpx.lines).toEqual([{ name: "Volta", points: [[-6.91, 39.88], [-6.91, 39.89]] }]);
+    expect(gpx.lines).toEqual([
+      {
+        name: "Volta",
+        points: [
+          [-6.91, 39.88],
+          [-6.91, 39.89],
+        ],
+      },
+    ]);
   });
 
   it("refuses what is not GPX, and drops points out of range and lines of one point", () => {
@@ -58,11 +67,11 @@ describe("reading GPX", () => {
   });
 });
 
-describe("importing GPX", () => {
+describe("importing what a file brings", () => {
   it("adds tracks as walk routes and waypoints as places, in one valid document", () => {
     const gpx = parseGpx(strava)!;
     gpx.places.push({ name: "Fonte", at: S });
-    const { doc, added, left } = importGpx(createMapDoc("Herdade"), gpx, ids, 1, "walk.gpx");
+    const { doc, added, left } = importInto(createMapDoc("Herdade"), gpx, ids, 1, "walk");
     expect(left).toBe(0);
     expect(added).toHaveLength(2);
     expect(featureById(doc, added[0])?.properties).toMatchObject({ kind: "route", type: "walk", name: "Caça de salto & perdizes" });
@@ -73,9 +82,9 @@ describe("importing GPX", () => {
   it("thins a long track to fit, keeps the file's name for an unnamed one, and cleans names", () => {
     const points: Position[] = [];
     for (let i = 0; i < 12_000; i++) points.push(destination(S, (i * 7) % 360, 50 + (i % 400)));
-    const { doc, added } = importGpx(
+    const { doc, added } = importInto(
       createMapDoc("m"),
-      { lines: [{ name: null, points }], places: [{ name: "日本 Fonte\n velha", at: S }] },
+      { lines: [{ name: null, points }], places: [{ name: "日本 Fonte\n velha", at: S }], areas: [] },
       ids,
       1,
       "Volta de sábado",
@@ -88,8 +97,23 @@ describe("importing GPX", () => {
 
   it("leaves out what does not fit, and counts it", () => {
     const places = Array.from({ length: LIMITS.features + 3 }, () => ({ name: null, at: S }));
-    const { doc, left } = importGpx(createMapDoc("m"), { lines: [], places }, ids, 1, "x");
+    const { doc, left } = importInto(createMapDoc("m"), { lines: [], places, areas: [] }, ids, 1, "x");
     expect(doc.features).toHaveLength(LIMITS.features);
     expect(left).toBe(3);
+  });
+});
+
+describe("writing GPX", () => {
+  it("writes pins as waypoints, routes and areas as tracks, escaped, and reads them back", () => {
+    let doc = createMapDoc("Herdade & Vale");
+    doc = addPin(doc, { id: ids(), type: "gate", at: S, name: "Cancela <norte>" }, 1);
+    doc = addRoute(doc, { id: ids(), type: "walk", line: [S, destination(S, 0, 100)], name: "Volta" }, 1);
+    doc = addZone(doc, { id: ids(), type: "mancha", ring: [S, destination(S, 90, 100), destination(S, 0, 100)] }, 1);
+    const back = parseGpx(toGpx(doc))!;
+    expect(back.places).toEqual([{ name: "Cancela <norte>", at: S }]);
+    expect(back.lines.map((l) => [l.name, l.points.length])).toEqual([
+      ["Volta", 2],
+      [null, 4],
+    ]);
   });
 });
