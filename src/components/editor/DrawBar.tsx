@@ -38,7 +38,7 @@ export function DrawBar({ tool, onUndoPoint, onCancel, onFinish }: { tool: Exclu
         <button
           type="button"
           onClick={onCancel}
-          className="min-h-12 flex-1 rounded-[14px] bg-cal-deep px-3 text-[15px] font-semibold active:bg-rule"
+          className="min-h-12 flex-1 rounded-[10px] bg-cal-deep px-3 text-[15px] font-semibold active:bg-rule"
         >
           {t("draw.cancel")}
         </button>
@@ -50,7 +50,7 @@ export function DrawBar({ tool, onUndoPoint, onCancel, onFinish }: { tool: Exclu
               disabled={points.length === 0}
               aria-label={t("draw.undoPoint")}
               title={t("draw.undoPoint")}
-              className="flex min-h-12 w-14 items-center justify-center rounded-[14px] bg-cal-deep active:bg-rule disabled:opacity-40"
+              className="flex min-h-12 w-14 items-center justify-center rounded-[10px] bg-cal-deep active:bg-rule disabled:opacity-40"
             >
               <Undo2 size={22} />
             </button>
@@ -58,7 +58,7 @@ export function DrawBar({ tool, onUndoPoint, onCancel, onFinish }: { tool: Exclu
               type="button"
               onClick={onFinish}
               disabled={!enough}
-              className="min-h-12 flex-1 rounded-[14px] bg-anil px-3 text-[15px] font-semibold text-white disabled:opacity-40"
+              className="min-h-12 flex-1 rounded-[10px] bg-anil px-3 text-[15px] font-semibold text-white disabled:opacity-40"
             >
               {t("draw.finish")}
             </button>

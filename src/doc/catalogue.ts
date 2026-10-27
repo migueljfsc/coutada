@@ -34,16 +34,17 @@ export const SPECIES = [
 export type Species = (typeof SPECIES)[number];
 
 /**
- * Drawing colours, chosen to read against green and brown imagery. Orange is not here: it is
- * reserved for people on the map.
+ * Drawing colours: earth tones, bright enough to read against green and brown imagery. The keys
+ * are what a document stores, so a tone can change without touching a map. Orange is not here:
+ * it is reserved for people on the map.
  */
 export const PALETTE = {
-  white: "#ffffff",
-  yellow: "#ffd23f",
-  cyan: "#3fd0ff",
-  magenta: "#ff4fa3",
-  lime: "#9be23c",
-  red: "#ff3b3b",
+  white: "#e8e2d4",
+  yellow: "#d9a441",
+  cyan: "#6fa3c8",
+  magenta: "#b77aa6",
+  lime: "#9bb04a",
+  red: "#d6453d",
 } as const;
 
 export type PaletteKey = keyof typeof PALETTE;

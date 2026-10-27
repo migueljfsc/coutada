@@ -136,7 +136,7 @@ export function FeatureDetails({
           <select
             value={p.species ?? ""}
             onChange={(e) => commands.species((e.target.value || null) as Species | null)}
-            className="min-h-12 rounded-[12px] border border-rule bg-white px-3 text-[16px]"
+            className="min-h-12 rounded-[8px] border border-rule bg-osso px-3 text-[16px]"
           >
             <option value="">{t("type.game")}</option>
             {SPECIES.map((s) => (
@@ -155,7 +155,7 @@ export function FeatureDetails({
             <select
               value={p.armada ?? ""}
               onChange={(e) => commands.armada(e.target.value || null)}
-              className="min-h-12 rounded-[12px] border border-rule bg-white px-3 text-[16px]"
+              className="min-h-12 rounded-[8px] border border-rule bg-osso px-3 text-[16px]"
             >
               <option value="">{t("edit.noArmada")}</option>
               {armadas.map((a) => (
@@ -176,7 +176,7 @@ export function FeatureDetails({
           <button
             type="button"
             onClick={commands.numberPortas}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-[14px] bg-anil px-4 text-[15px] font-semibold text-white"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-anil px-4 text-[15px] font-semibold text-white"
           >
             <ListOrdered size={20} />
             {tn("edit.numberPortas", portasOn)}
@@ -210,7 +210,7 @@ export function FeatureDetails({
           <button
             type="button"
             onClick={commands.deleteVertex}
-            className="min-h-12 flex-1 rounded-[14px] bg-cal-deep px-4 text-[15px] font-semibold active:bg-rule"
+            className="min-h-12 flex-1 rounded-[10px] bg-cal-deep px-4 text-[15px] font-semibold active:bg-rule"
           >
             {t("edit.deleteVertex")}
           </button>
@@ -218,7 +218,7 @@ export function FeatureDetails({
         <button
           type="button"
           onClick={commands.remove}
-          className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[14px] border-2 border-[#c23a2b] px-4 text-[15px] font-semibold text-[#a32a1d] active:bg-[#c23a2b]/10"
+          className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] border-2 border-[#c23a2b] px-4 text-[15px] font-semibold text-[#a32a1d] active:bg-[#c23a2b]/10"
         >
           <Trash2 size={18} />
           {t("edit.delete")}
@@ -235,7 +235,7 @@ export function NavigateButton({ feature, onNavigate }: { feature: MapFeature; o
     <button
       type="button"
       onClick={onNavigate}
-      className="flex min-h-12 items-center justify-center gap-2 rounded-[14px] bg-anil px-4 text-[15px] font-semibold text-white"
+      className="flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-anil px-4 text-[15px] font-semibold text-white"
     >
       <Navigation2 size={18} fill="currentColor" />
       {feature.geometry.type === "LineString" ? t("nav.follow") : t("nav.go")}
@@ -281,7 +281,7 @@ function TextField({
     "aria-invalid": !valid,
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setValue(e.target.value),
     onBlur: commit,
-    className: "w-full rounded-[12px] border border-rule bg-white px-3 py-2.5 text-[16px] aria-invalid:border-[#c23a2b]",
+    className: "w-full rounded-[8px] border border-rule bg-osso px-3 py-2.5 text-[16px] aria-invalid:border-[#c23a2b]",
   };
   return (
     <label className="flex flex-col gap-1.5">
@@ -324,7 +324,7 @@ function NumberField({ label, value, onCommit }: { label: string; value: number 
         onChange={(e) => setText(e.target.value.replace(/\D/g, "").slice(0, 3))}
         onBlur={commit}
         onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-        className="w-28 rounded-[12px] border border-rule bg-white px-3 py-2.5 text-[16px] tabular-nums"
+        className="w-28 rounded-[8px] border border-rule bg-osso px-3 py-2.5 text-[16px] tabular-nums"
       />
     </label>
   );

@@ -46,11 +46,11 @@ export const pt: Dictionary = {
   "type.mancha": "Mancha",
   "type.no_shoot": "Zona proibida",
   "type.boundary": "Limite da propriedade",
-  "colour.white": "Branco",
-  "colour.yellow": "Amarelo",
-  "colour.cyan": "Ciano",
-  "colour.magenta": "Magenta",
-  "colour.lime": "Verde-lima",
+  "colour.white": "Osso",
+  "colour.yellow": "Ocre",
+  "colour.cyan": "Azul-aço",
+  "colour.magenta": "Urze",
+  "colour.lime": "Musgo",
   "colour.red": "Vermelho",
 
   // --------------------------------------------------------------- drawing

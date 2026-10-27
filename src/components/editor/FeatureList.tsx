@@ -27,7 +27,7 @@ export function FeatureList({ doc, onChoose }: { doc: MapDoc; onChoose: (id: Fea
           <button
             type="button"
             onClick={() => onChoose(f.id)}
-            className="flex min-h-12 w-full items-center gap-3 rounded-[12px] px-2 py-1.5 text-left active:bg-cal-deep"
+            className="flex min-h-12 w-full items-center gap-3 rounded-[8px] px-2 py-1.5 text-left active:bg-cal-deep"
           >
             <TypeIcon
               type={f.properties.type}

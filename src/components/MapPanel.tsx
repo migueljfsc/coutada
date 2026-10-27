@@ -49,7 +49,7 @@ export function Tile({
       type="button"
       onClick={onClick}
       className={[
-        "flex min-h-16 flex-col items-center justify-center gap-1 rounded-[14px] px-1 py-2 text-center text-[13px] leading-tight font-semibold",
+        "flex min-h-16 flex-col items-center justify-center gap-1 rounded-[10px] px-1 py-2 text-center text-[13px] leading-tight font-semibold",
         primary ? "bg-anil text-white active:bg-[#173f80]" : "bg-cal-deep text-xisto active:bg-anil active:text-white",
       ].join(" ")}
     >
@@ -97,14 +97,14 @@ export function MapPeek({
         </p>
       </div>
       <div className={tiles}>
-        <Tile icon={<Radio size={22} />} label={t(inHunt ? "tile.backToHunt" : "tile.hunt")} onClick={actions.hunt} />
+        <Tile icon={<Radio size={20} />} label={t(inHunt ? "tile.backToHunt" : "tile.hunt")} onClick={actions.hunt} />
         {saved ? (
-          <Tile icon={<Link2 size={22} />} label={t("tile.share")} onClick={actions.share} />
+          <Tile icon={<Link2 size={20} />} label={t("tile.share")} onClick={actions.share} />
         ) : (
-          <Tile icon={<Save size={22} />} label={t("tile.save")} primary onClick={actions.save} />
+          <Tile icon={<Save size={20} />} label={t("tile.save")} primary onClick={actions.save} />
         )}
-        <Tile icon={<CloudDownload size={22} />} label={t("tile.offline")} onClick={actions.offline} />
-        <Tile icon={<FolderOpen size={22} />} label={t("tile.files")} onClick={actions.files} />
+        <Tile icon={<CloudDownload size={20} />} label={t("tile.offline")} onClick={actions.offline} />
+        <Tile icon={<FolderOpen size={20} />} label={t("tile.files")} onClick={actions.files} />
       </div>
     </div>
   );

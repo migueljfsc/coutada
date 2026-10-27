@@ -63,7 +63,7 @@ export function FilesDialog({ doc, onFile, onClose }: { doc: MapDoc; onFile: (fi
                     download(`${fileStem(doc.coutada.name)}.${format}`, type, write(doc));
                     count(`export.${format}`);
                   }}
-                  className="flex min-h-14 w-full items-center gap-3 rounded-[12px] px-2 py-2 text-left active:bg-cal-deep disabled:opacity-50"
+                  className="flex min-h-14 w-full items-center gap-3 rounded-[8px] px-2 py-2 text-left active:bg-cal-deep disabled:opacity-50"
                 >
                   <FileDown size={20} className="shrink-0" aria-hidden />
                   <span className="min-w-0">

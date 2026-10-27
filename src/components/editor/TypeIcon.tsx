@@ -34,14 +34,14 @@ const ICONS: Record<Exclude<FeatureType, "porta">, ComponentType<LucideProps>> =
   boundary: SquareDashed,
 };
 
-const INK = "#23281f";
+const BONE = "#e8e2d4";
 
-/** A silhouette of the game or the dog, as the map draws it. */
+/** A silhouette of the game or the dog, in bone, as the map's dark badges draw it. */
 export function SpeciesGlyph({ subject, size }: { subject: Species | "dog"; size: number }) {
-  return <img alt="" width={size} height={size} src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(speciesSvg(subject, INK, size))}`} />;
+  return <img alt="" width={size} height={size} src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(speciesSvg(subject, BONE, size))}`} />;
 }
 
-/** A type's badge as the map draws it: its colour, a schist ring, its glyph or a porta's number. */
+/** A type's badge as the map draws it: a dark disc edged in bone, a ring in its colour, and its glyph or a porta's number. */
 export function TypeIcon({
   type,
   colour,
@@ -55,29 +55,20 @@ export function TypeIcon({
   species?: Species;
   size?: number;
 }) {
-  const fill = PALETTE[colour ?? DEFAULT_COLOR[type]];
-  if (species) {
-    return (
-      <span
-        aria-hidden
-        className="flex shrink-0 items-center justify-center rounded-full border-[3px] border-xisto"
-        style={{ width: size, height: size, background: fill }}
-      >
-        <SpeciesGlyph subject={species} size={Math.round(size * 0.68)} />
-      </span>
-    );
-  }
+  const ring = PALETTE[colour ?? DEFAULT_COLOR[type]];
   const Icon = type === "porta" ? null : ICONS[type];
   return (
     <span
       aria-hidden
-      className="flex shrink-0 items-center justify-center rounded-full border-[3px] border-xisto text-xisto"
-      style={{ width: size, height: size, background: fill }}
+      className="flex shrink-0 items-center justify-center rounded-full bg-xisto text-osso"
+      style={{ width: size, height: size, boxShadow: `inset 0 0 0 ${size * 0.08}px ${ring}, 0 0 0 1.5px var(--color-osso)` }}
     >
-      {Icon ? (
-        <Icon size={size * 0.5} strokeWidth={2.4} />
+      {species ? (
+        <SpeciesGlyph subject={species} size={Math.round(size * 0.62)} />
+      ) : Icon ? (
+        <Icon size={size * 0.46} strokeWidth={2} />
       ) : (
-        <span className="text-[15px] leading-none font-extrabold tabular-nums">{n ?? "P"}</span>
+        <span className="text-[14px] leading-none font-bold tabular-nums">{n ?? "P"}</span>
       )}
     </span>
   );

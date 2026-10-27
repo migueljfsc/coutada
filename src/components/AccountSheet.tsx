@@ -50,7 +50,7 @@ function Row({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex min-h-12 w-full items-center gap-3 rounded-[12px] px-2 text-left text-[16px] font-semibold active:bg-cal-deep disabled:opacity-60 ${danger ? "text-[#a32a1d]" : ""}`}
+      className={`flex min-h-12 w-full items-center gap-3 rounded-[8px] px-2 text-left text-[16px] font-semibold active:bg-cal-deep disabled:opacity-60 ${danger ? "text-[#a32a1d]" : ""}`}
     >
       <span className="flex size-6 shrink-0 items-center justify-center" aria-hidden>
         {icon}

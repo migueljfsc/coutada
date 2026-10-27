@@ -277,7 +277,7 @@ function Overview({ stats, onSelect }: { stats: AdminStats; onSelect: (id: strin
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by email or name"
-            className="min-h-11 w-72 max-w-full rounded-[12px] border border-rule bg-white py-2 pr-3 pl-9 text-[15px]"
+            className="min-h-11 w-72 max-w-full rounded-[8px] border border-rule bg-osso py-2 pr-3 pl-9 text-[15px]"
           />
         </label>
       </div>
@@ -341,7 +341,7 @@ function UserDetail({ id, onBack }: { id: string; onBack: () => void }) {
             <button
               type="button"
               onClick={() => setDeleting(true)}
-              className="min-h-11 shrink-0 rounded-[12px] border-2 border-[#c23a2b] px-4 text-[14px] font-semibold text-[#a32a1d] hover:bg-[#c23a2b] hover:text-white"
+              className="min-h-11 shrink-0 rounded-[8px] border-2 border-[#c23a2b] px-4 text-[14px] font-semibold text-[#a32a1d] hover:bg-[#c23a2b] hover:text-white"
             >
               Delete account
             </button>
@@ -402,7 +402,7 @@ function Tiles({ items }: { items: Tile[] }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {items.map(([label, value, note, trend]) => (
-        <div key={label} className="rounded-[16px] border border-rule bg-white p-3">
+        <div key={label} className="rounded-[12px] border border-rule bg-osso p-3">
           <div className="text-[13px] text-xisto-soft">{label}</div>
           <div className="mt-1 text-[26px] leading-tight font-bold tabular-nums">{typeof value === "number" ? value.toLocaleString("en-GB") : value}</div>
           {note && <div className="mt-1 text-[12px] leading-snug text-xisto-soft">{note}</div>}
@@ -423,7 +423,7 @@ function Table({ head, rows, numeric = [], empty }: { head: string[]; rows: Row[
   if (rows.length === 0) return <p className="text-[14px] text-xisto-soft">{empty}</p>;
   const align = (i: number) => (numeric.includes(i) ? "text-right tabular-nums" : "text-left");
   return (
-    <div className="overflow-x-auto rounded-[16px] border border-rule bg-white">
+    <div className="overflow-x-auto rounded-[12px] border border-rule bg-osso">
       <table className="w-full text-[14px]">
         <thead className="bg-cal-deep text-xisto-soft">
           <tr>

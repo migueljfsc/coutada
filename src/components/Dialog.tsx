@@ -27,8 +27,8 @@ export function Dialog({ title, onClose, children }: { title: string; onClose: (
       onClick={(e) => e.target === ref.current && onClose()}
       aria-label={title}
       className={[
-        "m-0 mt-auto w-full max-w-none rounded-t-[22px] bg-cal p-0 text-xisto shadow-float backdrop:bg-xisto/45",
-        "md:m-auto md:w-[420px] md:rounded-[22px]",
+        "m-0 mt-auto w-full max-w-none rounded-t-[16px] bg-cal p-0 text-xisto shadow-float backdrop:bg-xisto/45",
+        "md:m-auto md:w-[420px] md:rounded-[16px]",
       ].join(" ")}
     >
       <div className="flex max-h-[90dvh] flex-col">

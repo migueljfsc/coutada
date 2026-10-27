@@ -47,7 +47,7 @@ export function ConfirmDelete({
         <button
           type="submit"
           disabled={busy || typed.trim().length === 0}
-          className="flex min-h-12 w-full items-center justify-center rounded-[14px] bg-[#a32a1d] px-4 text-[15px] font-semibold text-white disabled:opacity-50"
+          className="flex min-h-12 w-full items-center justify-center rounded-[10px] bg-[#a32a1d] px-4 text-[15px] font-semibold text-white disabled:opacity-50"
         >
           {t("delete.confirm")}
         </button>

@@ -46,7 +46,6 @@ describe("the dictionaries", () => {
       "app.name",
       "auth.done",
       "auth.email",
-      "colour.magenta",
       "edit.armada",
       "files.geojson",
       "files.gpx",

@@ -81,10 +81,10 @@ export function Sheet({ peek, children, open, onOpenChange, onPeekHeight }: Prop
       style={{ "--sheet-offset": `${offset}px` } as React.CSSProperties}
       className={[
         "absolute inset-x-0 bottom-0 z-20 flex max-h-[min(72dvh,560px)] flex-col",
-        "rounded-t-[22px] bg-cal shadow-float",
+        "rounded-t-[16px] bg-cal shadow-float",
         "translate-y-(--sheet-offset) motion-safe:transition-transform motion-safe:duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
         drag !== null ? "transition-none!" : "",
-        "md:inset-y-4 md:left-4 md:right-auto md:max-h-none md:w-[360px] md:translate-y-0 md:rounded-[22px]",
+        "md:inset-y-4 md:left-4 md:right-auto md:max-h-none md:w-[360px] md:translate-y-0 md:rounded-[16px]",
       ].join(" ")}
     >
       <div ref={peekRef} className="shrink-0">

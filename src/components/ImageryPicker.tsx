@@ -29,7 +29,7 @@ export function ImageryPicker({ current, onChoose, onClose }: { current: Imagery
       ref={panel}
       role="radiogroup"
       aria-label={t("imagery.title")}
-      className="absolute right-[calc(100%+0.75rem)] bottom-0 w-64 rounded-[16px] bg-cal p-1.5 shadow-float"
+      className="absolute right-[calc(100%+0.75rem)] bottom-0 w-64 rounded-[12px] bg-cal p-1.5 shadow-float"
     >
       {AVAILABLE_IMAGERY.map((i) => (
         <button
@@ -38,7 +38,7 @@ export function ImageryPicker({ current, onChoose, onClose }: { current: Imagery
           role="radio"
           aria-checked={i.id === current}
           onClick={() => onChoose(i.id)}
-          className="flex w-full items-start gap-3 rounded-[11px] px-3 py-2.5 text-left active:bg-cal-deep aria-checked:bg-anil/10"
+          className="flex w-full items-start gap-3 rounded-[8px] px-3 py-2.5 text-left active:bg-cal-deep aria-checked:bg-anil/10"
         >
           <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-anil">
             {i.id === current && <Check size={18} strokeWidth={3} />}

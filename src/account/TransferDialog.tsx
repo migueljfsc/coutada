@@ -55,7 +55,7 @@ function ShowCode() {
   return (
     <div className="flex flex-col items-center gap-4 text-center">
       <p className="text-[15px] leading-snug">{t("transfer.explain")}</p>
-      <img src={qr} alt={t("transfer.qrAlt")} className="size-56 rounded-[12px] bg-white p-2 [image-rendering:pixelated]" />
+      <img src={qr} alt={t("transfer.qrAlt")} className="size-56 rounded-[8px] bg-white p-2 [image-rendering:pixelated]" />
       <p className="font-mono text-[28px] font-bold tracking-[0.2em]" aria-label={code.split("").join(" ")}>
         {code}
       </p>

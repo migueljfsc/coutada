@@ -109,9 +109,9 @@ export function SharedScreen({ slug }: { slug: string }) {
       </div>
       {doc && (
         <div className="grid grid-cols-3 gap-2">
-          <Tile icon={<Radio size={22} />} label={t("tile.join")} onClick={() => setJoining(true)} />
-          <Tile icon={<CloudDownload size={22} />} label={t("tile.offline")} onClick={() => setOffline(true)} />
-          <Tile icon={<LogIn size={22} />} label={t("tile.openApp")} onClick={() => navigate("/")} />
+          <Tile icon={<Radio size={20} />} label={t("tile.join")} onClick={() => setJoining(true)} />
+          <Tile icon={<CloudDownload size={20} />} label={t("tile.offline")} onClick={() => setOffline(true)} />
+          <Tile icon={<LogIn size={20} />} label={t("tile.openApp")} onClick={() => navigate("/")} />
         </div>
       )}
     </div>

@@ -24,13 +24,15 @@
 }
 
 @theme {
-  /* Cal: lime-wash white, the panels. */
-  --color-cal: #f2f4f0;
-  --color-cal-deep: #e3e8df;
-  /* Xisto: schist, the ink. */
+  /* Cal: the panels, in the beige of hunting canvas; cal-deep is what sits in them. */
+  --color-cal: #d8d2c6;
+  --color-cal-deep: #cbc5bb;
+  /* Osso: bone, the lightest surface (fields, cards) and the glyphs on the map's dark badges. */
+  --color-osso: #e8e2d4;
+  /* Xisto: schist, the ink, and the map's badges. */
   --color-xisto: #23281f;
-  --color-xisto-soft: #59614f;
-  --color-rule: rgb(35 40 31 / 0.14);
+  --color-xisto-soft: #4c5244;
+  --color-rule: rgb(35 40 31 / 0.18);
   /* Anil: the painted door band; what is selected and the primary action. */
   --color-anil: #1e4fa0;
   /* Blaze orange: people, and nothing else. */

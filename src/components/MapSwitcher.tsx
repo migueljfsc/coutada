@@ -70,7 +70,7 @@ export function MapSwitcher({
                 <button
                   type="button"
                   onClick={() => open(m.id)}
-                  className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[12px] px-2 text-left text-[17px] font-semibold active:bg-cal-deep"
+                  className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[8px] px-2 text-left text-[17px] font-semibold active:bg-cal-deep"
                 >
                   <span className="truncate">{m.name}</span>
                   {m.share_slug && <Link2 size={16} className="shrink-0 text-xisto-soft" aria-label={t("share.live")} />}
@@ -81,7 +81,7 @@ export function MapSwitcher({
         )}
 
         {pending && (
-          <div role="alert" className="flex flex-col gap-2 rounded-[12px] bg-cal-deep p-3 text-[15px]">
+          <div role="alert" className="flex flex-col gap-2 rounded-[8px] bg-cal-deep p-3 text-[15px]">
             {t("maps.discardLocal")}
             <button type="button" onClick={() => open(pending)} className="min-h-11 self-start font-semibold text-[#a32a1d]">
               {t("maps.discardConfirm")}
@@ -129,7 +129,7 @@ function MapName({ name, onRename }: { name: string; onRename: (name: string) =>
             type="button"
             onClick={commit}
             aria-label={t("map.rename")}
-            className="flex size-12 shrink-0 items-center justify-center rounded-[12px] bg-anil text-white"
+            className="flex size-12 shrink-0 items-center justify-center rounded-[8px] bg-anil text-white"
           >
             <Check size={20} strokeWidth={2.6} />
           </button>

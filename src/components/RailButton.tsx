@@ -19,7 +19,7 @@ export function RailButton({ label, active = false, tone = "anil", className = "
       title={label}
       aria-pressed={active}
       className={[
-        "flex size-12 items-center justify-center rounded-[14px] shadow-float",
+        "flex size-12 items-center justify-center rounded-[10px] shadow-float",
         "active:scale-95 motion-safe:transition-transform",
         active ? on : "bg-cal text-xisto active:bg-cal-deep",
         className,

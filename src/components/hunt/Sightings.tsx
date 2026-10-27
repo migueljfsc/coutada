@@ -17,11 +17,11 @@ export function SightingIcon({ subject, event, size = 36 }: { subject: Subject; 
   const mark = EVENT_MARK[event];
   return (
     <span className="relative flex shrink-0 items-center justify-center" style={{ width: size, height: size }} aria-hidden>
-      <span className="absolute inset-[15%] rotate-45 rounded-[3px] border-[2.5px] border-xisto bg-white" />
+      <span className="absolute inset-[15%] rotate-45 rounded-[2px] border-[1.5px] border-osso bg-xisto" />
       <span className="relative">
         <SpeciesGlyph subject={subject} size={Math.round(size * 0.56)} />
       </span>
-      {mark && <span className={`absolute top-0 right-0 size-[30%] rounded-full border-2 border-white ${mark}`} />}
+      {mark && <span className={`absolute top-0 right-0 size-[30%] rounded-full border-2 border-osso ${mark}`} />}
     </span>
   );
 }
@@ -72,7 +72,7 @@ export function SightingPicker({
             key={subject}
             type="button"
             onClick={() => onPick(subject)}
-            className="flex min-h-14 min-w-0 items-center gap-3 rounded-[14px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white"
+            className="flex min-h-14 min-w-0 items-center gap-3 rounded-[10px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white"
           >
             <SightingIcon subject={subject} event={event} size={34} />
             <span className="line-clamp-2 min-w-0 hyphens-auto [overflow-wrap:anywhere]">{t(`species.${subject}`)}</span>
@@ -107,14 +107,14 @@ export function SightingPlaceBar({
         </div>
       </div>
       <div className="mt-3 flex gap-2">
-        <button type="button" onClick={onCancel} className="min-h-12 flex-1 rounded-[14px] bg-cal-deep px-3 text-[15px] font-semibold active:bg-rule">
+        <button type="button" onClick={onCancel} className="min-h-12 flex-1 rounded-[10px] bg-cal-deep px-3 text-[15px] font-semibold active:bg-rule">
           {t("draw.cancel")}
         </button>
         {onHere && (
           <button
             type="button"
             onClick={onHere}
-            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[14px] bg-anil px-3 text-[15px] font-semibold text-white"
+            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-anil px-3 text-[15px] font-semibold text-white"
           >
             <LocateFixed size={18} />
             {t("obs.here")}

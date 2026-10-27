@@ -317,7 +317,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
           <button
             type="button"
             onClick={() => setConfirmEnd(true)}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-[14px] border-2 border-[#c23a2b] px-4 text-[15px] font-semibold text-[#a32a1d]"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-[10px] border-2 border-[#c23a2b] px-4 text-[15px] font-semibold text-[#a32a1d]"
           >
             {t("hunt.end")}
           </button>
@@ -431,7 +431,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
               setConfirmEnd(false);
               send({ t: "hunt.end" });
             }}
-            className="mt-5 flex min-h-12 w-full items-center justify-center rounded-[14px] bg-[#a32a1d] px-4 text-[15px] font-semibold text-white"
+            className="mt-5 flex min-h-12 w-full items-center justify-center rounded-[10px] bg-[#a32a1d] px-4 text-[15px] font-semibold text-white"
           >
             {t("hunt.endConfirm")}
           </button>
@@ -483,7 +483,7 @@ function MemberRow({
           ? t("hunt.seenSeconds", { s: Math.round(age / 1000) })
           : t("hunt.seenMinutes", { m: Math.round(age / 60_000) });
   return (
-    <li className="flex min-h-12 items-center gap-3 rounded-[12px] px-2">
+    <li className="flex min-h-12 items-center gap-3 rounded-[8px] px-2">
       <span
         aria-hidden
         className={`size-3 shrink-0 rounded-full ${member.online && !member.away ? "bg-person" : "bg-[#9aa093]"}`}

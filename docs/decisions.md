@@ -346,6 +346,13 @@ no build tool, one face across the chrome and the map, and the same font files t
 already precaches for offline. Names are limited to what that face's two subsets cover (Latin with
 every Portuguese accent); the schema rejects anything else at input.
 
+**The look is a field kit's.** A pin is a schist disc edged in bone, its type's colour a thin
+ring, its symbol in bone; a sighting is the same in a diamond; a label is a dark tag with bone
+text. The drawing palette is earth tones (bone, ochre, steel blue, heather, moss, red), stored by
+key so a tone can change without touching a map. The chrome is hunting-canvas beige (`cal`,
+`cal-deep`) with bone (`osso`) for fields and cards; white is left only where a scanner needs it
+(the transfer QR).
+
 ## D25 — The panel is about the map; the person is behind the menu
 The map screen's sheet (the left panel on wide screens) holds this map only. Its peek is the map's
 name, which opens the map switcher (rename, the person's maps, a new one), the save state, and

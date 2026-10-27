@@ -7,10 +7,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ANIL, DAY_S, shortDate } from "./adminData";
 
-const SURFACE = "#ffffff";
-const GRID = "#e8eae5";
-const AXIS = "#b9bdb3";
-const MUTED = "#59614f";
+const SURFACE = "#e8e2d4";
+const GRID = "#d6d0c3";
+const AXIS = "#a39d90";
+const MUTED = "#4c5244";
 
 /** Round, readable ticks: 0 and up to four steps of 1, 2 or 5 × 10ⁿ. */
 function ticks(max: number): number[] {
@@ -50,7 +50,7 @@ function columnPath(x: number, y: number, w: number, base: number): string {
 function Tooltip({ x, value, label, color }: { x: number; value: string; label: string; color: string }) {
   return (
     <div
-      className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-md border border-rule bg-white px-2 py-1 shadow-float"
+      className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-md border border-rule bg-osso px-2 py-1 shadow-float"
       style={{ left: x }}
     >
       <div className="text-[13px] font-bold whitespace-nowrap text-xisto">{value}</div>
@@ -78,7 +78,7 @@ export function ChartCard({
 }) {
   const [asTable, setAsTable] = useState(false);
   return (
-    <section className={`rounded-[16px] border border-rule bg-white p-4 ${className}`}>
+    <section className={`rounded-[12px] border border-rule bg-osso p-4 ${className}`}>
       <header className="mb-3 flex items-start justify-between gap-3">
         <div>
           <h3 className="text-[14px] font-bold">{title}</h3>

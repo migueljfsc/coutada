@@ -47,7 +47,7 @@ export function StartHuntDialog({ mapId, onClose }: { mapId: string; onClose: ()
             type="button"
             disabled={busy}
             onClick={() => void start(type)}
-            className="flex min-h-16 flex-col items-start justify-center rounded-[14px] bg-cal-deep px-4 py-3 text-left active:bg-anil active:text-white disabled:opacity-50"
+            className="flex min-h-16 flex-col items-start justify-center rounded-[10px] bg-cal-deep px-4 py-3 text-left active:bg-anil active:text-white disabled:opacity-50"
           >
             <span className="text-[17px] font-bold">{t(`hunt.type.${type}`)}</span>
             <span className="text-[14px] leading-snug text-xisto-soft">{t(`hunt.type.${type}.detail`)}</span>
@@ -132,7 +132,7 @@ export function JoinHuntDialog({ onClose }: { onClose: () => void }) {
 }
 
 const choice =
-  "flex min-h-16 flex-col items-start justify-center rounded-[14px] bg-cal-deep px-4 py-3 text-left active:bg-anil active:text-white disabled:opacity-50";
+  "flex min-h-16 flex-col items-start justify-center rounded-[10px] bg-cal-deep px-4 py-3 text-left active:bg-anil active:text-white disabled:opacity-50";
 
 /** The hunt tile's choice: start one on this map, or join one with a code. */
 export function HuntChooser({ canStart, onStart, onJoin, onClose }: { canStart: boolean; onStart: () => void; onJoin: () => void; onClose: () => void }) {

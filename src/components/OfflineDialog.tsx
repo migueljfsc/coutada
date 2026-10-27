@@ -75,7 +75,7 @@ export function OfflineDialog({ doc, imagery, onClose }: { doc: MapDoc; imagery:
         <p className="text-[15px] leading-snug text-xisto-soft">{t("offline.explain", { source: t(`imagery.${imagery}` as MessageKey) })}</p>
 
         {isIos() && !isStandalone() && (
-          <p className="rounded-[12px] border-l-4 border-anil bg-anil/10 p-3 text-[15px] leading-snug">{t("offline.iosInstall")}</p>
+          <p className="rounded-[8px] border-l-4 border-anil bg-anil/10 p-3 text-[15px] leading-snug">{t("offline.iosInstall")}</p>
         )}
 
         {!plans ? (
@@ -102,7 +102,7 @@ export function OfflineDialog({ doc, imagery, onClose }: { doc: MapDoc; imagery:
               {(["full", "light"] as const).map((d) => (
                 <label
                   key={d}
-                  className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[14px] border-2 border-transparent bg-cal-deep px-3 py-2 has-checked:border-anil"
+                  className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[10px] border-2 border-transparent bg-cal-deep px-3 py-2 has-checked:border-anil"
                 >
                   <input type="radio" name="detail" checked={detail === d} onChange={() => setDetail(d)} className="size-5 accent-anil" />
                   <span className="flex-1">

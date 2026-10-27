@@ -63,8 +63,8 @@ describe("writing KML", () => {
     doc = updateProps(addRoute(doc, { id: walk, type: "walk", line: [S, destination(S, 0, 100)] }, 1), walk, { color: "magenta" }, 1);
     doc = addZone(doc, { id: ids(), type: "no_shoot", ring: [S, destination(S, 90, 100), destination(S, 0, 100)], name: "Casa" }, 1);
     const kml = toKml(doc);
-    expect(kml).toContain("<color>ffa34fff</color>");
-    expect(kml).toContain("<color>403b3bff</color>");
+    expect(kml).toContain("<color>ffa67ab7</color>");
+    expect(kml).toContain("<color>403d45d6</color>");
     const back = parseKml(kml)!;
     expect(back.places).toEqual([{ name: "Cancela", at: S }]);
     expect(back.lines).toHaveLength(1);

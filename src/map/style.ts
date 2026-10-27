@@ -18,6 +18,7 @@ export const imageryLayer = (id: ImageryId) => `imagery-${id}`;
 
 const ANIL = "#1e4fa0";
 const INK = "#23281f";
+const BONE = "#e8e2d4";
 
 const kindIs = (kind: string) => ["==", ["get", "kind"], kind] as const;
 const typeIn = (...types: string[]) => ["in", ["get", "type"], ["literal", types]] as const;
@@ -110,14 +111,14 @@ const drawingLayers = [
     type: "circle",
     source: "draft",
     filter: ["==", ["get", "role"], "vertex"],
-    paint: { "circle-radius": 6, "circle-color": "#ffffff", "circle-stroke-color": ANIL, "circle-stroke-width": 3 },
+    paint: { "circle-radius": 6, "circle-color": BONE, "circle-stroke-color": ANIL, "circle-stroke-width": 3 },
   },
   {
     id: "guide-casing",
     type: "line",
     source: "guide",
     layout: { "line-cap": "round" },
-    paint: { "line-color": "#ffffff", "line-width": 6, "line-opacity": 0.8 },
+    paint: { "line-color": BONE, "line-width": 6, "line-opacity": 0.8 },
   },
   {
     id: "guide-line",
@@ -131,7 +132,7 @@ const drawingLayers = [
     type: "circle",
     source: "shapes",
     filter: ["all", kindIs("pin"), ["==", ["get", "sel"], 1]],
-    paint: { "circle-radius": 26, "circle-color": ANIL, "circle-opacity": 0.45 },
+    paint: { "circle-radius": 24, "circle-color": ANIL, "circle-opacity": 0.45 },
   },
   {
     id: "pins",
@@ -172,7 +173,7 @@ const drawingLayers = [
       "circle-radius": 7,
       "circle-color": ["match", ["get", "state"], "lost", "#9aa093", PERSON],
       "circle-opacity": ["match", ["get", "state"], "fresh", 1, 0.5],
-      "circle-stroke-color": "#ffffff",
+      "circle-stroke-color": BONE,
       "circle-stroke-width": 2.5,
       "circle-stroke-opacity": ["match", ["get", "state"], "fresh", 1, 0.6],
     },
@@ -196,7 +197,7 @@ const drawingLayers = [
     type: "circle",
     source: "handles",
     filter: ["==", ["get", "role"], "mid"],
-    paint: { "circle-radius": 7, "circle-color": ANIL, "circle-opacity": 0.75, "circle-stroke-color": "#ffffff", "circle-stroke-width": 2 },
+    paint: { "circle-radius": 7, "circle-color": ANIL, "circle-opacity": 0.75, "circle-stroke-color": BONE, "circle-stroke-width": 2 },
   },
   {
     id: "handles-vertex",
@@ -205,7 +206,7 @@ const drawingLayers = [
     filter: ["==", ["get", "role"], "vertex"],
     paint: {
       "circle-radius": ["case", ["==", ["get", "chosen"], 1], 12, 9],
-      "circle-color": "#ffffff",
+      "circle-color": BONE,
       "circle-stroke-color": ANIL,
       "circle-stroke-width": 3,
     },
@@ -252,7 +253,7 @@ const meLayers: AddLayerObject[] = [
     paint: {
       "circle-radius": 8,
       "circle-color": PERSON,
-      "circle-stroke-color": "#ffffff",
+      "circle-stroke-color": BONE,
       "circle-stroke-width": 3,
     },
   },

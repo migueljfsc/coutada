@@ -54,11 +54,11 @@ export const en = {
   "type.mancha": "Mancha",
   "type.no_shoot": "No-shoot zone",
   "type.boundary": "Property boundary",
-  "colour.white": "White",
-  "colour.yellow": "Yellow",
-  "colour.cyan": "Cyan",
-  "colour.magenta": "Magenta",
-  "colour.lime": "Lime",
+  "colour.white": "Bone",
+  "colour.yellow": "Ochre",
+  "colour.cyan": "Steel blue",
+  "colour.magenta": "Heather",
+  "colour.lime": "Moss",
   "colour.red": "Red",
 
   // --------------------------------------------------------------- drawing

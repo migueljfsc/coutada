@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { destination, type Position } from "../geo/geo";
 import { addPin, addRoute, addZone, createMapDoc, featureById, updateProps } from "../doc/operations";
+import { PALETTE } from "../doc/catalogue";
 import { dragShape, observationImage, pinImage, portaImage, render, withoutVertex } from "./drawing";
 
 const S: Position = [-6.918, 39.882];
@@ -20,9 +21,9 @@ describe("render", () => {
   it("draws every feature, with its colour and the image a pin wears", () => {
     const { shapes } = render(doc());
     const byId = Object.fromEntries(shapes.features.map((f) => [f.properties.fid, f.properties]));
-    expect(byId[ID("a")]).toMatchObject({ kind: "pin", icon: pinImage("gate", "yellow"), colour: "#ffd23f", sel: 0 });
+    expect(byId[ID("a")]).toMatchObject({ kind: "pin", icon: pinImage("gate", "yellow"), colour: PALETTE.yellow, sel: 0 });
     expect(byId[ID("b")].icon).toBe(portaImage(undefined));
-    expect(byId[ID("c")]).toMatchObject({ kind: "route", colour: "#ff4fa3" });
+    expect(byId[ID("c")]).toMatchObject({ kind: "route", colour: PALETTE.magenta });
     expect(byId[ID("d")].icon).toBeUndefined();
   });
 
