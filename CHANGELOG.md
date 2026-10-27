@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.13.0 (2026-10-27)
+
+### Feat
+
+- **hunt**: the map opens in its hunt, and no trail outlives the hunt
+
 ## v0.12.0 (2026-10-27)
 
 ### Feat
