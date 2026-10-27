@@ -2,7 +2,7 @@
   "name": "coutada",
   "private": true,
   "type": "module",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Coordinate a hunt on a satellite map: named spots, routes, posts and zones, and everyone's live position.",
   "packageManager": "pnpm@11.9.0",
   "engines": {
