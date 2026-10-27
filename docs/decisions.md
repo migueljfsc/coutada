@@ -352,7 +352,7 @@ name, which opens the map switcher (rename, the person's maps, a new one), the s
 four tiles: Caçada (back to a live hunt, or a choice of starting one here or joining by code),
 Partilhar or Guardar, Sem rede, Ficheiros (import and export, D21). Expanded, it lists what is drawn. Everything about the
 person and the app (signing in, the phone's name, moving to another device, installing, the
-language, erasing) sits behind the round menu button in the map's top-left corner. The safety
+language, erasing) sits behind the round menu button in the map's top-right corner. The safety
 notice belongs to the hunt: its screen and its start and join dialogs.
 
 ## D26 — The operator's view and everybody's use

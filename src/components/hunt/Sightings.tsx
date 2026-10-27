@@ -5,6 +5,7 @@
 
 import { Bookmark, LocateFixed, Trash2, X } from "lucide-react";
 import { useI18n } from "../../i18n/context";
+import { formatAgo, formatMoment, formatTime } from "../../lib/format";
 import { EVENTS, SUBJECTS, type Observation, type SightingEvent, type Subject } from "../../live/protocol";
 import { SpeciesGlyph } from "../editor/TypeIcon";
 import { secondaryButton, primaryButton } from "../ui";
@@ -124,9 +125,10 @@ export function SightingPlaceBar({
   );
 }
 
-export function SightingHeader({ obs, by, ageMs, onClose }: { obs: Observation; by: string; ageMs: number; onClose: () => void }) {
-  const { t } = useI18n();
-  const m = Math.floor(ageMs / 60_000);
+/** `now` is on the hunt's clock, as `obs.at` is. */
+export function SightingHeader({ obs, by, now, onClose }: { obs: Observation; by: string; now: number; onClose: () => void }) {
+  const { t, locale } = useI18n();
+  const time = now - obs.at < 12 * 3_600_000 ? formatTime(obs.at, locale) : formatMoment(obs.at, locale);
   return (
     <div className="flex items-center gap-3">
       <SightingIcon subject={obs.subject} event={obs.event} size={40} />
@@ -135,7 +137,7 @@ export function SightingHeader({ obs, by, ageMs, onClose }: { obs: Observation; 
           <span className="truncate">{t(`species.${obs.subject}`)}</span>
           <span className="shrink-0 text-[14px] font-semibold text-xisto-soft">{t(`obs.event.${obs.event}`)}</span>
         </h2>
-        <p className="text-[15px] text-xisto-soft">{m < 1 ? t("obs.markedNow", { name: by }) : t("obs.marked", { name: by, m })}</p>
+        <p className="text-[15px] text-xisto-soft">{t("obs.marked", { name: by, time, ago: formatAgo(obs.at, now, locale) })}</p>
       </div>
       <CloseButton label={t("edit.close")} onClick={onClose} />
     </div>

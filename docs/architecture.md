@@ -92,7 +92,7 @@ type MapFeature =
   | Feature<LineString, Props & { kind: "route"; type: RouteType }>
   | Feature<Polygon,    Props & { kind: "zone";  type: ZoneType }>;
 
-type Props    = { name?: string; note?: string; color?: PaletteKey; updatedAt: number };
+type Props    = { name?: string; note?: string; color?: PaletteKey; updatedAt: number; createdAt?: number };
 type PinType  = "porta" | "landmark" | "gate" | "parking" | "meeting" | "danger" | "water" | "game";
 type Species  = "partridge" | "quail" | … | "mouflon";                 // SPECIES in catalogue.ts
 type RouteType = "walk" | "armada";

@@ -11,7 +11,8 @@ import type { FeatureId, MapDoc, MapFeature, PinFeature } from "../../doc/types"
 import { lineLength, ringArea } from "../../geo/geo";
 import { useI18n } from "../../i18n/context";
 import type { MessageKey } from "../../i18n/core";
-import { formatArea, formatLength } from "../../lib/format";
+import { formatAgo, formatArea, formatLength, formatMoment } from "../../lib/format";
+import { useNow } from "../../lib/useNow";
 import { TypeIcon } from "./TypeIcon";
 import { useFeatureTitle } from "./useFeatureTitle";
 
@@ -28,6 +29,20 @@ export type EditCommands = {
   close: () => void;
 };
 
+/** How long the feature has been on the map, or, drawn before that was kept, when it last changed. */
+function Since({ feature }: { feature: MapFeature }) {
+  const { t, locale } = useI18n();
+  const now = useNow(30_000);
+  const { createdAt, updatedAt } = feature.properties;
+  return (
+    <p className="text-[13px] text-xisto-soft">
+      {createdAt !== undefined
+        ? t("when.since", { date: formatMoment(createdAt, locale), ago: formatAgo(createdAt, now, locale) })
+        : t("when.changed", { ago: formatAgo(updatedAt, now, locale) })}
+    </p>
+  );
+}
+
 export function FeatureHeader({ feature, onClose }: { feature: MapFeature; onClose: () => void }) {
   const { t } = useI18n();
   const title = useFeatureTitle();
@@ -40,6 +55,7 @@ export function FeatureHeader({ feature, onClose }: { feature: MapFeature; onClo
         <p className="text-[15px] text-xisto-soft">
           {p.kind === "pin" && p.species && p.name ? t(`species.${p.species}`) : t(`type.${p.type}` as MessageKey)}
         </p>
+        <Since feature={feature} />
       </div>
       <button
         type="button"

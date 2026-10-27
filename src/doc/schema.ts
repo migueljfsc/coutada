@@ -36,6 +36,7 @@ const common = {
   note: z.string().max(LIMITS.note).regex(PRINTABLE).optional(),
   color: z.enum(PALETTE_KEYS as [PaletteKey, ...PaletteKey[]]).optional(),
   updatedAt: z.number().int().nonnegative(),
+  createdAt: z.number().int().nonnegative().optional(),
 };
 
 const id = z.string().regex(FEATURE_ID);

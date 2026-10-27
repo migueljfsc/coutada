@@ -18,6 +18,8 @@ type Common = {
   color?: PaletteKey;
   /** ms since epoch, set by every operation that changes the feature. */
   updatedAt: number;
+  /** ms since epoch, when the feature was first put on a map; absent on features drawn before it was kept. */
+  createdAt?: number;
 };
 
 export type PinProps = Common & {

@@ -81,6 +81,8 @@ export const en = {
 
   // ---------------------------------------------------------------- editing
   "edit.close": "Close",
+  "when.since": "On the map since {date} ({ago})",
+  "when.changed": "Last changed {ago}",
   "edit.species": "Species",
   "edit.name": "Name",
   "edit.nameInvalid": "Use letters, numbers and punctuation only, up to 60 characters.",
@@ -294,8 +296,7 @@ export const en = {
   "obs.event.down": "Shot",
   "obs.place": "Tap the map where it was.",
   "obs.here": "Where I am",
-  "obs.markedNow": "Marked by {name} just now",
-  "obs.marked": "Marked by {name} {m} min ago",
+  "obs.marked": "Marked by {name} at {time} ({ago})",
   "obs.remove": "Remove",
   "obs.keep": "Keep on the map",
   "obs.keptName": "{type} {time}",

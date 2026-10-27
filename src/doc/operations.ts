@@ -50,6 +50,7 @@ export function addPin(
       kind: "pin",
       type: pin.type,
       updatedAt: now,
+      createdAt: now,
       ...(pin.name ? { name: pin.name } : {}),
       ...(pin.type === "game" && pin.species ? { species: pin.species } : {}),
     },
@@ -66,7 +67,7 @@ export function addRoute(
     type: "Feature",
     id: route.id,
     geometry: { type: "LineString", coordinates: route.line.map(round) },
-    properties: { kind: "route", type: route.type, updatedAt: now, ...(route.name ? { name: route.name } : {}) },
+    properties: { kind: "route", type: route.type, updatedAt: now, createdAt: now, ...(route.name ? { name: route.name } : {}) },
   };
   return withFeatures(doc, [...doc.features, feature]);
 }
@@ -80,7 +81,7 @@ export function addZone(
     type: "Feature",
     id: zone.id,
     geometry: { type: "Polygon", coordinates: [closeRing(zone.ring)] },
-    properties: { kind: "zone", type: zone.type, updatedAt: now, ...(zone.name ? { name: zone.name } : {}) },
+    properties: { kind: "zone", type: zone.type, updatedAt: now, createdAt: now, ...(zone.name ? { name: zone.name } : {}) },
   };
   return withFeatures(doc, [...doc.features, feature]);
 }

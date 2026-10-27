@@ -87,9 +87,20 @@ describe("operations", () => {
     });
     doc = updateProps(doc, pid, { note: "", color: null }, T0 + 6);
     const props = featureById(doc, pid)!.properties;
+    expect(props.createdAt).toBe(T0);
     expect(props).not.toHaveProperty("note");
     expect(props).not.toHaveProperty("color");
     expect(props.name).toBe("Sobreiro da barragem");
+  });
+
+  it("stamp when a feature is first put on a map, and keep it through later changes", () => {
+    const [pin, walk] = [id(), id()];
+    let doc = addPin(createMapDoc("m"), { id: pin, type: "gate", at: S }, T0);
+    doc = addRoute(doc, { id: walk, type: "walk", line: [S, destination(S, 0, 50)] }, T0 + 1);
+    doc = movePin(setShape(doc, walk, [S, destination(S, 0, 80)], T0 + 9), pin, [-6.9, 39.9], T0 + 9);
+    expect([featureById(doc, pin)?.properties.createdAt, featureById(doc, walk)?.properties.createdAt]).toEqual([T0, T0 + 1]);
+    expect(featureById(doc, pin)?.properties.updatedAt).toBe(T0 + 9);
+    expect(parseMapDoc(JSON.parse(JSON.stringify(doc)))).not.toBeNull();
   });
 
   it("move a pin, and only a pin", () => {

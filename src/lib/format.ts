@@ -23,3 +23,34 @@ export function formatBytes(bytes: number, locale: string): string {
   }
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: value < 10 ? 1 : 0 }).format(value)} ${units[unit]}`;
 }
+
+const STEPS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+  ["second", 60],
+  ["minute", 60],
+  ["hour", 24],
+  ["day", 7],
+  ["week", 4.35],
+  ["month", 12],
+  ["year", Infinity],
+];
+
+/** How long ago `at` was, from `now` (both ms), in the reader's words: "3 minutes ago", "há 2 dias". */
+export function formatAgo(at: number, now: number, locale: string): string {
+  let value = Math.max(0, now - at) / 1000;
+  for (const [unit, size] of STEPS) {
+    if (value < size || unit === "year") {
+      const n = unit === "second" && value < 45 ? 0 : Math.round(value);
+      return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(-n, unit);
+    }
+    value /= size;
+  }
+  return "";
+}
+
+/** A moment as a date and a time of day, in the reader's locale and time zone. */
+export const formatMoment = (at: number, locale: string, timeZone?: string): string =>
+  new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone }).format(at);
+
+/** A time of day, in the reader's locale and time zone. */
+export const formatTime = (at: number, locale: string, timeZone?: string): string =>
+  new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", timeZone }).format(at);

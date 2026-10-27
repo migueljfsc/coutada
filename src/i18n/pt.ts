@@ -73,6 +73,8 @@ export const pt: Dictionary = {
 
   // ---------------------------------------------------------------- editing
   "edit.close": "Fechar",
+  "when.since": "No mapa desde {date} ({ago})",
+  "when.changed": "Última alteração {ago}",
   "edit.species": "Espécie",
   "edit.name": "Nome",
   "edit.nameInvalid": "Use só letras, números e pontuação, até 60 caracteres.",
@@ -286,8 +288,7 @@ export const pt: Dictionary = {
   "obs.event.down": "Abate",
   "obs.place": "Toque no mapa onde foi.",
   "obs.here": "Onde estou",
-  "obs.markedNow": "Marcado por {name} agora mesmo",
-  "obs.marked": "Marcado por {name} há {m} min",
+  "obs.marked": "Marcado por {name} às {time} ({ago})",
   "obs.remove": "Apagar",
   "obs.keep": "Guardar no mapa",
   "obs.keptName": "{type} {time}",

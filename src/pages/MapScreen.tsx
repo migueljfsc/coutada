@@ -45,7 +45,7 @@ import { OfflineDialog } from "../components/OfflineDialog";
 import { HuntChooser, JoinHuntDialog, StartHuntDialog } from "../components/hunt/HuntDialogs";
 import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
-import { noticeButton, noticeQuiet, topLeft } from "../components/ui";
+import { noticeButton, noticeQuiet, topLeft, topRight } from "../components/ui";
 import { DrawBar } from "../components/editor/DrawBar";
 import { HistoryButtons, ToolRail } from "../components/editor/EditRail";
 import { FeatureDetails, FeatureHeader } from "../components/editor/FeatureEditor";
@@ -329,9 +329,13 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         </Notice>
       ) : null}
 
-      <div className={topLeft}>
+      {!hunting && (
+        <div className={topLeft}>
+          <HistoryButtons editor={editor} dispatch={dispatch} />
+        </div>
+      )}
+      <div className={topRight}>
         <MenuButton onClick={() => setDialog({ kind: "menu" })} />
-        {!hunting && <HistoryButtons editor={editor} dispatch={dispatch} />}
       </div>
 
       <p className="pointer-events-none absolute bottom-[calc(var(--peek)+0.5rem)] left-3 z-10 rounded-md bg-cal/80 px-2 py-0.5 text-[11px] text-xisto md:bottom-3 md:left-[404px]">

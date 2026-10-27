@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BadgeCheck, Binoculars, Crown, KeyRound, Layers, Locate, LocateFixed, Lock, LockOpen, LogOut, UserX } from "lucide-react";
 import { DEFAULT_IMAGERY, type ImageryId } from "../doc/catalogue";
 import { newFeatureId } from "../doc/ids";
-import { canAdd } from "../doc/operations";
+import { canAdd, featureById } from "../doc/operations";
 import type { FeatureId } from "../doc/types";
 import type { Position } from "../geo/geo";
 import { useI18n } from "../i18n/context";
@@ -64,6 +64,9 @@ export function HuntScreen({ huntId }: { huntId: string }) {
   const [event, setEvent] = useState<SightingEvent>("seen");
   const [placing, setPlacing] = useState<Subject | null>(null);
   const [sightingId, setSightingId] = useState<string | null>(null);
+  /** A member's look at a drawing, which only the host edits. */
+  const [viewingId, setViewingId] = useState<FeatureId | null>(null);
+  const viewing = !host && viewingId ? featureById(editor.doc, viewingId) : undefined;
   const sighting = sightingId ? view.obs.find((o) => o.id === sightingId) : undefined;
 
   // Sharing the position is what being in a hunt means; it starts on arrival (D15).
@@ -81,7 +84,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
   const rendered = useMemo(
     () =>
       render(editor.doc, {
-        selected: editor.selected,
+        selected: host ? editor.selected : (viewing?.id ?? null),
         tool: editor.tool,
         editing: host,
         vertex: editing.vertex,
@@ -90,13 +93,14 @@ export function HuntScreen({ huntId }: { huntId: string }) {
         observations,
         sighting: sighting?.id ?? null,
       }),
-    [editor.doc, editor.selected, editor.tool, host, editing.vertex, people, trails, observations, sighting],
+    [editor.doc, editor.selected, editor.tool, host, viewing, editing.vertex, people, trails, observations, sighting],
   );
 
   const stopAll = () => {
     setChoosingSighting(false);
     setPlacing(null);
     setSightingId(null);
+    setViewingId(null);
     editing.setPicking(null);
     dispatch({ type: "tool", tool: { kind: "idle" } });
     dispatch({ type: "select", id: null });
@@ -111,11 +115,13 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     if (placing) return mark(placing, at);
     if (hit && editor.tool.kind === "idle" && view.obs.some((o) => o.id === hit)) {
       dispatch({ type: "select", id: null });
+      setViewingId(null);
       setSightingId(hit);
       return;
     }
     setSightingId(null);
     if (host) editing.onTap(at, hit, handle);
+    else setViewingId(hit);
   };
 
   /** The host keeps a sighting: a game pin where it was (a landmark for a dog), named for what and when (D11). */
@@ -127,7 +133,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     const name = t("obs.keptName", { type: t(`species.${o.subject}`), time });
     const note = o.note ?? t(`obs.event.${o.event}`);
     dispatch({ type: "tool", tool: o.subject === "dog" ? { kind: "pin", type: "landmark" } : { kind: "pin", type: "game", species: o.subject } });
-    dispatch({ type: "tap", at: o.c, hit: null, id, now: at });
+    dispatch({ type: "tap", at: o.c, hit: null, id, now: o.at });
     dispatch({ type: "props", id, patch: { name, note }, now: at });
     send({ t: "obs.del", id: o.id });
     setSightingId(null);
@@ -182,7 +188,7 @@ export function HuntScreen({ huntId }: { huntId: string }) {
         <SightingHeader
           obs={sighting}
           by={view.members[sighting.by]?.name ?? "—"}
-          ageMs={Math.max(0, now + view.offset - sighting.at)}
+          now={now + view.offset}
           onClose={() => setSightingId(null)}
         />
       ),
@@ -199,6 +205,11 @@ export function HuntScreen({ huntId }: { huntId: string }) {
           }
         />
       ),
+    };
+  } else if (viewing) {
+    tools = {
+      peek: <FeatureHeader feature={viewing} onClose={() => setViewingId(null)} />,
+      body: viewing.properties.note ? <p className="text-[16px] leading-snug whitespace-pre-wrap">{viewing.properties.note}</p> : null,
     };
   } else if (host && picking) {
     tools = { peek: <TypePicker picking={picking} onPick={editing.pickType} onCancel={() => editing.setPicking(null)} />, body: null };
