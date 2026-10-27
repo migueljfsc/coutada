@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.20.0 (2026-10-27)
+
+### Feat
+
+- **map**: every drawing and sighting says how long it has been there
+
 ## v0.19.0 (2026-10-27)
 
 ### Feat
