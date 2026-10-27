@@ -389,7 +389,9 @@ never are, what the imagery hosts see, what is counted (D26), the cookies, and h
 erase it. It describes what the code does; a change to what is kept changes the page.
 
 ## D28 — Search: places from OpenStreetMap, coordinates and drawings on the phone
-A round search button beside the menu opens one box for three things. **Coordinates**, as typed or
+On the map screen a search box sits in the panel, under the map's name, always there; its results
+take the place of the drawings list while it holds text. The hunt screen, whose panel is full,
+opens the same search from a round button. One box finds three things. **Coordinates**, as typed or
 pasted (decimal, degrees and minutes, degrees, minutes and seconds, signs or N/S/E/W, a decimal
 comma), read by a pure parser on the phone, so they work with no signal. **This map's drawings**,
 by name, as you type. **Places in Portugal and Spain**, from Nominatim (OpenStreetMap), on submit,

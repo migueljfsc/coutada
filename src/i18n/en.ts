@@ -396,6 +396,7 @@ export const en = {
   "search.places": "Places",
   "search.none": "No place called “{query}” in Portugal or Spain.",
   "search.credit": "Places © OpenStreetMap contributors",
+  "search.pressSearch": "Press Search to look for places with this name.",
   "search.hint": "Type a village, a farm or a hill, a name on this map, or paste coordinates such as 39.882, -6.918.",
   "place.village": "Village",
   "place.hamlet": "Hamlet",

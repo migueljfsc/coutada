@@ -40,8 +40,8 @@ import { AccountSheet, MenuButton, type AccountActions } from "../components/Acc
 import { MapBody, MapPeek, type PanelActions } from "../components/MapPanel";
 import { MapSwitcher } from "../components/MapSwitcher";
 import { FilesDialog } from "../components/FilesDialog";
-import { SearchButton } from "../components/SearchButton";
-import { SearchDialog, type SearchHit } from "../components/SearchDialog";
+import { SearchResults } from "../components/search/SearchResults";
+import { useSearch, type SearchHit } from "../components/search/useSearch";
 import { frameFound } from "../map/camera";
 import { Notice } from "../components/Notice";
 import { OfflineDialog } from "../components/OfflineDialog";
@@ -72,7 +72,6 @@ type DialogState =
   | { kind: "maps" }
   | { kind: "menu" }
   | { kind: "files" }
-  | { kind: "search" }
   | null;
 
 export function MapScreen({ mapId }: { mapId: string | null }) {
@@ -98,6 +97,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
   const wide = useMedia("(min-width: 48rem)");
 
   const { doc, tool, selected } = editor;
+  const search = useSearch(doc);
   const { picking, setPicking, vertex, selectedFeature, openPicker, pickType, onTap, onDrag, select, commands, toolKind } = useEditing(
     editor,
     dispatch,
@@ -193,6 +193,8 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
   };
 
   const goTo = (hit: SearchHit) => {
+    search.clear();
+    (document.activeElement as HTMLElement | null)?.blur();
     if (hit.kind === "feature") {
       setTarget(null);
       select(hit.id);
@@ -247,8 +249,19 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
       />
     );
   } else {
-    peekContent = <MapPeek doc={doc} status={sync} saved={!!remote} inHunt={inHunt} actions={actions} />;
-    body = <MapBody doc={doc} onChoose={select} />;
+    peekContent = (
+      <MapPeek
+        doc={doc}
+        status={sync}
+        saved={!!remote}
+        inHunt={inHunt}
+        actions={actions}
+        search={search}
+        onFound={goTo}
+        onSearchFocus={() => setSheetOpen(true)}
+      />
+    );
+    body = search.active ? <SearchResults search={search} onGo={goTo} /> : <MapBody doc={doc} onChoose={select} />;
   }
 
   return (
@@ -358,7 +371,6 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         </div>
       )}
       <div className={topRight}>
-        <SearchButton onClick={() => setDialog({ kind: "search" })} />
         <MenuButton onClick={() => setDialog({ kind: "menu" })} />
       </div>
 
@@ -417,7 +429,6 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         />
       )}
       {dialog?.kind === "menu" && <AccountSheet actions={accountActions} onClose={() => setDialog(null)} />}
-      {dialog?.kind === "search" && <SearchDialog doc={doc} onGo={goTo} onClose={() => setDialog(null)} />}
       {dialog?.kind === "files" && <FilesDialog doc={doc} onFile={(file) => void importFile(file)} onClose={() => setDialog(null)} />}
       {dialog?.kind === "share" && remote && (
         <ShareDialog mapId={remote.id} slug={shareSlug} onSlug={setShareSlug} onClose={() => setDialog(null)} />

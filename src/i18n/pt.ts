@@ -388,6 +388,7 @@ export const pt: Dictionary = {
   "search.places": "Lugares",
   "search.none": "Nenhum lugar chamado “{query}” em Portugal ou Espanha.",
   "search.credit": "Lugares © colaboradores do OpenStreetMap",
+  "search.pressSearch": "Carregue em Procurar para encontrar lugares com este nome.",
   "search.hint": "Escreva uma aldeia, uma herdade ou um monte, um nome deste mapa, ou cole coordenadas como 39.882, -6.918.",
   "place.village": "Aldeia",
   "place.hamlet": "Lugar",

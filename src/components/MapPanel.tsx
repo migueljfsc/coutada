@@ -10,6 +10,8 @@ import { useI18n } from "../i18n/context";
 import type { MessageKey } from "../i18n/core";
 import type { SyncStatus } from "../sync/useMapDocument";
 import { FeatureList } from "./editor/FeatureList";
+import { SearchField } from "./search/SearchField";
+import type { Search, SearchHit } from "./search/useSearch";
 
 export type PanelActions = {
   openMaps: () => void;
@@ -61,13 +63,16 @@ export function Tile({
 
 const tiles = "grid grid-cols-4 gap-2";
 
-/** The peek: the map's name as the way to the other maps, its state, and the four actions. */
+/** The peek: the map's name as the way to the other maps, its state, the search, and the four actions. */
 export function MapPeek({
   doc,
   status,
   saved,
   inHunt,
   actions,
+  search,
+  onFound,
+  onSearchFocus,
 }: {
   doc: MapDoc;
   status: SyncStatus;
@@ -76,6 +81,10 @@ export function MapPeek({
   /** This phone is in a live hunt it can go back to. */
   inHunt: boolean;
   actions: PanelActions;
+  search: Search;
+  onFound: (hit: SearchHit) => void;
+  /** The search box was focused or typed in: the sheet opens so its results show. */
+  onSearchFocus: () => void;
 }) {
   const { t } = useI18n();
   const state = STATE[status];
@@ -96,6 +105,7 @@ export function MapPeek({
           {t(state.label)}
         </p>
       </div>
+      <SearchField search={search} onGo={onFound} onEngage={onSearchFocus} />
       <div className={tiles}>
         <Tile icon={<Radio size={20} />} label={t(inHunt ? "tile.backToHunt" : "tile.hunt")} onClick={actions.hunt} />
         {saved ? (
