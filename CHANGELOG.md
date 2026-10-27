@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.19.0 (2026-10-27)
+
+### Feat
+
+- **privacy**: your data as a zip, and a page that says what is kept
+
 ## v0.18.0 (2026-10-27)
 
 ### Feat
