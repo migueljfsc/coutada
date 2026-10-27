@@ -1,4 +1,4 @@
-/** The drawing tools on the map's rail, and undo and redo at the top of the map. */
+/** The drawing tools on the map's rail, and undo and redo, which the screen places at the top of the map. */
 
 import type { Dispatch } from "react";
 import { MapPin, Pentagon, Redo2, Spline, Undo2 } from "lucide-react";
@@ -28,13 +28,13 @@ export function HistoryButtons({ editor, dispatch }: { editor: EditorState; disp
   const { t } = useI18n();
   if (editor.past.length === 0 && editor.future.length === 0) return null;
   return (
-    <div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-3 z-10 flex gap-2 md:left-[404px]">
+    <>
       <RailButton label={t("history.undo")} disabled={editor.past.length === 0} onClick={() => dispatch({ type: "undo" })} className="disabled:opacity-50">
         <Undo2 size={22} />
       </RailButton>
       <RailButton label={t("history.redo")} disabled={editor.future.length === 0} onClick={() => dispatch({ type: "redo" })} className="disabled:opacity-50">
         <Redo2 size={22} />
       </RailButton>
-    </div>
+    </>
   );
 }

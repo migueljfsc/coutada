@@ -65,9 +65,9 @@ describe("the dictionaries", () => {
 
 describe("translate", () => {
   it("fills placeholders, and leaves one alone when nothing was passed for it", () => {
-    expect(translate(en, "locate.accuracy", { m: 8 })).toBe("You are here, to within 8 m.");
-    expect(translate(pt, "locate.accuracy", { m: 8 })).toBe("Está aqui, com uma margem de 8 m.");
-    expect(translate(en, "locate.accuracy")).toContain("{m}");
+    expect(translate(en, "obs.marked", { name: "Pai", m: 8 })).toBe("Marked by Pai 8 min ago");
+    expect(translate(pt, "obs.marked", { name: "Pai", m: 8 })).toBe("Marcado por Pai há 8 min");
+    expect(translate(en, "obs.marked", { name: "Pai" })).toContain("{m}");
   });
 
   it("resolves a message a pure module handed back", () => {

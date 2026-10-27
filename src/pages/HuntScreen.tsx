@@ -32,7 +32,7 @@ import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
 import { Dialog } from "../components/Dialog";
 import { Notice } from "../components/Notice";
-import { noticeQuiet, primaryButton, secondaryButton } from "../components/ui";
+import { noticeQuiet, primaryButton, secondaryButton, topLeft } from "../components/ui";
 import { DrawBar } from "../components/editor/DrawBar";
 import { HistoryButtons, ToolRail } from "../components/editor/EditRail";
 import { FeatureDetails, FeatureHeader } from "../components/editor/FeatureEditor";
@@ -141,6 +141,10 @@ export function HuntScreen({ huntId }: { huntId: string }) {
 
   const over: Link[] = ["ended", "kicked", "denied"];
   const done = over.includes(link);
+  // A hunt that is over for this phone is not one to go back to.
+  useEffect(() => {
+    if (done) forgetHunt(huntId);
+  }, [done, huntId]);
   const members = Object.values(view.members).sort((a, b) => Number(b.host) - Number(a.host) || a.name.localeCompare(b.name));
 
   const { picking, selectedFeature, commands } = editing;
@@ -342,7 +346,11 @@ export function HuntScreen({ huntId }: { huntId: string }) {
         </Notice>
       )}
 
-      {host && !done && <HistoryButtons editor={editor} dispatch={dispatch} />}
+      {host && !done && (
+        <div className={topLeft}>
+          <HistoryButtons editor={editor} dispatch={dispatch} />
+        </div>
+      )}
 
       <p className="pointer-events-none absolute bottom-[calc(var(--peek)+0.5rem)] left-3 z-10 rounded-md bg-cal/80 px-2 py-0.5 text-[11px] text-xisto md:bottom-3 md:left-[404px]">
         {imageryOf(imagery).attribution}

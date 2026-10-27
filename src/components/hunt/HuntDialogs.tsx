@@ -130,3 +130,26 @@ export function JoinHuntDialog({ onClose }: { onClose: () => void }) {
     </Dialog>
   );
 }
+
+const choice =
+  "flex min-h-16 flex-col items-start justify-center rounded-[14px] bg-cal-deep px-4 py-3 text-left active:bg-anil active:text-white disabled:opacity-50";
+
+/** The hunt tile's choice: start one on this map, or join one with a code. */
+export function HuntChooser({ canStart, onStart, onJoin, onClose }: { canStart: boolean; onStart: () => void; onJoin: () => void; onClose: () => void }) {
+  const { t } = useI18n();
+  return (
+    <Dialog title={t("hunt.section")} onClose={onClose}>
+      <div className="flex flex-col gap-3">
+        <button type="button" disabled={!canStart} onClick={onStart} className={choice}>
+          <span className="text-[17px] font-bold">{t("hunt.startHere")}</span>
+          <span className="text-[14px] leading-snug text-xisto-soft">{t(canStart ? "hunt.startDetail" : "hunt.needsSave")}</span>
+        </button>
+        <button type="button" onClick={onJoin} className={choice}>
+          <span className="text-[17px] font-bold">{t("hunt.joinWithCode")}</span>
+          <span className="text-[14px] leading-snug text-xisto-soft">{t("hunt.joinDetail")}</span>
+        </button>
+        <p className="border-l-4 border-person pl-3 text-[14px] leading-snug">{t("safety.notice")}</p>
+      </div>
+    </Dialog>
+  );
+}

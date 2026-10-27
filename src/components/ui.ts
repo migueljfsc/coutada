@@ -8,3 +8,5 @@ export const secondaryButton =
 export const linkButton = "min-h-11 text-[15px] font-semibold text-anil underline-offset-4 hover:underline";
 export const noticeButton = "min-h-11 shrink-0 rounded-[11px] bg-anil px-3 text-[15px] font-semibold text-white";
 export const noticeQuiet = "min-h-11 shrink-0 rounded-[11px] bg-cal-deep px-3 text-[15px] font-semibold";
+/** The map's top-left corner, clear of the wide panel: the menu button, undo and redo. */
+export const topLeft = "absolute top-[max(0.75rem,env(safe-area-inset-top))] left-3 z-10 flex gap-2 md:left-[404px]";

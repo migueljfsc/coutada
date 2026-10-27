@@ -346,6 +346,15 @@ no build tool, one face across the chrome and the map, and the same font files t
 already precaches for offline. Names are limited to what that face's two subsets cover (Latin with
 every Portuguese accent); the schema rejects anything else at input.
 
+## D25 — The panel is about the map; the person is behind the menu
+The map screen's sheet (the left panel on wide screens) holds this map only. Its peek is the map's
+name, which opens the map switcher (rename, the person's maps, a new one), the save state, and
+four tiles: Caçada (back to a live hunt, or a choice of starting one here or joining by code),
+Partilhar or Guardar, Sem rede, Importar. Expanded, it lists what is drawn. Everything about the
+person and the app (signing in, the phone's name, moving to another device, installing, the
+language, erasing) sits behind the round menu button in the map's top-left corner. The safety
+notice belongs to the hunt: its screen and its start and join dialogs.
+
 ## D21 — Import and export: GeoJSON, GPX and KML, in phase 4
 GeoJSON is the document (D7). GPX (waypoints → pins, tracks and routes → routes) and KML (Placemark
 points, lines, polygons) are converted in the browser, validated by the same schema, capped by the

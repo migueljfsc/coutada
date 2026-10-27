@@ -27,21 +27,22 @@ import { MapView, type View } from "../map/MapView";
 import { useFollow } from "../map/useFollow";
 import { useNavigation } from "../nav/useNavigation";
 import { NavPanel } from "../components/NavPanel";
-import type { LocationStatus } from "../map/useLocation";
 import { importGpx, MAX_GPX_BYTES, parseGpx } from "../io/gpx";
-import { storedPass } from "../live/huntStore";
+import { lastHunt, storedPass } from "../live/huntStore";
 import { api } from "../share/api";
 import { huntPath, navigate } from "../share/routes";
 import { PORTUGAL, storedImagery, storedView, storeImagery, storeView } from "../share/prefs";
 import { useMapDocument } from "../sync/useMapDocument";
 import { ImageryPicker } from "../components/ImageryPicker";
-import { MapPanel, type PanelActions } from "../components/MapPanel";
+import { AccountSheet, MenuButton, type AccountActions } from "../components/AccountSheet";
+import { MapBody, MapPeek, type PanelActions } from "../components/MapPanel";
+import { MapSwitcher } from "../components/MapSwitcher";
 import { Notice } from "../components/Notice";
 import { OfflineDialog } from "../components/OfflineDialog";
-import { JoinHuntDialog, StartHuntDialog } from "../components/hunt/HuntDialogs";
+import { HuntChooser, JoinHuntDialog, StartHuntDialog } from "../components/hunt/HuntDialogs";
 import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
-import { noticeButton, noticeQuiet } from "../components/ui";
+import { noticeButton, noticeQuiet, topLeft } from "../components/ui";
 import { DrawBar } from "../components/editor/DrawBar";
 import { HistoryButtons, ToolRail } from "../components/editor/EditRail";
 import { FeatureDetails, FeatureHeader } from "../components/editor/FeatureEditor";
@@ -50,13 +51,6 @@ import { useEditing } from "../components/editor/useEditing";
 
 /** The left panel's width plus its margins, on wide screens. */
 const PANEL_PX = 392;
-
-const STATUS: Record<Exclude<LocationStatus, "on">, MessageKey> = {
-  off: "locate.off",
-  asking: "locate.asking",
-  denied: "locate.denied",
-  unavailable: "locate.unavailable",
-};
 
 type DialogState =
   | { kind: "auth"; mode: AuthMode }
@@ -68,6 +62,9 @@ type DialogState =
   | { kind: "offline" }
   | { kind: "startHunt" }
   | { kind: "joinHunt" }
+  | { kind: "hunt" }
+  | { kind: "maps" }
+  | { kind: "menu" }
   | null;
 
 export function MapScreen({ mapId }: { mapId: string | null }) {
@@ -86,6 +83,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
   const [dialog, setDialog] = useState<DialogState>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [imported, setImported] = useState<string | null>(null);
+  const [locateNoticeShut, setLocateNoticeShut] = useState(false);
   const follow = useFollow();
   const wide = useMedia("(min-width: 48rem)");
 
@@ -138,12 +136,20 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     if (error) setSaveError(t(errorKey(error)));
   };
 
+  const ownHunt = lastHunt();
+  const inHunt = !!ownHunt && !!storedPass(ownHunt);
+
   const actions: PanelActions = {
-    rename: (name) => dispatch({ type: "rename", name }),
+    openMaps: () => setDialog({ kind: "maps" }),
     choose: select,
     save: () => void save(),
     share: () => setDialog({ kind: "share" }),
-    startNew,
+    offline: () => setDialog({ kind: "offline" }),
+    hunt: () => (inHunt && ownHunt ? navigate(huntPath(ownHunt)) : setDialog({ kind: "hunt" })),
+    importFile: (file) => void importFile(file),
+  };
+
+  const accountActions: AccountActions = {
     signIn: () => setDialog({ kind: "auth", mode: "signin" }),
     register: () => setDialog({ kind: "auth", mode: "register" }),
     transfer: () => setDialog({ kind: "transfer" }),
@@ -154,10 +160,6 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
       }),
     deleteAccount: () => setDialog({ kind: "deleteAccount" }),
     deleteDevice: () => setDialog({ kind: "deleteDevice" }),
-    offline: () => setDialog({ kind: "offline" }),
-    startHunt: () => setDialog({ kind: "startHunt" }),
-    joinHunt: () => setDialog({ kind: "joinHunt" }),
-    importFile: (file) => void importFile(file),
   };
 
   /** A GPX file's tracks and waypoints onto this map, framed once they are in. */
@@ -222,28 +224,8 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
       />
     );
   } else {
-    peekContent = (
-      <div>
-        <h1 className="truncate text-xl leading-tight font-bold">{doc.coutada.name}</h1>
-        <p className="mt-1 flex items-center gap-2 text-[15px] text-xisto-soft" role="status">
-          {follow.status === "on" && <span className="size-2.5 shrink-0 rounded-full bg-person" aria-hidden />}
-          {follow.status === "on" && fix
-            ? t("locate.accuracy", { m: Math.round(fix.accuracy) })
-            : t(STATUS[follow.status as Exclude<LocationStatus, "on">] ?? "locate.off")}
-        </p>
-        <p className="mt-0.5 text-[13px] text-xisto-soft">{t(`sync.${sync}`)}</p>
-      </div>
-    );
-    body = (
-      <>
-        {saveError && (
-          <p role="alert" className="mb-4 text-[15px] text-[#a32a1d]">
-            {saveError}
-          </p>
-        )}
-        <MapPanel doc={doc} mapId={remote?.id ?? null} status={sync} fix={fix} actions={actions} />
-      </>
-    );
+    peekContent = <MapPeek doc={doc} status={sync} saved={!!remote} inHunt={inHunt} actions={actions} />;
+    body = <MapBody doc={doc} onChoose={select} />;
   }
 
   return (
@@ -300,6 +282,16 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         >
           {t("sync.missing")}
         </Notice>
+      ) : saveError ? (
+        <Notice
+          actions={
+            <button type="button" className={noticeQuiet} onClick={() => setSaveError(null)}>
+              {t("edit.close")}
+            </button>
+          }
+        >
+          {saveError}
+        </Notice>
       ) : imported ? (
         <Notice
           actions={
@@ -322,9 +314,22 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         >
           {t("imagery.failing", { source: t(`imagery.${imagery}` as MessageKey) })}
         </Notice>
+      ) : (follow.status === "denied" || follow.status === "unavailable") && !locateNoticeShut ? (
+        <Notice
+          actions={
+            <button type="button" className={noticeQuiet} onClick={() => setLocateNoticeShut(true)}>
+              {t("edit.close")}
+            </button>
+          }
+        >
+          {t(follow.status === "denied" ? "locate.denied" : "locate.unavailable")}
+        </Notice>
       ) : null}
 
-      {!hunting && <HistoryButtons editor={editor} dispatch={dispatch} />}
+      <div className={topLeft}>
+        <MenuButton onClick={() => setDialog({ kind: "menu" })} />
+        {!hunting && <HistoryButtons editor={editor} dispatch={dispatch} />}
+      </div>
 
       <p className="pointer-events-none absolute bottom-[calc(var(--peek)+0.5rem)] left-3 z-10 rounded-md bg-cal/80 px-2 py-0.5 text-[11px] text-xisto md:bottom-3 md:left-[404px]">
         {imageryOf(imagery).attribution}
@@ -362,6 +367,25 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
       {dialog?.kind === "offline" && <OfflineDialog doc={doc} imagery={imagery} onClose={() => setDialog(null)} />}
       {dialog?.kind === "startHunt" && remote && <StartHuntDialog mapId={remote.id} onClose={() => setDialog(null)} />}
       {dialog?.kind === "joinHunt" && <JoinHuntDialog onClose={() => setDialog(null)} />}
+      {dialog?.kind === "hunt" && (
+        <HuntChooser
+          canStart={!!remote && hasIdentity(me)}
+          onStart={() => setDialog({ kind: "startHunt" })}
+          onJoin={() => setDialog({ kind: "joinHunt" })}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.kind === "maps" && (
+        <MapSwitcher
+          name={doc.coutada.name}
+          mapId={remote?.id ?? null}
+          unsavedLocal={sync === "local" && doc.features.length > 0}
+          onRename={(name) => dispatch({ type: "rename", name })}
+          onNew={startNew}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.kind === "menu" && <AccountSheet actions={accountActions} onClose={() => setDialog(null)} />}
       {dialog?.kind === "share" && remote && (
         <ShareDialog mapId={remote.id} slug={shareSlug} onSlug={setShareSlug} onClose={() => setDialog(null)} />
       )}

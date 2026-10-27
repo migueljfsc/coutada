@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import { Layers, Locate, LocateFixed } from "lucide-react";
+import { CloudDownload, Layers, Locate, LocateFixed, LogIn, Radio } from "lucide-react";
 import { DEFAULT_IMAGERY, type ImageryId } from "../doc/catalogue";
 import { loadMapDoc } from "../doc/migrate";
 import { featureById } from "../doc/operations";
@@ -19,6 +19,7 @@ import { useFollow } from "../map/useFollow";
 import { useNavigation } from "../nav/useNavigation";
 import { NavPanel } from "../components/NavPanel";
 import { api } from "../share/api";
+import { navigate } from "../share/routes";
 import { storedImagery, storeImagery } from "../share/prefs";
 import { bboxOf, type Position } from "../geo/geo";
 import { ImageryPicker } from "../components/ImageryPicker";
@@ -27,7 +28,7 @@ import { Sheet } from "../components/Sheet";
 import { primaryButton } from "../components/ui";
 import { FeatureHeader, NavigateButton } from "../components/editor/FeatureEditor";
 import { FeatureList } from "../components/editor/FeatureList";
-import { HuntSection, OfflineSection } from "../components/MapPanel";
+import { Tile } from "../components/MapPanel";
 import { JoinHuntDialog } from "../components/hunt/HuntDialogs";
 import { OfflineDialog } from "../components/OfflineDialog";
 
@@ -101,9 +102,18 @@ export function SharedScreen({ slug }: { slug: string }) {
   ) : feature ? (
     <FeatureHeader feature={feature} onClose={() => setSelected(null)} />
   ) : (
-    <div>
-      <h1 className="truncate text-xl leading-tight font-bold">{doc?.coutada.name ?? t("auth.working")}</h1>
-      <p className="mt-1 text-[15px] text-xisto-soft">{t("shared.readOnly")}</p>
+    <div className="flex flex-col gap-3">
+      <div>
+        <h1 className="truncate text-[22px] leading-tight font-bold">{doc?.coutada.name ?? t("auth.working")}</h1>
+        <p className="text-[14px] text-xisto-soft">{t("shared.readOnly")}</p>
+      </div>
+      {doc && (
+        <div className="grid grid-cols-3 gap-2">
+          <Tile icon={<Radio size={22} />} label={t("tile.join")} onClick={() => setJoining(true)} />
+          <Tile icon={<CloudDownload size={22} />} label={t("tile.offline")} onClick={() => setOffline(true)} />
+          <Tile icon={<LogIn size={22} />} label={t("tile.openApp")} onClick={() => navigate("/")} />
+        </div>
+      )}
     </div>
   );
 
@@ -117,15 +127,10 @@ export function SharedScreen({ slug }: { slug: string }) {
       {feature.properties.note && <p className="text-[16px] leading-snug whitespace-pre-wrap">{feature.properties.note}</p>}
     </div>
   ) : doc ? (
-    <div className="flex flex-col gap-6">
+    <section className="flex flex-col gap-1">
+      <h3 className="text-[15px] font-semibold">{t("maps.drawn")}</h3>
       <FeatureList doc={doc} onChoose={(id) => setSelected(id)} />
-      <HuntSection canStart={false} onJoin={() => setJoining(true)} />
-      <OfflineSection onDownload={() => setOffline(true)} />
-      <p className="border-l-4 border-person pl-3 text-[15px] leading-snug">{t("safety.notice")}</p>
-      <a href="/" className={primaryButton}>
-        {t("shared.openApp")}
-      </a>
-    </div>
+    </section>
   ) : null;
 
   return (
