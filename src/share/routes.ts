@@ -1,6 +1,7 @@
 /**
  * The app's routes: `/` the map you were on, `/map/<id>` a saved map, `/m/<slug>` a shared map,
- * `/hunt/<id>` a live hunt, `/transfer?c=<code>` a device handed over. History is the browser's; `navigate` pushes.
+ * `/hunt/<id>` a live hunt, `/transfer?c=<code>` a device handed over, `/admin` the operator's
+ * view. History is the browser's; `navigate` pushes.
  */
 
 import { useSyncExternalStore } from "react";
@@ -10,7 +11,8 @@ export type Route =
   | { kind: "map"; id: string }
   | { kind: "shared"; slug: string }
   | { kind: "hunt"; id: string }
-  | { kind: "transfer"; code: string };
+  | { kind: "transfer"; code: string }
+  | { kind: "admin" };
 
 const MAP = /^\/map\/([A-Za-z0-9_-]{22})\/?$/;
 const SHARED = /^\/m\/([2-9bcdfghjkmnpqrstvwxz]{8})\/?$/;
@@ -24,6 +26,7 @@ export function parseRoute(pathname: string, search: string): Route {
   const shared = SHARED.exec(pathname);
   if (shared) return { kind: "shared", slug: shared[1] };
   if (pathname === "/transfer") return { kind: "transfer", code: new URLSearchParams(search).get("c") ?? "" };
+  if (pathname === "/admin" || pathname === "/admin/") return { kind: "admin" };
   return { kind: "home" };
 }
 

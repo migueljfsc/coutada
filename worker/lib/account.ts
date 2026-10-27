@@ -6,6 +6,7 @@
 import { clearedDeviceCookie, resolveDevice, type Device } from "./devices";
 import { fail, json, readJson } from "./http";
 import { MAX_MAPS_PER_USER } from "./limits";
+import { isAdmin } from "./operator";
 import { clearedSessionCookie, resolveSession, type SessionUser } from "./session";
 
 async function countMaps(env: Env, column: "owner_user_id" | "owner_device_id", id: string): Promise<number> {
@@ -19,7 +20,7 @@ export async function me(env: Env, request: Request, now: number): Promise<Respo
   const device = await resolveDevice(env, request, now);
   const claimable = user && device ? { maps: await countMaps(env, "owner_device_id", device.id) } : null;
   return json({
-    user: user && { id: user.id, email: user.email, displayName: user.displayName },
+    user: user && { id: user.id, email: user.email, displayName: user.displayName, admin: isAdmin(user, env.ADMIN_EMAILS) },
     device: device && { username: device.username },
     claimable,
   });

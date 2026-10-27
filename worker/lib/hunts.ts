@@ -9,6 +9,7 @@ import { newId, randomCode } from "./crypto";
 import { clientIp, fail, json, limited, readJson } from "./http";
 import { ownerColumn, type Principal } from "./principal";
 import { passesTurnstile } from "./turnstile";
+import { bump } from "./usage";
 import { HUNT_TYPES, type HuntType } from "../../src/live/protocol";
 import { loadMapDoc } from "../../src/doc/migrate";
 
@@ -80,6 +81,7 @@ export async function createHunt(env: Env, request: Request, principal: Principa
     doc: loaded.doc,
     host: { name: nameOf(principal), verified: principal.kind === "user" },
   });
+  await bump(env, type === "salto" ? "hunt.salto" : "hunt.montaria", now);
   return json({ hunt: { id, code }, member: host }, 201);
 }
 
@@ -99,6 +101,7 @@ export async function joinHunt(env: Env, request: Request, principal: Principal 
 
   const joined = await huntStub(env, hunt.id).join({ name, verified: principal?.kind === "user" });
   if (!joined.ok) return fail("not_found", 404);
+  await bump(env, "hunt.join", now);
   return json({ hunt: { id: hunt.id }, member: { id: joined.memberId, token: joined.token } });
 }
 

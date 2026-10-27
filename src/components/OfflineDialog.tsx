@@ -15,6 +15,7 @@ import { imageryOf } from "../map/imagery";
 import type { ImageryId } from "../doc/catalogue";
 import { clearPacks, downloadPack, packTileCount, type Progress } from "../offline/download";
 import { areaOf, planPack, type Detail } from "../offline/plan";
+import { count } from "../share/usage";
 
 type Connection = { type?: string; saveData?: boolean };
 
@@ -53,6 +54,7 @@ export function OfflineDialog({ doc, imagery, onClose }: { doc: MapDoc; imagery:
     abort.current = new AbortController();
     setFinished(null);
     setProgress({ done: 0, failed: 0, total: plan.tiles.length, bytes: 0 });
+    count("offline.download");
     const result = await downloadPack(plan, source, abort.current.signal, setProgress);
     setProgress(null);
     setFinished(result);

@@ -13,4 +13,6 @@ interface Env {
   TURNSTILE_SECRET_KEY: string;
   /** Keys the stored password MACs (D4). Never rotated: losing it locks out every password account. */
   PASSWORD_PEPPER: string;
+  /** Comma-separated addresses that may open /admin (D26); unset, nobody can. */
+  ADMIN_EMAILS?: string;
 }

@@ -33,6 +33,7 @@ import { lastHunt, storedPass } from "../live/huntStore";
 import { api } from "../share/api";
 import { huntPath, navigate } from "../share/routes";
 import { PORTUGAL, storedImagery, storedView, storeImagery, storeView } from "../share/prefs";
+import { count } from "../share/usage";
 import { useMapDocument } from "../sync/useMapDocument";
 import { ImageryPicker } from "../components/ImageryPicker";
 import { AccountSheet, MenuButton, type AccountActions } from "../components/AccountSheet";
@@ -171,6 +172,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     if (file.size > MAX_IMPORT_BYTES) return setImported(t("import.tooBig"));
     const read = readInto(doc, file.name, await file.text(), newFeatureId, Date.now());
     if (!read.ok) return setImported(t(`import.${read.error}`));
+    count(`import.${read.format}`);
     const result = read.imported;
     dispatch({ type: "import", doc: result.doc });
     const box = bboxOf(

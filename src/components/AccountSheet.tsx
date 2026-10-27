@@ -4,11 +4,12 @@
  */
 
 import type { ReactNode } from "react";
-import { Download, LogOut, Smartphone, Trash2, UserRound } from "lucide-react";
+import { ChartColumn, Download, LogOut, Smartphone, Trash2, UserRound } from "lucide-react";
 import { useAccount } from "../account/context";
 import { useI18n } from "../i18n/context";
 import { LOCALES } from "../i18n/core";
 import { useInstall } from "../lib/useInstall";
+import { navigate } from "../share/routes";
 import { Dialog } from "./Dialog";
 import { RailButton } from "./RailButton";
 import { primaryButton, secondaryButton } from "./ui";
@@ -118,6 +119,11 @@ export function AccountSheet({ actions, onClose }: { actions: AccountActions; on
               ))}
             </div>
           </div>
+          {me?.user?.admin && (
+            <Row icon={<ChartColumn size={20} />} onClick={act(() => navigate("/admin"))}>
+              {t("menu.admin")}
+            </Row>
+          )}
           {me?.user && (
             <Row icon={<LogOut size={20} />} onClick={act(actions.signOut)}>
               {t("account.signOut")}

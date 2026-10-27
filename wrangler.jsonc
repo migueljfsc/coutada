@@ -34,7 +34,8 @@
     { "name": "AUTH_LIMIT", "namespace_id": "2001", "simple": { "limit": 10, "period": 60 } },
     { "name": "WRITE_LIMIT", "namespace_id": "2002", "simple": { "limit": 10, "period": 60 } },
     { "name": "MAP_LIMIT", "namespace_id": "2003", "simple": { "limit": 60, "period": 60 } },
-    { "name": "JOIN_LIMIT", "namespace_id": "2004", "simple": { "limit": 5, "period": 60 } }
+    { "name": "JOIN_LIMIT", "namespace_id": "2004", "simple": { "limit": 5, "period": 60 } },
+    { "name": "USAGE_LIMIT", "namespace_id": "2005", "simple": { "limit": 30, "period": 60 } }
   ],
 
   // One object per live hunt, SQLite-backed (the free plan's kind), used only through the EU

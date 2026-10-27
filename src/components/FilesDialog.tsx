@@ -11,6 +11,7 @@ import { toGeoJson } from "../io/geojson";
 import { toGpx } from "../io/gpx";
 import { toKml } from "../io/kml";
 import { download, fileStem } from "../lib/download";
+import { count } from "../share/usage";
 import { Dialog } from "./Dialog";
 import { primaryButton } from "./ui";
 
@@ -58,7 +59,10 @@ export function FilesDialog({ doc, onFile, onClose }: { doc: MapDoc; onFile: (fi
                 <button
                   type="button"
                   disabled={doc.features.length === 0}
-                  onClick={() => download(`${fileStem(doc.coutada.name)}.${format}`, type, write(doc))}
+                  onClick={() => {
+                    download(`${fileStem(doc.coutada.name)}.${format}`, type, write(doc));
+                    count(`export.${format}`);
+                  }}
                   className="flex min-h-14 w-full items-center gap-3 rounded-[12px] px-2 py-2 text-left active:bg-cal-deep disabled:opacity-50"
                 >
                   <FileDown size={20} className="shrink-0" aria-hidden />

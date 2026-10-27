@@ -10,7 +10,8 @@ import { type Imported, importInto, isEmpty } from "./incoming";
 import { parseKml } from "./kml";
 
 export type ReadError = "kmz" | "unknown" | "empty" | "full";
-export type Read = { ok: true; imported: Imported } | { ok: false; error: ReadError };
+export type Format = "gpx" | "kml" | "geojson";
+export type Read = { ok: true; imported: Imported; format: Format } | { ok: false; error: ReadError };
 
 export function readInto(doc: MapDoc, fileName: string, text: string, ids: () => FeatureId, now: number): Read {
   if (/\.kmz$/i.test(fileName) || text.startsWith("PK")) return { ok: false, error: "kmz" };
@@ -18,6 +19,7 @@ export function readInto(doc: MapDoc, fileName: string, text: string, ids: () =>
   const trimmed = text.trimStart();
 
   let imported: Imported;
+  let format: Format = "geojson";
   if (trimmed.startsWith("{")) {
     const read = parseGeoJson(text);
     if (!read) return { ok: false, error: "unknown" };
@@ -29,10 +31,12 @@ export function readInto(doc: MapDoc, fileName: string, text: string, ids: () =>
       imported = importInto(doc, read.incoming, ids, now, fallback);
     }
   } else {
-    const incoming = parseGpx(text) ?? parseKml(text);
+    const gpx = parseGpx(text);
+    const incoming = gpx ?? parseKml(text);
     if (!incoming) return { ok: false, error: "unknown" };
+    format = gpx ? "gpx" : "kml";
     if (isEmpty(incoming)) return { ok: false, error: "empty" };
     imported = importInto(doc, incoming, ids, now, fallback);
   }
-  return imported.added.length === 0 ? { ok: false, error: "full" } : { ok: true, imported };
+  return imported.added.length === 0 ? { ok: false, error: "full" } : { ok: true, imported, format };
 }

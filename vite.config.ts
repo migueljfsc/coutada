@@ -49,6 +49,7 @@ export default defineConfig(() => ({
               bindings: {
                 TEST_MIGRATIONS: await readD1Migrations(path.resolve(import.meta.dirname, "worker/migrations")),
                 PASSWORD_PEPPER: "test-pepper",
+                ADMIN_EMAILS: "operator@example.com, Second@Example.com",
                 TURNSTILE_SECRET_KEY: "test-turnstile",
                 RESEND_API_KEY: "test-resend",
                 GOOGLE_CLIENT_ID: "test-client",

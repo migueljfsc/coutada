@@ -8,6 +8,7 @@ import { randomCode, newId } from "./crypto";
 import { fail, json, limited, readJson } from "./http";
 import { MAX_MAP_REQUEST_BYTES, MAX_MAPS_PER_DEVICE, MAX_MAPS_PER_USER, SLUG_ALPHABET, SLUG_ATTEMPTS, SLUG_LENGTH } from "./limits";
 import { huntOnMap } from "./hunts";
+import { bump } from "./usage";
 import { ownerColumn, principalKey, type Principal } from "./principal";
 
 export interface MapCtx {
@@ -113,6 +114,7 @@ export async function publishMap(ctx: MapCtx, id: string): Promise<Response> {
     const slug = randomCode(SLUG_ALPHABET, SLUG_LENGTH);
     try {
       await ctx.env.DB.prepare("UPDATE maps SET share_slug = ?1 WHERE id = ?2").bind(slug, id).run();
+      await bump(ctx.env, "share.live", ctx.now);
       return json({ slug });
     } catch {
       // The unique index decides a collision; try another slug.

@@ -25,7 +25,7 @@ export async function api<T = Record<string, unknown>>(method: string, path: str
 }
 
 export type Me = {
-  user: { id: string; email: string; displayName: string | null } | null;
+  user: { id: string; email: string; displayName: string | null; admin?: boolean } | null;
   device: { username: string } | null;
   claimable: { maps: number } | null;
 };

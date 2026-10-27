@@ -6,6 +6,7 @@
  */
 
 import { claim, deleteAccount, me } from "./lib/account";
+import { adminDeleteUser, adminStats, adminUser } from "./lib/admin";
 import { login, register, requestReset, resetPassword, verifyEmail, type AuthCtx } from "./lib/auth";
 import { sweep } from "./lib/cleanup";
 import { readCookie } from "./lib/cookies";
@@ -27,8 +28,10 @@ import { timingSafeEqual } from "./lib/crypto";
 import { fail, json, secured } from "./lib/http";
 import { connectHunt, createHunt, joinHunt } from "./lib/hunts";
 import { createMap, deleteMap, getMap, listMaps, publishMap, readShare, unpublishMap, updateMap, type MapCtx } from "./lib/maps";
+import { isAdmin } from "./lib/operator";
 import { resolvePrincipal } from "./lib/principal";
 import { clearedSessionCookie, createSession, destroySession, resolveSession, sessionCookie, SESSION_TTL_S } from "./lib/session";
+import { countUsage } from "./lib/usage";
 import { userForGoogleIdentity } from "./lib/users";
 
 export { Hunt } from "./hunt/object";
@@ -151,6 +154,10 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
       const principal = await resolvePrincipal(env, request, now);
       return principal ? createHunt(env, request, principal, now) : fail("unauthorized", 401);
     }
+    // Anonymous usage counters (D26): no session, a fixed list of events, capped rows.
+    case "POST /api/usage":
+      return countUsage(env, request, now);
+
     case "POST /api/hunts/join":
       return joinHunt(env, request, await resolvePrincipal(env, request, now), now);
 
@@ -162,6 +169,9 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
       return request.method === "GET" ? listMaps(mapCtx) : createMap(mapCtx);
     }
   }
+
+  const admin = await adminRoute(env, request, url, now);
+  if (admin) return admin;
 
   const huntWs = HUNT_WS.exec(url.pathname);
   if (huntWs && request.method === "GET") return connectHunt(env, request, huntWs[1], url.origin);
@@ -184,4 +194,23 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
   }
 
   return fail("not_found", 404);
+}
+
+const ADMIN_STATS = /^\/api\/admin\/stats$/;
+const ADMIN_USER = new RegExp(`^/api/admin/users/${ID}$`);
+
+/**
+ * The operator's surface (D26). Reads are GETs; the one write is DELETE on a user. Anything under
+ * /api/admin/ that is not one of those, not signed in or not an admin answers the same 404, so
+ * none of it can be told apart from a path that does not exist.
+ */
+async function adminRoute(env: Env, request: Request, url: URL, now: number): Promise<Response | null> {
+  if (!url.pathname.startsWith("/api/admin/")) return null;
+  const userId = ADMIN_USER.exec(url.pathname)?.[1];
+  const read = request.method === "GET" && (ADMIN_STATS.test(url.pathname) || userId !== undefined);
+  const erase = request.method === "DELETE" && userId !== undefined;
+  if (!read && !erase) return fail("not_found", 404);
+  if (!isAdmin(await resolveSession(env, request, now), env.ADMIN_EMAILS)) return fail("not_found", 404);
+  if (erase) return adminDeleteUser(env, request, userId);
+  return userId ? adminUser(env, now, userId) : adminStats(env, now);
 }

@@ -4,7 +4,7 @@
  * account once (D6).
  */
 
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { AuthDialog } from "./account/AuthDialog";
 import { useAccount } from "./account/context";
 import { errorKey } from "./account/errors";
@@ -18,8 +18,18 @@ import { SharedScreen } from "./pages/SharedScreen";
 import { api } from "./share/api";
 import { dropParams, navigate, useRoute } from "./share/routes";
 
+/** The operator's page is its own chunk: nobody else ever loads it. */
+const AdminScreen = lazy(() => import("./pages/AdminScreen"));
+
 export function App() {
   const route = useRoute();
+  if (route.kind === "admin") {
+    return (
+      <Suspense fallback={null}>
+        <AdminScreen />
+      </Suspense>
+    );
+  }
   return (
     <>
       {route.kind === "shared" ? (

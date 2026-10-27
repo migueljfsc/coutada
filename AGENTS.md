@@ -81,6 +81,9 @@ local dry run — CI owns the deploy.
 - **Never mix a bare `?` with `?N` in one statement** — SQLite binds the wrong value, silently.
 - **A new table that stores anything about a person joins `deleteAccount`'s list** (D22); a new
   table with an expiry joins the daily sweep.
+- **`/api/admin/*` answers 404 to everyone but an operator** (D26): a new admin route goes through
+  `adminRoute`, which checks the session only once the path matches. A new usage event joins
+  `USAGE_EVENTS` in the Worker, and `BROWSER_EVENTS` too if the browser sends it.
 
 ### Map (D18, D24)
 - **MapLibre's stylesheet is unlayered, so it beats Tailwind utilities.** `.maplibregl-map` sets

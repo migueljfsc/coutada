@@ -343,6 +343,7 @@ export const pt: Dictionary = {
   "menu.title": "Conta e definições",
   "menu.thisPhone": "Nome deste telemóvel",
   "menu.signIn": "Entrar",
+  "menu.admin": "Utilização do site",
   "hunt.startHere": "Começar uma caçada neste mapa",
   "hunt.startDetail": "Organiza você, e recebe um código para os outros entrarem.",
   "hunt.needsSave": "Guarde este mapa primeiro: a caçada usa o mapa guardado.",

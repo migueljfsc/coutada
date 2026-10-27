@@ -355,6 +355,21 @@ person and the app (signing in, the phone's name, moving to another device, inst
 language, erasing) sits behind the round menu button in the map's top-left corner. The safety
 notice belongs to the hunt: its screen and its start and join dialogs.
 
+## D26 — The operator's view and everybody's use
+pb-D108 and pb-D119, for maps and hunts. `/admin` shows accounts, phones without one, maps,
+shared links and live hunts, with 90 UTC days of sign-ups and maps, the sign-in split and last-seen
+recency; one account's maps (features, size, link, a live hunt); and erases an account, its address
+typed again. **Gated by `ADMIN_EMAILS`**, a secret, against the session's verified address: every
+path under `/api/admin/` answers 404 to anyone else. **Metadata only**, computed in D1: no map's
+contents, no position. English only, its own chunk, linked from the menu when `/api/me` says
+`admin`.
+
+`usage_daily` keeps one number per UTC day per event, naming no one: pages opened (map, shared map,
+hunt), hunts started by type and joined, links shared, areas downloaded, files imported and exported
+by format. Hunts and links are counted by the Worker as they happen; the rest by the browser,
+through `POST /api/usage`, the one unauthenticated write: a fixed list (the browser's held inside
+the Worker's by a test), `USAGE_LIMIT` by address, and a cap per row. Kept 400 days by the sweep.
+
 ## D21 — Import and export: GeoJSON, GPX and KML
 Files are added to the open map, from the Ficheiros tile, read from a file's text (20 MB at most)
 by pure readers in `src/io/`, which the tests run without a DOM. The format is told by the

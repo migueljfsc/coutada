@@ -351,6 +351,7 @@ export const en = {
   "menu.title": "Account and settings",
   "menu.thisPhone": "This phone's name",
   "menu.signIn": "Sign in",
+  "menu.admin": "Site usage",
   "hunt.startHere": "Start a hunt on this map",
   "hunt.startDetail": "You organise it, and get a code for the others to join.",
   "hunt.needsSave": "Save this map first: the hunt runs on the saved map.",
