@@ -10,5 +10,5 @@ export const noticeButton = "min-h-11 shrink-0 rounded-[8px] bg-anil px-3 text-[
 export const noticeQuiet = "min-h-11 shrink-0 rounded-[8px] bg-cal-deep px-3 text-[15px] font-semibold";
 /** The map's top-left corner, clear of the wide panel: undo and redo. */
 export const topLeft = "absolute top-[max(0.75rem,env(safe-area-inset-top))] left-3 z-10 flex gap-2 md:left-[404px]";
-/** The map's top-right corner: the menu button. */
-export const topRight = "absolute top-[max(0.75rem,env(safe-area-inset-top))] right-3 z-10";
+/** The map's top-right corner: search and the menu button. */
+export const topRight = "absolute top-[max(0.75rem,env(safe-area-inset-top))] right-3 z-10 flex gap-2";

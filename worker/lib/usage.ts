@@ -16,6 +16,7 @@ export const USAGE_EVENTS = [
   "hunt.salto",
   "hunt.join",
   "share.live",
+  "search.place",
   "offline.download",
   "import.gpx",
   "import.kml",

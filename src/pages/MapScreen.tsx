@@ -17,7 +17,7 @@ import { DEFAULT_IMAGERY, type ImageryId } from "../doc/catalogue";
 import { newFeatureId } from "../doc/ids";
 import { featureById } from "../doc/operations";
 import type { FeatureId } from "../doc/types";
-import { bboxOf } from "../geo/geo";
+import { bboxOf, type Position } from "../geo/geo";
 import { type MessageKey } from "../i18n/core";
 import { useI18n } from "../i18n/context";
 import { useMedia } from "../lib/useMedia";
@@ -40,6 +40,9 @@ import { AccountSheet, MenuButton, type AccountActions } from "../components/Acc
 import { MapBody, MapPeek, type PanelActions } from "../components/MapPanel";
 import { MapSwitcher } from "../components/MapSwitcher";
 import { FilesDialog } from "../components/FilesDialog";
+import { SearchButton } from "../components/SearchButton";
+import { SearchDialog, type SearchHit } from "../components/SearchDialog";
+import { frameFound } from "../map/camera";
 import { Notice } from "../components/Notice";
 import { OfflineDialog } from "../components/OfflineDialog";
 import { HuntChooser, JoinHuntDialog, StartHuntDialog } from "../components/hunt/HuntDialogs";
@@ -69,6 +72,7 @@ type DialogState =
   | { kind: "maps" }
   | { kind: "menu" }
   | { kind: "files" }
+  | { kind: "search" }
   | null;
 
 export function MapScreen({ mapId }: { mapId: string | null }) {
@@ -88,6 +92,8 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [imported, setImported] = useState<string | null>(null);
   const [locateNoticeShut, setLocateNoticeShut] = useState(false);
+  /** Where the last search went, ringed until the next tap on the map. */
+  const [target, setTarget] = useState<Position | null>(null);
   const follow = useFollow();
   const wide = useMedia("(min-width: 48rem)");
 
@@ -108,8 +114,8 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
   const navTarget = navigation ? featureById(doc, navigation.target.id) : undefined;
   const shown = navigation ? navigation.target.id : selected;
   const rendered = useMemo(
-    () => render(doc, { selected: shown, tool, editing: !navigation, vertex, guide: navigation?.guide ?? null }),
-    [doc, shown, tool, vertex, navigation],
+    () => render(doc, { selected: shown, tool, editing: !navigation, vertex, guide: navigation?.guide ?? null, target }),
+    [doc, shown, tool, vertex, navigation, target],
   );
 
   const navigateTo = (id: FeatureId) => {
@@ -186,6 +192,20 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
     setImported(result.left > 0 ? t("import.partial", { n: result.added.length, left: result.left }) : tn("import.added", result.added.length));
   };
 
+  const goTo = (hit: SearchHit) => {
+    if (hit.kind === "feature") {
+      setTarget(null);
+      select(hit.id);
+      return;
+    }
+    const at = hit.kind === "coords" ? hit.at : hit.place.at;
+    setTarget(at);
+    follow.release();
+    const m = follow.map.current;
+    if (m) frameFound(m, at, hit.kind === "place" ? hit.place.bbox : null, hit.kind === "coords" ? 16 : 14);
+    if (!wide) setSheetOpen(false);
+  };
+
   const afterErase = async () => {
     setDialog(null);
     await refresh();
@@ -243,7 +263,10 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         onReady={follow.attach}
         onViewChange={storeView}
         onImageryFailing={setImageryFailing}
-        onTap={onTap}
+        onTap={(at, hit, handle) => {
+          setTarget(null);
+          onTap(at, hit, handle);
+        }}
         onDrag={hunting ? undefined : onDrag}
       />
 
@@ -335,6 +358,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         </div>
       )}
       <div className={topRight}>
+        <SearchButton onClick={() => setDialog({ kind: "search" })} />
         <MenuButton onClick={() => setDialog({ kind: "menu" })} />
       </div>
 
@@ -393,6 +417,7 @@ export function MapScreen({ mapId }: { mapId: string | null }) {
         />
       )}
       {dialog?.kind === "menu" && <AccountSheet actions={accountActions} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "search" && <SearchDialog doc={doc} onGo={goTo} onClose={() => setDialog(null)} />}
       {dialog?.kind === "files" && <FilesDialog doc={doc} onFile={(file) => void importFile(file)} onClose={() => setDialog(null)} />}
       {dialog?.kind === "share" && remote && (
         <ShareDialog mapId={remote.id} slug={shareSlug} onSlug={setShareSlug} onClose={() => setDialog(null)} />

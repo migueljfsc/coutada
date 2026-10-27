@@ -32,7 +32,10 @@ import { RailButton } from "../components/RailButton";
 import { Sheet } from "../components/Sheet";
 import { Dialog } from "../components/Dialog";
 import { Notice } from "../components/Notice";
-import { noticeQuiet, primaryButton, secondaryButton, topLeft } from "../components/ui";
+import { noticeQuiet, primaryButton, secondaryButton, topLeft, topRight } from "../components/ui";
+import { SearchButton } from "../components/SearchButton";
+import { SearchDialog, type SearchHit } from "../components/SearchDialog";
+import { frameFound } from "../map/camera";
 import { DrawBar } from "../components/editor/DrawBar";
 import { HistoryButtons, ToolRail } from "../components/editor/EditRail";
 import { FeatureDetails, FeatureHeader } from "../components/editor/FeatureEditor";
@@ -66,6 +69,9 @@ export function HuntScreen({ huntId }: { huntId: string }) {
   const [sightingId, setSightingId] = useState<string | null>(null);
   /** A member's look at a drawing, which only the host edits. */
   const [viewingId, setViewingId] = useState<FeatureId | null>(null);
+  const [searching, setSearching] = useState(false);
+  /** Where the last search went, ringed until the next tap on the map. */
+  const [target, setTarget] = useState<Position | null>(null);
   const viewing = !host && viewingId ? featureById(editor.doc, viewingId) : undefined;
   const sighting = sightingId ? view.obs.find((o) => o.id === sightingId) : undefined;
 
@@ -92,8 +98,9 @@ export function HuntScreen({ huntId }: { huntId: string }) {
         trails,
         observations,
         sighting: sighting?.id ?? null,
+        target,
       }),
-    [editor.doc, editor.selected, editor.tool, host, viewing, editing.vertex, people, trails, observations, sighting],
+    [editor.doc, editor.selected, editor.tool, host, viewing, editing.vertex, people, trails, observations, sighting, target],
   );
 
   const stopAll = () => {
@@ -111,7 +118,24 @@ export function HuntScreen({ huntId }: { huntId: string }) {
     setPlacing(null);
   };
 
+  const goTo = (hit: SearchHit) => {
+    if (hit.kind === "feature") {
+      setTarget(null);
+      stopAll();
+      if (host) editing.select(hit.id);
+      else setViewingId(hit.id);
+      return;
+    }
+    const at = hit.kind === "coords" ? hit.at : hit.place.at;
+    setTarget(at);
+    follow.release();
+    const m = follow.map.current;
+    if (m) frameFound(m, at, hit.kind === "place" ? hit.place.bbox : null, hit.kind === "coords" ? 16 : 14);
+    if (!wide) setSheetOpen(false);
+  };
+
   const onTap = (at: Position, hit: FeatureId | null, handle: Handle | null) => {
+    setTarget(null);
     if (placing) return mark(placing, at);
     if (hit && editor.tool.kind === "idle" && view.obs.some((o) => o.id === hit)) {
       dispatch({ type: "select", id: null });
@@ -364,6 +388,10 @@ export function HuntScreen({ huntId }: { huntId: string }) {
           <HistoryButtons editor={editor} dispatch={dispatch} />
         </div>
       )}
+      <div className={topRight}>
+        <SearchButton onClick={() => setSearching(true)} />
+      </div>
+      {searching && <SearchDialog doc={editor.doc} onGo={goTo} onClose={() => setSearching(false)} />}
 
       <p className="pointer-events-none absolute bottom-[calc(var(--peek)+0.5rem)] left-3 z-10 rounded-md bg-cal/80 px-2 py-0.5 text-[11px] text-xisto md:bottom-3 md:left-[404px]">
         {imageryOf(imagery).attribution}

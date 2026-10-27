@@ -68,5 +68,8 @@ export function useFollow() {
 
   const label = status === "on" ? (following ? t("locate.stop") : t("locate.recenter")) : t("locate.start");
 
-  return { map, status, fix, following, onLocate, ensure, attach, label };
+  /** Stops keeping the camera on the person, for a move the app makes on their behalf. */
+  const release = useCallback(() => setFollowing(false), []);
+
+  return { map, status, fix, following, onLocate, ensure, attach, label, release };
 }

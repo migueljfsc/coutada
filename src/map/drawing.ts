@@ -120,6 +120,7 @@ export type Rendered = {
   people: Collection;
   trails: Collection;
   observations: Collection;
+  target: Collection;
 };
 
 /** Another hunter on the map: where, who, and how fresh the position is (D15). */
@@ -149,6 +150,8 @@ export type RenderOptions = {
   observations?: readonly Sighting[];
   /** The observation chosen on the map. */
   sighting?: string | null;
+  /** The place a search went to. */
+  target?: Position | null;
 };
 
 const IDLE: Tool = { kind: "idle" };
@@ -164,6 +167,7 @@ export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
     trails = [],
     observations = [],
     sighting = null,
+    target = null,
   } = options;
   const chosen = editing && selected ? doc.features.find((f) => f.id === selected) : undefined;
   return {
@@ -191,6 +195,7 @@ export function render(doc: MapDoc, options: RenderOptions = {}): Rendered {
         geometry: { type: "Point", coordinates: pos(o.at) },
       })),
     ),
+    target: collection(target ? [{ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: pos(target) } }] : []),
   };
 }
 

@@ -387,6 +387,17 @@ route. `share/zip.ts` writes it over `CompressionStream` with UTF-8 names, read 
 never are, what the imagery hosts see, what is counted (D26), the cookies, and how to download or
 erase it. It describes what the code does; a change to what is kept changes the page.
 
+## D28 — Search: places from OpenStreetMap, coordinates and drawings on the phone
+A round search button beside the menu opens one box for three things. **Coordinates**, as typed or
+pasted (decimal, degrees and minutes, degrees, minutes and seconds, signs or N/S/E/W, a decimal
+comma), read by a pure parser on the phone, so they work with no signal. **This map's drawings**,
+by name, as you type. **Places in Portugal and Spain**, from Nominatim (OpenStreetMap), on submit,
+as its policy asks: through `GET /api/places`, so Nominatim sees Coutada and not the person's
+address, cached for a week by query and language, and paced by `SEARCH_LIMIT`. Google's search was
+rejected for its billing account, MapTiler and Mapbox for a key, Photon for being best-effort.
+Results credit OpenStreetMap; the privacy page says where a search goes. The camera frames a
+place's extent or closes in on a point, and a ring marks it until the next tap.
+
 ## D21 — Import and export: GeoJSON, GPX and KML
 Files are added to the open map, from the Ficheiros tile, read from a file's text (20 MB at most)
 by pure readers in `src/io/`, which the tests run without a DOM. The format is told by the

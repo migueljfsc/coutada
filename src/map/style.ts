@@ -12,7 +12,7 @@ import { EMPTY, PERSON } from "./me";
 export type Style = Exclude<MapOptions["style"], string | undefined>;
 
 export const ME_SOURCE = "me";
-export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide", "people", "trails", "observations"] as const;
+export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide", "people", "trails", "observations", "target"] as const;
 export type DrawingSource = (typeof DRAWING_SOURCES)[number];
 export const imageryLayer = (id: ImageryId) => `imagery-${id}`;
 
@@ -151,6 +151,18 @@ const drawingLayers = [
       "icon-offset": ["case", ["==", ["get", "kind"], "pin"], ["literal", [0, 22]], ["literal", [0, 0]]],
       "icon-optional": true,
     },
+  },
+  {
+    id: "target",
+    type: "circle",
+    source: "target",
+    paint: { "circle-radius": 14, "circle-color": ANIL, "circle-opacity": 0.18, "circle-stroke-color": ANIL, "circle-stroke-width": 3 },
+  },
+  {
+    id: "target-dot",
+    type: "circle",
+    source: "target",
+    paint: { "circle-radius": 3, "circle-color": ANIL, "circle-stroke-color": BONE, "circle-stroke-width": 1.5 },
   },
   {
     id: "observations-halo",

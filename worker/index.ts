@@ -31,6 +31,7 @@ import { createMap, deleteMap, getMap, listMaps, publishMap, readShare, unpublis
 import { isAdmin } from "./lib/operator";
 import { resolvePrincipal } from "./lib/principal";
 import { clearedSessionCookie, createSession, destroySession, resolveSession, sessionCookie, SESSION_TTL_S } from "./lib/session";
+import { searchPlaces } from "./lib/places";
 import { countUsage } from "./lib/usage";
 import { userForGoogleIdentity } from "./lib/users";
 
@@ -154,6 +155,10 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
       const principal = await resolvePrincipal(env, request, now);
       return principal ? createHunt(env, request, principal, now) : fail("unauthorized", 401);
     }
+    // Place search through Nominatim (D28): no session; cached, and paced per address.
+    case "GET /api/places":
+      return searchPlaces(env, request, url, now);
+
     // Anonymous usage counters (D26): no session, a fixed list of events, capped rows.
     case "POST /api/usage":
       return countUsage(env, request, now);
