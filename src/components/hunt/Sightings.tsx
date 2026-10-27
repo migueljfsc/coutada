@@ -72,10 +72,10 @@ export function SightingPicker({
             key={subject}
             type="button"
             onClick={() => onPick(subject)}
-            className="flex min-h-14 items-center gap-3 rounded-[14px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white"
+            className="flex min-h-14 min-w-0 items-center gap-3 rounded-[14px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white"
           >
             <SightingIcon subject={subject} event={event} size={34} />
-            {t(`species.${subject}`)}
+            <span className="line-clamp-2 min-w-0 hyphens-auto [overflow-wrap:anywhere]">{t(`species.${subject}`)}</span>
           </button>
         ))}
       </div>

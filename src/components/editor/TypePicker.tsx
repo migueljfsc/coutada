@@ -10,7 +10,7 @@ export type Picking = "pin" | "line" | "area";
 const TYPES: Record<Picking, readonly FeatureType[]> = { pin: PIN_TYPES, line: ROUTE_TYPES, area: ZONE_TYPES };
 
 const choice =
-  "flex min-h-14 items-center gap-3 rounded-[14px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white";
+  "flex min-h-14 min-w-0 items-center gap-3 rounded-[14px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white";
 
 /** The choice that follows a rail tool: which kind of place, line or area, and for game, which species. */
 export function TypePicker({
@@ -54,13 +54,13 @@ export function TypePicker({
           ? SPECIES.map((species) => (
               <button key={species} type="button" onClick={() => onPick("game", species)} className={choice}>
                 <TypeIcon type="game" species={species} size={32} />
-                {t(`species.${species}`)}
+                <span className="line-clamp-2 min-w-0 hyphens-auto [overflow-wrap:anywhere]">{t(`species.${species}`)}</span>
               </button>
             ))
           : TYPES[picking].map((type) => (
               <button key={type} type="button" onClick={() => (type === "game" ? setGame(true) : onPick(type))} className={choice}>
                 <TypeIcon type={type} size={32} />
-                {t(`type.${type}` as MessageKey)}
+                <span className="line-clamp-2 min-w-0 hyphens-auto [overflow-wrap:anywhere]">{t(`type.${type}` as MessageKey)}</span>
               </button>
             ))}
       </div>
