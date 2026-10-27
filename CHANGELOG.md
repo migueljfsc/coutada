@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.12.0 (2026-10-27)
+
+### Feat
+
+- **hunt**: live drawing sync and sightings
+
 ## v0.11.0 (2026-10-26)
 
 ### Feat
