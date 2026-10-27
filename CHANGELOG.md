@@ -3,6 +3,12 @@
 Notable changes to Coutada. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); SemVer once releases begin.
 
+## v0.15.0 (2026-10-27)
+
+### Feat
+
+- **import**: GPX tracks, routes and waypoints onto the map
+
 ## v0.14.0 (2026-10-27)
 
 ### Feat
