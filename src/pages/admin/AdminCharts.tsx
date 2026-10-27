@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { ANIL, DAY_S, shortDate } from "./adminData";
+import { AZINHO, DAY_S, shortDate } from "./adminData";
 
 const SURFACE = "#e8e2d4";
 const GRID = "#d6d0c3";
@@ -229,22 +229,22 @@ export function LineChart({ values, since, unit }: { values: number[]; since: nu
                 {dateOf(i)}
               </text>
             ))}
-            <path d={area} fill={ANIL} opacity={0.08} />
-            <path d={line} fill="none" stroke={ANIL} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-            <circle cx={x(last)} cy={y(values[last])} r={4} fill={ANIL} stroke={SURFACE} strokeWidth={2} />
+            <path d={area} fill={AZINHO} opacity={0.08} />
+            <path d={line} fill="none" stroke={AZINHO} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+            <circle cx={x(last)} cy={y(values[last])} r={4} fill={AZINHO} stroke={SURFACE} strokeWidth={2} />
             <text x={x(last) + 8} y={y(values[last])} dy="0.32em" fontSize={12} fontWeight={700} fill="#23281f">
               {fmt(values[last])}
             </text>
             {hover !== null && (
               <>
                 <line x1={x(hover)} x2={x(hover)} y1={0} y2={PLOT_H} stroke={AXIS} strokeWidth={1} />
-                <circle cx={x(hover)} cy={y(values[hover])} r={4} fill={ANIL} stroke={SURFACE} strokeWidth={2} />
+                <circle cx={x(hover)} cy={y(values[hover])} r={4} fill={AZINHO} stroke={SURFACE} strokeWidth={2} />
               </>
             )}
           </g>
         </svg>
       )}
-      {hover !== null && <Tooltip x={x(hover)} value={`${fmt(values[hover])} ${unit}`} label={dateOf(hover)} color={ANIL} />}
+      {hover !== null && <Tooltip x={x(hover)} value={`${fmt(values[hover])} ${unit}`} label={dateOf(hover)} color={AZINHO} />}
     </div>
   );
 }
@@ -316,8 +316,8 @@ export function Sparkline({ values }: { values: number[] }) {
     <div ref={ref} className="mt-2" aria-hidden>
       {width > 0 && last && (
         <svg width={width} height={h}>
-          <path d={pts.map(([px, py], i) => `${i ? "L" : "M"}${px},${py}`).join("")} fill="none" stroke={ANIL} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" opacity={0.8} />
-          <circle cx={last[0]} cy={last[1]} r={3} fill={ANIL} />
+          <path d={pts.map(([px, py], i) => `${i ? "L" : "M"}${px},${py}`).join("")} fill="none" stroke={AZINHO} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" opacity={0.8} />
+          <circle cx={last[0]} cy={last[1]} r={3} fill={AZINHO} />
         </svg>
       )}
     </div>

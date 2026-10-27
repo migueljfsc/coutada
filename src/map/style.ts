@@ -16,7 +16,7 @@ export const DRAWING_SOURCES = ["shapes", "labels", "handles", "draft", "guide",
 export type DrawingSource = (typeof DRAWING_SOURCES)[number];
 export const imageryLayer = (id: ImageryId) => `imagery-${id}`;
 
-const ANIL = "#1e4fa0";
+const AZINHO = "#557945";
 const INK = "#23281f";
 const BONE = "#e8e2d4";
 
@@ -41,7 +41,7 @@ const drawingLayers = [
     type: "line",
     source: "shapes",
     filter: ["all", ["==", ["get", "sel"], 1], ["!=", ["get", "kind"], "pin"]],
-    paint: { "line-color": ANIL, "line-width": 11, "line-opacity": 0.6 },
+    paint: { "line-color": AZINHO, "line-width": 11, "line-opacity": 0.6 },
   },
   {
     id: "trails",
@@ -97,21 +97,21 @@ const drawingLayers = [
     type: "fill",
     source: "draft",
     filter: ["==", ["get", "role"], "area"],
-    paint: { "fill-color": ANIL, "fill-opacity": 0.18 },
+    paint: { "fill-color": AZINHO, "fill-opacity": 0.18 },
   },
   {
     id: "draft-line",
     type: "line",
     source: "draft",
     filter: ["in", ["get", "role"], ["literal", ["line", "area"]]],
-    paint: { "line-color": ANIL, "line-width": 3, "line-dasharray": [2, 1] },
+    paint: { "line-color": AZINHO, "line-width": 3, "line-dasharray": [2, 1] },
   },
   {
     id: "draft-vertex",
     type: "circle",
     source: "draft",
     filter: ["==", ["get", "role"], "vertex"],
-    paint: { "circle-radius": 6, "circle-color": BONE, "circle-stroke-color": ANIL, "circle-stroke-width": 3 },
+    paint: { "circle-radius": 6, "circle-color": BONE, "circle-stroke-color": AZINHO, "circle-stroke-width": 3 },
   },
   {
     id: "guide-casing",
@@ -125,14 +125,14 @@ const drawingLayers = [
     type: "line",
     source: "guide",
     layout: { "line-cap": "round" },
-    paint: { "line-color": ANIL, "line-width": 3, "line-dasharray": [1.5, 1.5] },
+    paint: { "line-color": AZINHO, "line-width": 3, "line-dasharray": [1.5, 1.5] },
   },
   {
     id: "pin-halo",
     type: "circle",
     source: "shapes",
     filter: ["all", kindIs("pin"), ["==", ["get", "sel"], 1]],
-    paint: { "circle-radius": 24, "circle-color": ANIL, "circle-opacity": 0.45 },
+    paint: { "circle-radius": 24, "circle-color": AZINHO, "circle-opacity": 0.45 },
   },
   {
     id: "pins",
@@ -156,20 +156,20 @@ const drawingLayers = [
     id: "target",
     type: "circle",
     source: "target",
-    paint: { "circle-radius": 14, "circle-color": ANIL, "circle-opacity": 0.18, "circle-stroke-color": ANIL, "circle-stroke-width": 3 },
+    paint: { "circle-radius": 14, "circle-color": AZINHO, "circle-opacity": 0.18, "circle-stroke-color": AZINHO, "circle-stroke-width": 3 },
   },
   {
     id: "target-dot",
     type: "circle",
     source: "target",
-    paint: { "circle-radius": 3, "circle-color": ANIL, "circle-stroke-color": BONE, "circle-stroke-width": 1.5 },
+    paint: { "circle-radius": 3, "circle-color": AZINHO, "circle-stroke-color": BONE, "circle-stroke-width": 1.5 },
   },
   {
     id: "observations-halo",
     type: "circle",
     source: "observations",
     filter: ["==", ["get", "sel"], 1],
-    paint: { "circle-radius": 24, "circle-color": ANIL, "circle-opacity": 0.45 },
+    paint: { "circle-radius": 24, "circle-color": AZINHO, "circle-opacity": 0.45 },
   },
   {
     id: "observations",
@@ -209,7 +209,7 @@ const drawingLayers = [
     type: "circle",
     source: "handles",
     filter: ["==", ["get", "role"], "mid"],
-    paint: { "circle-radius": 7, "circle-color": ANIL, "circle-opacity": 0.75, "circle-stroke-color": BONE, "circle-stroke-width": 2 },
+    paint: { "circle-radius": 7, "circle-color": AZINHO, "circle-opacity": 0.75, "circle-stroke-color": BONE, "circle-stroke-width": 2 },
   },
   {
     id: "handles-vertex",
@@ -219,7 +219,7 @@ const drawingLayers = [
     paint: {
       "circle-radius": ["case", ["==", ["get", "chosen"], 1], 12, 9],
       "circle-color": BONE,
-      "circle-stroke-color": ANIL,
+      "circle-stroke-color": AZINHO,
       "circle-stroke-width": 3,
     },
   },

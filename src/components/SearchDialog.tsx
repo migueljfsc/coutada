@@ -99,7 +99,7 @@ export function SearchDialog({ doc, onGo, onClose }: { doc: MapDoc | null; onGo:
           <button
             type="submit"
             disabled={!query.trim() || status === "busy"}
-            className="min-h-12 shrink-0 rounded-[10px] bg-anil px-4 text-[15px] font-semibold text-white disabled:opacity-50"
+            className="min-h-12 shrink-0 rounded-[10px] bg-azinho px-4 text-[15px] font-semibold text-white disabled:opacity-50"
           >
             {t("search.submit")}
           </button>
@@ -107,7 +107,7 @@ export function SearchDialog({ doc, onGo, onClose }: { doc: MapDoc | null; onGo:
 
         {coords && (
           <button type="button" onClick={() => go({ kind: "coords", at: coords })} className={row}>
-            <Crosshair size={22} className="shrink-0 text-anil" aria-hidden />
+            <Crosshair size={22} className="shrink-0 text-azinho-ink" aria-hidden />
             <span className="min-w-0">
               <span className="block text-[16px] font-semibold">{t("search.goToCoords")}</span>
               <span className="block text-[14px] text-xisto-soft tabular-nums">

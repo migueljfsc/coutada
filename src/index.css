@@ -33,8 +33,10 @@
   --color-xisto: #23281f;
   --color-xisto-soft: #4c5244;
   --color-rule: rgb(35 40 31 / 0.18);
-  /* Anil: the painted door band; what is selected and the primary action. */
-  --color-anil: #1e4fa0;
+  /* Azinho: holm-oak green; what is selected and the primary action. Azinho-ink is the same green
+     dark enough for text on the beiges. */
+  --color-azinho: #557945;
+  --color-azinho-ink: #3b5a2d;
   /* Blaze orange: people, and nothing else. */
   --color-person: #ff5a1f;
 
@@ -54,7 +56,7 @@ body,
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-anil);
+  outline: 3px solid var(--color-azinho);
   outline-offset: 2px;
 }
 

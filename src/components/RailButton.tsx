@@ -5,13 +5,13 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Drawn filled: on, or selected. */
   active?: boolean;
   /** Blaze orange when active, for anything that is about a person. */
-  tone?: "anil" | "person";
+  tone?: "azinho" | "person";
   children: ReactNode;
 };
 
 /** A square map control: 48 px, cal, with a label for screen readers and a tooltip. */
-export function RailButton({ label, active = false, tone = "anil", className = "", children, ...rest }: Props) {
-  const on = tone === "person" ? "bg-person text-white" : "bg-anil text-white";
+export function RailButton({ label, active = false, tone = "azinho", className = "", children, ...rest }: Props) {
+  const on = tone === "person" ? "bg-person text-white" : "bg-azinho text-white";
   return (
     <button
       type="button"

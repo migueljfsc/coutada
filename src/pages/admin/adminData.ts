@@ -1,7 +1,7 @@
 /**
  * The numbers behind the operator's charts (D26), their shapes, and their colours.
  *
- * One rule per colour. A single series wears anil, the app's own blue. The sign-in split takes
+ * One rule per colour. A single series wears azinho, the app's own green. The sign-in split takes
  * three categorical hues in fixed order, never orange, which is the map's colour for people.
  * "Last seen" is a one-hue ramp, darkest for the most recent, with "never" in neutral grey. All
  * were validated against the bone chart surface (#e8e2d4) for contrast and colour-blind separation.
@@ -9,7 +9,7 @@
 
 export const DAY_S = 24 * 60 * 60;
 
-export const ANIL = "#1e4fa0";
+export const AZINHO = "#557945";
 export const CATEGORICAL = ["#2a78d6", "#1baf7a", "#6250d6"] as const;
 /** Most recent first: darkest on a light surface reads as "most". */
 export const RECENCY = ["#0f3366", "#184f95", "#256abf", "#3987e5", "#6a9fe0"] as const;

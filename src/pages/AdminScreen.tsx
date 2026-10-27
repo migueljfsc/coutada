@@ -13,7 +13,7 @@ import { api } from "../share/api";
 import { sharedUrl } from "../share/routes";
 import { ChartCard, ColumnChart, LineChart, Sparkline, StackedBar } from "./admin/AdminCharts";
 import {
-  ANIL,
+  AZINHO,
   CATEGORICAL,
   cumulative,
   DAY_S,
@@ -68,7 +68,7 @@ export default function AdminScreen() {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-cal p-8 text-center text-xisto">
         <p className="text-[17px]">{stats === "denied" ? "Nothing here." : "Could not reach the server."}</p>
-        <a href="/" className="font-semibold text-anil underline-offset-4 hover:underline">
+        <a href="/" className="font-semibold text-azinho-ink underline-offset-4 hover:underline">
           Open Coutada
         </a>
       </div>
@@ -82,7 +82,7 @@ export default function AdminScreen() {
           <a href="/" className="text-[17px] font-bold">
             Coutada
           </a>
-          <span className="rounded-full bg-anil/10 px-2 py-0.5 text-[12px] font-semibold text-anil">Usage</span>
+          <span className="rounded-full bg-azinho/10 px-2 py-0.5 text-[12px] font-semibold text-azinho-ink">Usage</span>
           {!selected && stats && (
             <button
               type="button"
@@ -202,10 +202,10 @@ function Overview({ stats, onSelect }: { stats: AdminStats; onSelect: (id: strin
           <LineChart values={charts.accounts} since={series.since} unit="accounts" />
         </ChartCard>
         <ChartCard title="Sign-ups per week" subtitle={`Last ${WEEKS} weeks, labelled by the week's first day`} table={weekRows(charts.signupWeeks)}>
-          <ColumnChart values={charts.signupWeeks} labels={charts.weekStarts} colors={ANIL} unit="sign-ups" />
+          <ColumnChart values={charts.signupWeeks} labels={charts.weekStarts} colors={AZINHO} unit="sign-ups" />
         </ChartCard>
         <ChartCard title="Maps created per week" subtitle={`Last ${WEEKS} weeks, accounts and phones`} table={weekRows(charts.mapWeeks)}>
-          <ColumnChart values={charts.mapWeeks} labels={charts.weekStarts} colors={ANIL} unit="maps" />
+          <ColumnChart values={charts.mapWeeks} labels={charts.weekStarts} colors={AZINHO} unit="maps" />
         </ChartCard>
         <ChartCard
           title="How people sign in"
@@ -247,10 +247,10 @@ function Overview({ stats, onSelect }: { stats: AdminStats; onSelect: (id: strin
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <ChartCard title="Visits per week" subtitle={`Maps, shared maps and hunts, last ${WEEKS} weeks`} table={weekRows(visitWeeks)}>
-          <ColumnChart values={visitWeeks} labels={charts.weekStarts} colors={ANIL} unit="visits" />
+          <ColumnChart values={visitWeeks} labels={charts.weekStarts} colors={AZINHO} unit="visits" />
         </ChartCard>
         <ChartCard title="Hunts started per week" subtitle={`Montaria and salto, last ${WEEKS} weeks`} table={weekRows(huntWeeks)}>
-          <ColumnChart values={huntWeeks} labels={charts.weekStarts} colors={ANIL} unit="hunts" />
+          <ColumnChart values={huntWeeks} labels={charts.weekStarts} colors={AZINHO} unit="hunts" />
         </ChartCard>
         {(["Imports", "Exports"] as const).map((title) => {
           const counts = title === "Imports" ? everyone.imports : everyone.exports;
@@ -376,7 +376,7 @@ function UserDetail({ id, onBack }: { id: string; onBack: () => void }) {
                 formatBytes(m.bytes),
                 m.version,
                 m.share_slug ? (
-                  <a key="l" href={sharedUrl(m.share_slug)} target="_blank" rel="noreferrer" className="text-anil hover:underline">
+                  <a key="l" href={sharedUrl(m.share_slug)} target="_blank" rel="noreferrer" className="text-azinho-ink hover:underline">
                     {m.share_slug}
                   </a>
                 ) : (

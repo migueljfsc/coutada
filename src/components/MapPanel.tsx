@@ -28,7 +28,7 @@ const STATE: Record<SyncStatus, { dot: string; label: MessageKey }> = {
   loading: { dot: "bg-[#c9a227]", label: "status.loading" },
   offline: { dot: "bg-[#c9a227]", label: "status.offline" },
   local: { dot: "bg-[#9aa093]", label: "status.local" },
-  hunting: { dot: "bg-anil", label: "status.hunting" },
+  hunting: { dot: "bg-azinho", label: "status.hunting" },
   conflict: { dot: "bg-[#c23a2b]", label: "status.conflict" },
   missing: { dot: "bg-[#c23a2b]", label: "status.missing" },
 };
@@ -50,7 +50,7 @@ export function Tile({
       onClick={onClick}
       className={[
         "flex min-h-16 flex-col items-center justify-center gap-1 rounded-[10px] px-1 py-2 text-center text-[13px] leading-tight font-semibold",
-        primary ? "bg-anil text-white active:bg-[#173f80]" : "bg-cal-deep text-xisto active:bg-anil active:text-white",
+        primary ? "bg-azinho text-white active:bg-[#46653a]" : "bg-cal-deep text-xisto active:bg-azinho active:text-white",
       ].join(" ")}
     >
       {icon}

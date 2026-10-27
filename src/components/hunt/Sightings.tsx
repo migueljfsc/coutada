@@ -10,7 +10,7 @@ import { EVENTS, SUBJECTS, type Observation, type SightingEvent, type Subject } 
 import { SpeciesGlyph } from "../editor/TypeIcon";
 import { secondaryButton, primaryButton } from "../ui";
 
-const EVENT_MARK: Record<SightingEvent, string | null> = { seen: null, flushed: "bg-anil", down: "bg-[#c23a2b]" };
+const EVENT_MARK: Record<SightingEvent, string | null> = { seen: null, flushed: "bg-azinho", down: "bg-[#c23a2b]" };
 
 /** The diamond the map draws, for the sheet: the subject, and a corner mark for what happened. */
 export function SightingIcon({ subject, event, size = 36 }: { subject: Subject; event: SightingEvent; size?: number }) {
@@ -72,7 +72,7 @@ export function SightingPicker({
             key={subject}
             type="button"
             onClick={() => onPick(subject)}
-            className="flex min-h-14 min-w-0 items-center gap-3 rounded-[10px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white"
+            className="flex min-h-14 min-w-0 items-center gap-3 rounded-[10px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-azinho active:text-white"
           >
             <SightingIcon subject={subject} event={event} size={34} />
             <span className="line-clamp-2 min-w-0 hyphens-auto [overflow-wrap:anywhere]">{t(`species.${subject}`)}</span>
@@ -114,7 +114,7 @@ export function SightingPlaceBar({
           <button
             type="button"
             onClick={onHere}
-            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-anil px-3 text-[15px] font-semibold text-white"
+            className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[10px] bg-azinho px-3 text-[15px] font-semibold text-white"
           >
             <LocateFixed size={18} />
             {t("obs.here")}

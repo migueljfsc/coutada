@@ -29,7 +29,7 @@ const GLYPHS: Partial<Record<PinType, ComponentType<LucideProps>>> = {
 };
 
 /** The corner mark on a sighting: none for seen. */
-const EVENT_MARK: Record<SightingEvent, string | null> = { seen: null, flushed: "#1e4fa0", down: "#c23a2b" };
+const EVENT_MARK: Record<SightingEvent, string | null> = { seen: null, flushed: "#557945", down: "#c23a2b" };
 
 const glyphImages = new Map<string, HTMLImageElement>();
 const subjectImages = new Map<string, HTMLImageElement>();

@@ -17,7 +17,7 @@ export function PrivacyScreen() {
         <button
           type="button"
           onClick={() => (history.length > 1 ? history.back() : navigate("/"))}
-          className="-ml-3 flex min-h-11 items-center gap-1.5 rounded-[10px] px-3 text-[15px] font-semibold text-anil active:bg-cal-deep"
+          className="-ml-3 flex min-h-11 items-center gap-1.5 rounded-[10px] px-3 text-[15px] font-semibold text-azinho-ink active:bg-cal-deep"
         >
           <ArrowLeft size={18} />
           {t("privacy.back")}

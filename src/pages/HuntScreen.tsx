@@ -519,8 +519,8 @@ function MemberRow({
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5 text-[16px] font-semibold">
           <span className="truncate">{you ? t("hunt.you", { name: member.name }) : member.name}</span>
-          {member.host && <Crown size={15} aria-label={t("hunt.host")} className="shrink-0 text-anil" />}
-          {member.verified && <BadgeCheck size={15} aria-label={t("hunt.verified")} className="shrink-0 text-anil" />}
+          {member.host && <Crown size={15} aria-label={t("hunt.host")} className="shrink-0 text-azinho-ink" />}
+          {member.verified && <BadgeCheck size={15} aria-label={t("hunt.verified")} className="shrink-0 text-azinho-ink" />}
         </span>
         <span className="block text-[13px] text-xisto-soft">
           {view.hunt?.type === "montaria" ? `${t(`role.${member.role as Exclude<Role, "member">}`)}, ` : ""}

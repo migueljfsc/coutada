@@ -351,7 +351,8 @@ ring, its symbol in bone; a sighting is the same in a diamond; a label is a dark
 text. The drawing palette is earth tones (bone, ochre, steel blue, heather, moss, red), stored by
 key so a tone can change without touching a map. The chrome is hunting-canvas beige (`cal`,
 `cal-deep`) with bone (`osso`) for fields and cards; white is left only where a scanner needs it
-(the transfer QR).
+(the transfer QR). What is selected and the primary action are holm-oak green (`azinho`, `#557945`),
+with a darker `azinho-ink` for green text, which holds 4.5:1 on every beige.
 
 ## D25 — The panel is about the map; the person is behind the menu
 The map screen's sheet (the left panel on wide screens) holds this map only. Its peek is the map's

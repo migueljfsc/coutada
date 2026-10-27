@@ -75,7 +75,7 @@ export function OfflineDialog({ doc, imagery, onClose }: { doc: MapDoc; imagery:
         <p className="text-[15px] leading-snug text-xisto-soft">{t("offline.explain", { source: t(`imagery.${imagery}` as MessageKey) })}</p>
 
         {isIos() && !isStandalone() && (
-          <p className="rounded-[8px] border-l-4 border-anil bg-anil/10 p-3 text-[15px] leading-snug">{t("offline.iosInstall")}</p>
+          <p className="rounded-[8px] border-l-4 border-azinho bg-azinho/10 p-3 text-[15px] leading-snug">{t("offline.iosInstall")}</p>
         )}
 
         {!plans ? (
@@ -84,7 +84,7 @@ export function OfflineDialog({ doc, imagery, onClose }: { doc: MapDoc; imagery:
           <div className="flex flex-col gap-3" role="status" aria-live="polite">
             <div className="h-3 overflow-hidden rounded-full bg-cal-deep">
               <div
-                className="h-full bg-anil motion-safe:transition-[width]"
+                className="h-full bg-azinho motion-safe:transition-[width]"
                 style={{ width: `${Math.round(((progress.done + progress.failed) / Math.max(1, progress.total)) * 100)}%` }}
               />
             </div>
@@ -102,9 +102,9 @@ export function OfflineDialog({ doc, imagery, onClose }: { doc: MapDoc; imagery:
               {(["full", "light"] as const).map((d) => (
                 <label
                   key={d}
-                  className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[10px] border-2 border-transparent bg-cal-deep px-3 py-2 has-checked:border-anil"
+                  className="flex min-h-14 cursor-pointer items-center gap-3 rounded-[10px] border-2 border-transparent bg-cal-deep px-3 py-2 has-checked:border-azinho"
                 >
-                  <input type="radio" name="detail" checked={detail === d} onChange={() => setDetail(d)} className="size-5 accent-anil" />
+                  <input type="radio" name="detail" checked={detail === d} onChange={() => setDetail(d)} className="size-5 accent-azinho" />
                   <span className="flex-1">
                     <span className="block text-[15px] font-semibold">{t(`offline.detail.${d}`)}</span>
                     <span className="block text-[14px] text-xisto-soft tabular-nums">

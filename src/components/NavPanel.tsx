@@ -35,7 +35,7 @@ export function NavPanel({
     <div className="flex items-center gap-4">
       <div
         aria-hidden
-        className={`flex size-16 shrink-0 items-center justify-center rounded-full ${g?.arrived ? "bg-[#2f7d32]" : navigation.off ? "bg-[#a32a1d]" : "bg-anil"} text-white`}
+        className={`flex size-16 shrink-0 items-center justify-center rounded-full ${g?.arrived ? "bg-[#2f7d32]" : navigation.off ? "bg-[#a32a1d]" : "bg-azinho"} text-white`}
       >
         {g && !g.arrived ? (
           <NavigationIcon size={34} fill="currentColor" style={{ transform: `rotate(${angle}deg)` }} />

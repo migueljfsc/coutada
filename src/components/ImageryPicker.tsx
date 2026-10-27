@@ -38,9 +38,9 @@ export function ImageryPicker({ current, onChoose, onClose }: { current: Imagery
           role="radio"
           aria-checked={i.id === current}
           onClick={() => onChoose(i.id)}
-          className="flex w-full items-start gap-3 rounded-[8px] px-3 py-2.5 text-left active:bg-cal-deep aria-checked:bg-anil/10"
+          className="flex w-full items-start gap-3 rounded-[8px] px-3 py-2.5 text-left active:bg-cal-deep aria-checked:bg-azinho/10"
         >
-          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-anil">
+          <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-azinho-ink">
             {i.id === current && <Check size={18} strokeWidth={3} />}
           </span>
           <span>

@@ -129,7 +129,7 @@ function MapName({ name, onRename }: { name: string; onRename: (name: string) =>
             type="button"
             onClick={commit}
             aria-label={t("map.rename")}
-            className="flex size-12 shrink-0 items-center justify-center rounded-[8px] bg-anil text-white"
+            className="flex size-12 shrink-0 items-center justify-center rounded-[8px] bg-azinho text-white"
           >
             <Check size={20} strokeWidth={2.6} />
           </button>

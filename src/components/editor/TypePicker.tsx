@@ -10,7 +10,7 @@ export type Picking = "pin" | "line" | "area";
 const TYPES: Record<Picking, readonly FeatureType[]> = { pin: PIN_TYPES, line: ROUTE_TYPES, area: ZONE_TYPES };
 
 const choice =
-  "flex min-h-14 min-w-0 items-center gap-3 rounded-[10px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-anil active:text-white";
+  "flex min-h-14 min-w-0 items-center gap-3 rounded-[10px] bg-cal-deep px-3 py-2 text-left text-[15px] leading-tight font-semibold active:bg-azinho active:text-white";
 
 /** The choice that follows a rail tool: which kind of place, line or area, and for game, which species. */
 export function TypePicker({

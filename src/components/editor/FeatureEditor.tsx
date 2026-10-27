@@ -120,7 +120,7 @@ export function FeatureDetails({
                 aria-label={t(`colour.${key}` as MessageKey)}
                 title={t(`colour.${key}` as MessageKey)}
                 onClick={() => commands.colour(key === DEFAULT_COLOR[p.type] ? null : key)}
-                className="flex size-11 items-center justify-center rounded-full border-[3px] border-xisto aria-checked:outline-3 aria-checked:outline-offset-2 aria-checked:outline-anil"
+                className="flex size-11 items-center justify-center rounded-full border-[3px] border-xisto aria-checked:outline-3 aria-checked:outline-offset-2 aria-checked:outline-azinho"
                 style={{ background: PALETTE[key] }}
               >
                 {chosen && <Check size={18} strokeWidth={3} className="text-xisto" />}
@@ -176,7 +176,7 @@ export function FeatureDetails({
           <button
             type="button"
             onClick={commands.numberPortas}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-anil px-4 text-[15px] font-semibold text-white"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-azinho px-4 text-[15px] font-semibold text-white"
           >
             <ListOrdered size={20} />
             {tn("edit.numberPortas", portasOn)}
@@ -235,7 +235,7 @@ export function NavigateButton({ feature, onNavigate }: { feature: MapFeature; o
     <button
       type="button"
       onClick={onNavigate}
-      className="flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-anil px-4 text-[15px] font-semibold text-white"
+      className="flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-azinho px-4 text-[15px] font-semibold text-white"
     >
       <Navigation2 size={18} fill="currentColor" />
       {feature.geometry.type === "LineString" ? t("nav.follow") : t("nav.go")}

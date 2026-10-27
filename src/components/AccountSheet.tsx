@@ -83,7 +83,7 @@ export function AccountSheet({ actions, onClose }: { actions: AccountActions; on
     <Dialog title={t("menu.title")} onClose={onClose}>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-3">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-anil text-[20px] font-bold text-white" aria-hidden>
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-azinho text-[20px] font-bold text-white" aria-hidden>
             {initial ?? <UserRound size={24} />}
           </span>
           <div className="min-w-0">
@@ -165,7 +165,7 @@ export function AccountSheet({ actions, onClose }: { actions: AccountActions; on
           )}
         </div>
 
-        <button type="button" onClick={act(() => navigate("/privacidade"))} className="min-h-11 self-start text-[15px] font-semibold text-anil underline-offset-4 hover:underline">
+        <button type="button" onClick={act(() => navigate("/privacidade"))} className="min-h-11 self-start text-[15px] font-semibold text-azinho-ink underline-offset-4 hover:underline">
           {t("privacy.link")}
         </button>
 
